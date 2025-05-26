@@ -1,0 +1,11 @@
+osm-places:
+    types:
+      - points
+    select:
+      - place
+      - name
+    where:
+      - place = 'hamlet'
+      - place = 'village'
+      - place = 'town'
+      - place = 'city'

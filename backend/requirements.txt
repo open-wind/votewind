@@ -1,0 +1,12 @@
+Django
+django-leaflet
+django-cors-headers
+python-dotenv
+psycopg2-binary
+requests~=2.26.0
+osmium~=3.5.0
+pyparsing~=2.4.0
+pyyaml~=5.1.1
+landez~=2.5.0
+shapely~=1.6
+pyproj
