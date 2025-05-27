@@ -2,7 +2,7 @@
 
 import { useParams, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import VotewindMap from '@/components/votewind-map';
+import VoteWindMap from '@/components/votewind-map';
 
 export default function Page() {
   const params = useParams();
@@ -22,9 +22,15 @@ export default function Page() {
     ];
   }, [searchParams]);
 
+  const type = useMemo(() => {
+    const raw = searchParams.get('type');
+    if (!raw) return '';
+    return raw;
+  }, [searchParams]);
+
   return (
     <div>
-      <VotewindMap longitude={params.longitude} latitude={params.latitude} zoom={params.zoom} bounds={bounds} />
+      <VoteWindMap longitude={params.longitude} latitude={params.latitude} zoom={params.zoom} bounds={bounds} type={type} />
     </div>
   );
 }

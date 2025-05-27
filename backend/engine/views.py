@@ -1,20 +1,25 @@
 import json
 import uuid
 import requests
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from time import sleep
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.core.signing import BadSignature
+from django.contrib.gis.geos import Point
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
-from django.contrib.gis.db.models import Extent
-from django.http import JsonResponse, HttpResponseForbidden
-from django.contrib.gis.geos import Point
-from django.conf import settings
-from django.core.signing import BadSignature
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.shortcuts import render
+from django.template.loader import render_to_string, get_template
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Postcode, Place, Boundary, UserID, Vote
 
 NUMBER_RESULTS_RETURNED = 26
+COORDINATE_PRECISION = 5
 
 def OutputJson(json_array={'result': 'failure'}):
     json_data = json.dumps(json_array, cls=DjangoJSONEncoder, indent=2)
@@ -82,7 +87,7 @@ def LocationGet(request):
         place, county = query_elements[0], query_elements[1]
         results_place = Place.objects.filter(name__iexact=place).filter(county__iexact=county).first()
         place_coords = results_place.geometry.coords
-        results_returned = {'longitude': place_coords[0], 'latitude': place_coords[1]}
+        results_returned = {'longitude': place_coords[0], 'latitude': place_coords[1], 'type': 'place:' + query}
         results_returned = addPlaceExtent(results_place, results_returned)
     else:
         results_place       = Place.objects.filter(name__iexact=query).order_by('name').order_by('county').first()
@@ -91,16 +96,16 @@ def LocationGet(request):
 
         if results_place is not None:
             place_coords = results_place.geometry.coords
-            results_returned = {'longitude': place_coords[0], 'latitude': place_coords[1]}
+            results_returned = {'longitude': place_coords[0], 'latitude': place_coords[1], 'type': 'place:' + query}
             results_returned = addPlaceExtent(results_place, results_returned)
 
         if results_postcode is not None:
             postcode_coords = results_postcode.geometry.coords
-            results_returned = {'longitude': postcode_coords[0], 'latitude': postcode_coords[1]}
+            results_returned = {'longitude': postcode_coords[0], 'latitude': postcode_coords[1], 'type': 'postcode:' + query_postcode}
 
         if results_boundary is not None:
             boundary_extent = results_boundary.geometry.extent
-            results_returned = {'boundary': results_boundary.name, 'longitude': ((boundary_extent[0] + boundary_extent[2]) / 2), 'latitude': ((boundary_extent[1] + boundary_extent[3]) / 2), 'bounds': boundary_extent}
+            results_returned = {'boundary': results_boundary.name, 'longitude': ((boundary_extent[0] + boundary_extent[2]) / 2), 'latitude': ((boundary_extent[1] + boundary_extent[3]) / 2), 'bounds': boundary_extent, 'type': 'boundary:' + query}
 
     return OutputJson({'results': results_returned})
 
@@ -177,35 +182,55 @@ def SetCookie(request):
 
     return response
 
-def CreateVote(vote_parameters):
+def CreateVote(request, vote_parameters):
     """
     Creates actual vote
     """
 
-    userid, email, defaultlive = '', '', False
+    userid, email, token, defaultlive = '', '', '', False
 
     if 'email' in vote_parameters:
-        # Don't disable any existing votes for user with email
-        # This will only happen once email vote has been confirmed
-        email = vote_parameters['email']
+        if vote_parameters['email'].strip() != '':
+            # Don't disable any existing votes for user with email
+            # This will only happen once email vote has been confirmed
+            email = vote_parameters['email']
+            token = uuid.uuid4().hex
+
     if 'userid' in vote_parameters:
         # Disable all existing votes from user if using userid
         Vote.objects.filter(userid=vote_parameters['userid']).update(live=False)
         userid = vote_parameters['userid']
         defaultlive = True
 
-    Vote.objects.create(
-        userid=userid,
-        email=email,
-        internetip=vote_parameters['internetip'],
-        useragent=vote_parameters['useragent'],
-        geometry=Point(vote_parameters['turbineposition']['longitude'], vote_parameters['turbineposition']['latitude'], srid=4326),
-        live=defaultlive,
-        confirmed=False
-    )
+    # Ensure turbine position accuracy is no greater than COORDINATE_PRECISION to more easily enable multiple votes for same position
+    vote_object = Vote.objects.create(  userid=userid,
+                                        email=email,
+                                        internetip=vote_parameters['internetip'],
+                                        useragent=vote_parameters['useragent'],
+                                        geometry=Point(round(vote_parameters['turbineposition']['longitude'], COORDINATE_PRECISION), round(vote_parameters['turbineposition']['latitude'], COORDINATE_PRECISION), srid=4326),
+                                        userposition=Point(vote_parameters['userposition']['longitude'], vote_parameters['userposition']['latitude'], srid=4326),
+                                        userposition_type=vote_parameters['userposition_type'],
+                                        live=defaultlive,
+                                        token=token,
+                                        confirmed=False )
 
-    # TODO - if email, send confirmation email
-    # token = models.CharField(max_length=100, default='', blank=True)
+    if email != '':
+        # Attempt to send vote confirmation email
+        from_email = '"VoteWind.org" <info@votewind.org>'
+        subject = "VoteWind.org: Confirm your wind turbine vote"
+        current_site = get_current_site(request)
+        email_parameters = {}
+        email_parameters['email'] = email
+        email_parameters['domain'] = current_site.domain
+        email_parameters['uid'] = urlsafe_base64_encode(force_bytes(vote_object.pk))
+        email_parameters['token'] = token
+        email_parameters['site'] = {    \
+                                        'longitude': round(vote_parameters['turbineposition']['longitude'], COORDINATE_PRECISION), \
+                                        'latitude': round(vote_parameters['turbineposition']['latitude'], COORDINATE_PRECISION) 
+                                    }
+        confirmation_message = render_to_string('engine/confirm_vote.html', email_parameters)
+        confirmation_message = EmailMessage(subject, confirmation_message, from_email=from_email, to=[email_parameters['email']])
+        confirmation_message.send()
 
 @csrf_exempt
 def HasValidCookie(request):
@@ -214,7 +239,9 @@ def HasValidCookie(request):
     """
 
     try:
-        cookie = request.get_signed_cookie(settings.COOKIE_NAME, salt=settings.SECRET_KEY)
+        userid = request.get_signed_cookie(settings.COOKIE_NAME, salt=settings.SECRET_KEY)
+        userid_record = UserID.objects.filter(userid=userid).first()
+        if userid_record is None: return JsonResponse({'valid': False})
         return JsonResponse({'valid': True})
     except (KeyError, BadSignature):
         return JsonResponse({'valid': False})
@@ -245,6 +272,8 @@ def SubmitVote(request):
         return HttpResponseForbidden("No turbine position specified.")
 
     vote_parameters['turbineposition'] = data['position']
+    vote_parameters['userposition'] = {'longitude': data['initialposition']['longitude'], 'latitude': data['initialposition']['latitude']}
+    vote_parameters['userposition_type'] = data['initialposition']['type']
 
     if email_set is False:
         try:
@@ -260,6 +289,29 @@ def SubmitVote(request):
         
         vote_parameters['userid'] = userid
 
-    CreateVote(vote_parameters)
+    CreateVote(request, vote_parameters)
 
-    return JsonResponse({"message": "Vote registered"})
+    return JsonResponse({"success": True, "message": "Vote registered"})
+
+@csrf_exempt
+def ConfirmVote(request, uidb64, token):
+    """
+    Confirm vote using link sent via email
+    """
+
+    sleep(0.5)
+
+    try:
+        id = urlsafe_base64_decode(uidb64).decode()
+        provisionalvote = Vote.objects.get(pk=id)
+    except (TypeError, ValueError, OverflowError, Vote.DoesNotExist):
+        provisionalvote = None
+
+    if (provisionalvote is not None) and (provisionalvote.token == token) and (provisionalvote.confirmed == False):
+        Vote.objects.filter(email=provisionalvote.email).filter(~Q(pk=id)).filter(live=True).update(live=False)
+        provisionalvote.confirmed = True
+        provisionalvote.live = True
+        provisionalvote.save()
+        return render(request, 'engine/vote_confirmed.html')
+    else:
+        return render(request, 'engine/vote_not_confirmed.html')

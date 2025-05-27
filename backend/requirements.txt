@@ -1,6 +1,7 @@
 Django
 django-leaflet
 django-cors-headers
+django-anymail
 python-dotenv
 psycopg2-binary
 requests~=2.26.0

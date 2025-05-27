@@ -3,22 +3,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+const querystring = require('querystring');
 import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
 import maplibregl from 'maplibre-gl';
 import debounce from 'lodash.debounce';
-import { Check } from 'lucide-react';
 
-import { VOTEWIND_COOKIE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
+import { VOTEWIND_MAPSTYLE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function VotewindMap({ latitude=null, longitude=null, zoom=null, bounds=null, hideInfo=false }) {
+export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false }) {
+    const router = useRouter();
     const mapRef = useRef();
     const markerRef = useRef();
     const isFittingBounds = useRef(false);
     const isRecentering = useRef(false);
+    const [initialPosition, setInitialPosition] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude), type: type})
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
     const [turbineAdded, setTurbineAdded] = useState(false);
@@ -30,7 +32,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [error, setError] = useState('');
 
-    const email_explanation = "<b>Votes confirmed by email are highlighted on our map</b>. We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.";
+    const email_explanation = '<b>Votes confirmed by email are highlighted on VoteWind.org map</b>. <span className="font-light">We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.</span>';
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
     const triggerBounce = () => {
@@ -115,7 +117,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
     }
     const onTurbineMarkerDragEnd = (event) => {
         var acceptableposition = true;
-        const lngLat = event.target.getLngLat();
+        const lngLat = event.lngLat;
         const map = mapRef.current?.getMap?.();
         if (map) {
             const point = map.project(lngLat);
@@ -130,14 +132,13 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
 
         if (acceptableposition) {
             setTurbinePosition({'longitude': lngLat.lng, 'latitude': lngLat.lat});
-            mapCentreOnTurbine();
         }
         else setTurbinePosition({'longitude': turbinePosition.longitude, 'latitude': turbinePosition.latitude});
     }
 
     useEffect(() => {
         if (!turbinePosition || !turbineAdded) return;
-        mapCentreOnTurbine();
+        requestAnimationFrame(mapCentreOnTurbine);
     }, [turbinePosition, turbineAdded]);
 
     const onClick = (event) => {
@@ -192,7 +193,8 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
         if (!turbineAdded) return;
 
         const voteparameters = {
-            position: turbinePosition 
+            position: turbinePosition,
+            initialposition: initialPosition
         }
 
         if ((email) && (email !== '')) voteparameters.email = email;
@@ -205,13 +207,19 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
         });
 
         const data = await res.json();
-
         if (!data.success) {
             setError("CAPTCHA verification failed. Please try again.");
             return;
         }
 
         resetSettings();
+
+        let url = `/${turbinePosition.longitude.toFixed(5)}/${turbinePosition.latitude.toFixed(5)}/vote`;
+        var urlparameters = {'type': 'votesubmitted'};
+        if (email !== '') urlparameters.emailused = 'true';
+        if(Object.keys(urlparameters).length) url += '?' + querystring.stringify(urlparameters);
+
+        router.push(url);
     }
 
     const handleAccept = async () => {
@@ -349,7 +357,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
         {turbineAdded && (
         <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 py-1">
+            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
 
                 {/* Close button */}
                 <button
@@ -369,7 +377,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
                 >
 
                     {/* Content: Icon + Text */}
-                    <div className="flex mt-1">
+                    <div className="flex mt-1 sm:mt-0">
                         <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
                             <img
                             alt="Vote"
@@ -379,7 +387,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
                         </div>
 
                         <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                            <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Cast turbine vote</h2>
+                            <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Wind Turbine Vote</h2>
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
                                 <b>Position: </b>
@@ -506,8 +514,8 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
 
             {!turbineAdded && showInfo && (
             <div className="absolute bottom-5 left-0 w-full px-4 z-30">
-                <div className="relative bg-blue-600 text-white py-4 px-4 rounded-md shadow-[0_-4px_12px_rgba(255,255,255,0.2)] max-w-screen-lg mx-auto text-center">
-                <p className="text-sm sm:text-base font-medium animate-fade-loop pr-1">
+                <div className="relative bg-blue-600 text-white py-4 px-4 rounded-md shadow-[0_-4px_12px_rgba(255,255,255,0.2)] max-w-screen-sm mx-auto text-center">
+                <p className="text-sm sm:text-base font-medium animate-fade-loop pr-4">
                     Click on map to place <b>your wind turbine</b>
                 </p>
                 <button
@@ -534,14 +542,14 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
                 onMoveEnd={onMoveEnd}
                 onClick={onClick}
                 style={{ width: '100%', height: '100%' }}
-                mapStyle="https://tiles.wewantwind.org/styles/openmaptiles/style.json"
+                mapStyle={VOTEWIND_MAPSTYLE}
                 interactiveLayerIds={['water']}
                 attributionControl={false}
             >
                   <AttributionControl compact position="top-right" style={{ top: '40px' }}/>
 
                 {turbineAdded ? (
-                <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" >
+                <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_black.png" />
                 </Marker>
                 ) : null}

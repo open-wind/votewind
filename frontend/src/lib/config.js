@@ -26,3 +26,7 @@ export const MAP_DEFAULT_ZOOM = 5;
 export const MAP_PLACE_ZOOM = 12;
 
 export const VOTEWIND_COOKIE = 'votewind-voting-cookie';
+
+export const VOTEWIND_MAPSTYLE = 'https://tiles.wewantwind.org/styles/openmaptiles/style.json';
+
+// export const VOTEWIND_MAPSTYLE = 'https://tiles.wewantwind.org/styles/openwind/style.json';

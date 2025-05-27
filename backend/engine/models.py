@@ -1,11 +1,51 @@
+import csv
+
 from django.contrib.gis.db import models
 from django.contrib import admin
 from django.contrib.postgres.indexes import GistIndex
+from django.http import HttpResponse
 
 # from django.contrib.gis.admin import OSMGeoAdmin
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 
-# Create your models here.
+class ExportCsvMixin:
+    def export_as_csv(self, request, queryset):
+
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            row = writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+    export_as_csv.short_description = "Export selected"
+
+class ExportUniqueEmailCsvMixin:
+    def export_unique_emails_as_csv(self, request, queryset):
+
+        meta = self.model._meta
+        field_names = ['email']
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        emails = set()
+        for obj in queryset:
+            if obj.email not in emails:
+                row = writer.writerow([obj.email])
+            emails.add(obj.email)
+
+        return response
+
+    export_unique_emails_as_csv.short_description = "Export unique emails"
 
 class Postcode(models.Model):
     """
@@ -152,6 +192,8 @@ class Vote(models.Model):
     useragent = models.CharField(max_length=1000, default='', blank=True)
     created = models.DateTimeField(auto_now_add=True)
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
+    userposition = models.PointField(srid=4326, geography=False, null=True, blank=True)
+    userposition_type = models.CharField(max_length=200, default='', blank=True)
     live = models.BooleanField(null=False, default=False)
     token = models.CharField(max_length=100, default='', blank=True)
     confirmed = models.BooleanField(null=False, default=False)
@@ -164,15 +206,18 @@ class Vote(models.Model):
             models.Index(fields=['internetip',]),
             models.Index(fields=['useragent',]),
             models.Index(fields=['created',]),
+            models.Index(fields=['userposition_type',]),
             models.Index(fields=['live',]),
             models.Index(fields=['token',]),
             models.Index(fields=['confirmed',]),
             GistIndex(fields=['geometry']),
+            GistIndex(fields=['userposition']),
         ]
 
-class VoteAdmin(LeafletGeoAdmin):
+class VoteAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
     list_display = ['userid', 'email', 'internetip', 'created', 'live', 'confirmed']
     list_display_links = ('userid', 'email')
+    actions = ["export_as_csv", "export_unique_emails_as_csv"]
 
     list_filter = (
         'live', 'confirmed'

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+const querystring = require('querystring');
 import {
   Command,
   CommandInput,
@@ -136,7 +137,7 @@ export default function AutocompleteInput() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setQuery("Your location");
-        navigateToPosition({latitude: latitude, longitude: longitude})
+        navigateToPosition({latitude: latitude, longitude: longitude, type: 'gps'})
       },
       () => {
         setError("Unable to retrieve your location.");
@@ -144,7 +145,7 @@ export default function AutocompleteInput() {
     );
   };
 
-  const navigateToPosition = (position) => {
+  const navigateToPosition = (position, type) => {
     var errortext = `Your location: ${position.latitude.toFixed(5)}, ${position.longitude.toFixed(5)}`;
     var zoom = MAP_PLACE_ZOOM;
     
@@ -154,14 +155,13 @@ export default function AutocompleteInput() {
     setError(errortext)
 
     let url = `/${position.longitude.toFixed(5)}/${position.latitude.toFixed(5)}/${zoom}/`;
+    var urlparameters = {};
 
-    if (position.bounds) {
-      const boundsParam = position.bounds.join(',');
-      url += `?bounds=${boundsParam}`;
-      if (position.boundary) {
-        url += `&boundary=${position.boundary}`;
-      }
-    }
+    if (position.bounds) urlparameters.bounds = position.bounds.join(',');
+    if (position.boundary) urlparameters.boundary = position.boundary;
+    if (position.type) urlparameters.type = position.type;
+
+    if(Object.keys(urlparameters).length) url += '?' + querystring.stringify(urlparameters);
 
     router.push(url);
   }
@@ -169,24 +169,24 @@ export default function AutocompleteInput() {
   return (
 
   <div className="w-full" >
-        <header className="w-full mt-20 text-center py-6">
-            <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            VoteWind!
-            </h1>
-        </header>
+    <header className="w-full mt-20 text-center py-6">
+        <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        VoteWind!
+        </h1>
+    </header>
 
-      <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
-        Community wind generates cash for communities, lessens the need for costly grid upgrades and helps tackle climate change.</p>
-      <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
-        So cast your vote on where you'd like a community wind turbine with <b>VoteWind.org</b>!</p>
-      {/* <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
-        Once you've voted, <b>VoteWind.org</b> then offers useful resources and links to organisations if you want to help build a community wind project in your area. 
-        </p> */}
-
+    <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
+      Community wind generates cash for communities, lessens the need for costly grid upgrades and helps tackle climate change.
+    </p>
+    <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
+      So cast your vote on where you'd like a community wind turbine with <b>VoteWind.org</b>!
+    </p>
+    <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
+      To get started, enter your postcode or location, or click <b>Use my location</b>.
+    </p>
 
   <div className="fixed left-1/2 transform -translate-x-1/2 w-full max-w-md px-5 z-50">
     <div className="relative">
-      <p className="mb-5 text-sm sm:text-lg text-center">To get started, enter your postcode or location, or click <b>Use my location</b></p>
 
       <Command shouldFilter={false} className="rounded-md border shadow-md p-0">
         <div className="relative">

@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from engine import views
 
 urlpatterns = [
@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/setcookie', views.SetCookie, name='setcookie'),
     path('api/hascookie', views.HasValidCookie, name='hasvalidcookie'),
     path('api/vote', views.SubmitVote, name='vote'),
+    re_path(r'^api/confirmvote/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9a-f]{1,32})/$', views.ConfirmVote, name='confirmvote'),
 ]

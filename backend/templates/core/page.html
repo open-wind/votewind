@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/static/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800,900" rel="stylesheet"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="WeWantWind.org"
+    />
+    <title>WeWantWind.org</title>
+</head>
+
+<body>
+
+  <div id="root"></div>
+
+  <!-- Load React. -->
+  <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+  <link rel="stylesheet" href="/static/css/djangostylesheet.css" />
+
+  <script type="text/babel">
+    'use strict';
+    class Page extends React.Component {
+      constructor(props) {
+        super(props);
+      }
+
+      render() {
+
+        return (
+            <ion-app>
+              <ion-header translucent="true" class="ion-no-border">
+                <ion-toolbar className="toolbar" color="translucent">
+                <div className="toolbar-content">
+                    <ion-title class="toolbar-title">
+                        <a href="/" className="no-decoration"><ion-text class="wewantwind-headertext"><span className="logo-word-we">we</span><span className="logo-word-want">want</span><span className="logo-word-wind">wind</span></ion-text></a>
+                    </ion-title>
+                </div>
+                </ion-toolbar>
+
+              </ion-header>
+              <ion-content fullscreen="true" class="custom-ion-content">
+                  <div className="centred-container background-image">
+                    <ion-grid>
+                      <ion-row>
+                          <ion-col size="12" class="text-align-center">
+                              <ion-text class="wewantwind-largetext">{% block title %}{% endblock %}</ion-text>
+                            </ion-col>
+                      </ion-row>
+                      <ion-row>
+                          <ion-col size="12" class="text-align-center">
+                              <ion-text class="wewantwind-bodytext">{% block body %}{% endblock %}</ion-text>
+                            </ion-col>
+                      </ion-row>
+                      <ion-row className="ion-align-items-center">
+                        <ion-col size="12" class="text-align-center">
+                        <a href="/"><ion-button shape="round">Go to main website</ion-button></a>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                    <ion-text>
+                    </ion-text>
+                  </div>
+              </ion-content>
+            </ion-app>
+        );        
+      }
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+
+    root.render(<Page />)
+  </script>
+</body>
+
+</html>
