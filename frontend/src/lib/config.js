@@ -30,3 +30,5 @@ export const VOTEWIND_COOKIE = 'votewind-voting-cookie';
 export const VOTEWIND_MAPSTYLE = 'https://tiles.wewantwind.org/styles/openmaptiles/style.json';
 
 // export const VOTEWIND_MAPSTYLE = 'https://tiles.wewantwind.org/styles/openwind/style.json';
+
+export const EMAIL_EXPLANATION = '<b>Votes confirmed by email are highlighted on VoteWind.org map</b>. <span className="font-light">We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.</span>';

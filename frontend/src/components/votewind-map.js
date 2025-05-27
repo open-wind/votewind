@@ -7,10 +7,13 @@ const querystring = require('querystring');
 import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button"; // shadcn
+import Image from "next/image";
+
 import maplibregl from 'maplibre-gl';
 import debounce from 'lodash.debounce';
 
-import { VOTEWIND_MAPSTYLE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
+import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -32,7 +35,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [error, setError] = useState('');
 
-    const email_explanation = '<b>Votes confirmed by email are highlighted on VoteWind.org map</b>. <span className="font-light">We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.</span>';
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
     const triggerBounce = () => {
@@ -176,8 +178,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }
 
     const mapZoomIn = (e) => {
-          e.target.blur(); // 👈 Removes lingering focus highlight
-
         const map = mapRef.current?.getMap?.();
         if (!map) return;
         map.zoomIn();
@@ -324,7 +324,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <strong className="font-bold block">Set cookie</strong>
                 </div>
                 <p className="text-sm text-gray-700">
-                We'd like to store a cookie to track who you are and prevent repeat voting. Is that okay?
+                We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
                 </p>
                 {/* Recaptcha error message */}
                 <div className="w-full flex justify-start mt-4">
@@ -387,7 +387,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </div>
 
                         <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                            <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Wind Turbine Vote</h2>
+                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">Wind Turbine Vote</h2>
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
                                 <b>Position: </b>
@@ -415,7 +415,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 />
-                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: email_explanation }} />
+                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                             </div>
 
                         </div>
@@ -435,20 +435,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
-                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: email_explanation }} />
+                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                     </div>
 
                     {/* Buttons: Side-by-side, full width combined */}
                     <div className="mt-2 flex justify-end gap-3">
-                    <button type="button"
-                        onClick={closeVotingPanel}
-                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
-                    >
-                        Cancel
-                    </button>
-                    <button type="submit" className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Cast your vote!
-                    </button>
+                    <Button type="button" onClick={closeVotingPanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                    Cancel
+                    </Button>
+
+                    <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
+                    <Image src="/icons/check-mark-monochrome.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                    Cast vote!
+                    </Button>
+
                     </div>
                 </form>
             </div>

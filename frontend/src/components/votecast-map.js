@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+const querystring = require('querystring');
+import Image from "next/image";
 import * as React from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
@@ -9,16 +11,18 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import SocialShareButtons from "@/components/social-share-buttons";
 import ScrollHint from '@/components/scrollhint'
+import { Button } from "@/components/ui/button"; // shadcn
 
 import maplibregl from 'maplibre-gl';
 import debounce from 'lodash.debounce';
 import { Check } from 'lucide-react';
 
-import { VOTEWIND_MAPSTYLE, VOTEWIND_COOKIE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
+import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, VOTEWIND_COOKIE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 export default function VoteCastMap({ longitude=null, latitude=null, type='', emailused='' }) {
+    const router = useRouter();
     const mapRef = useRef();
     const markerRef = useRef();
     const panelRef = useRef(null)
@@ -31,12 +35,78 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [error, setError] = useState('');
 
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
     const zoom = MAP_PLACE_ZOOM;
     const initialViewState={
         longitude: longitude,
         latitude: latitude,
         zoom: zoom
     };
+
+    const mapZoomIn = (e) => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+        map.zoomIn();
+    }
+
+    const mapZoomOut = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+        map.zoomOut();
+    }
+
+    useEffect(() => {
+        if (!showConsentBanner) return;
+
+        const tryRender = setInterval(() => {
+            if (window.grecaptcha && document.getElementById('recaptcha-container')) {
+            window.grecaptcha.render('recaptcha-container', {
+                sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+            });
+            clearInterval(tryRender);
+            }
+        }, 300);
+
+        return () => clearInterval(tryRender);
+    }, [showConsentBanner]);
+
+    const resetSettings = () => {
+        setError("");
+        setEmail("");
+    }
+
+    const submitVote = async () => {
+
+        const voteparameters = {
+            position: turbinePosition,
+            initialposition: {longitude: null, latitude: null, type: 'direct'}
+        }
+
+        if ((email) && (email !== '')) voteparameters.email = email;
+
+        const res = await fetch(API_BASE_URL + '/api/vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(voteparameters),
+            credentials: 'include',
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+            setError("CAPTCHA verification failed. Please try again.");
+            return;
+        }
+
+        resetSettings();
+
+        let url = `/${turbinePosition.longitude.toFixed(5)}/${turbinePosition.latitude.toFixed(5)}/vote`;
+        var urlparameters = {'type': 'votesubmitted'};
+        if (email !== '') urlparameters.emailused = 'true';
+        if(Object.keys(urlparameters).length) url += '?' + querystring.stringify(urlparameters);
+
+        router.push(url);
+    }
 
     const handleAccept = async () => {
         const token = window.grecaptcha.getResponse();
@@ -100,7 +170,8 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
     return (
     <main ref={panelRef} className="pt-14 sm:pt-20 overflow-y-auto">
-            <ScrollHint />
+        
+        <ScrollHint />
 
         <section className="flex flex-col items-center px-4 ">
             {/* centred text above */}
@@ -165,7 +236,22 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                 <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-2xl ">
                 {/* Map thumbnail */}
                     <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
+
+
                         <div id="map" className="w-full h-full" >
+
+                        <div className="absolute left-8 top-8 z-40">
+                        <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
+
+                            <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
+                            ➕
+                            </button>
+                            <button type="button" onClick={mapZoomOut} className="w-6 h-6 bg-white rounded">
+                            ➖
+                            </button>
+
+                        </div>
+                        </div>
 
                             {/* Main map */}
                             <Map
@@ -174,7 +260,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 dragPan={false}
                                 dragRotate={false}
                                 scrollZoom={false}
-                                doubleClickZoom={false}
+                                doubleClickZoom={true}
                                 boxZoom={false}
                                 keyboard={false}
                                 touchZoomRotate={false}
@@ -202,11 +288,51 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     <div className="flex flex-col justify-between self-stretch text-center sm:text-left">
                         {/* Top-of-column text */}
                         <div>
-                            <h1 className="text-4xl font-bold leading-snug mt-0 mb-1">Turbine Position</h1>
+                            <h1 className="text-4xl font-bold leading-snug mt-0 mb-1">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}</h1>
                             <h2 className="text-2xl font-light leading-snug">{turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E</h2>
                             <p className="mt-1 text-sm text-gray-600">Planning constraints</p>
-
                         </div>
+
+                        {(type === null) && (
+                        <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleVote();
+                        }}
+                        >
+
+                            <div className="mt-4">
+
+                                <div className="mt-1">
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        placeholder="Optional: Enter email to confirm vote"
+                                        autoCorrect="off"
+                                        autoCapitalize="none"
+                                        autoComplete="off"
+                                        spellCheck="false"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                    <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                                </div>
+
+                                {/* Buttons: Side-by-side, full width combined */}
+                                <Button type="submit" variant="default" size="lg" className="flex-1 w-full text-lg mt-4 bg-blue-600 text-white px-4 py-6 rounded-lg hover:bg-blue-700 gap-2">
+                                <Image src="/icons/check-mark-monochrome.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                                Cast vote!
+                                </Button>
+
+                                <p className="mt-1 font-light text-sm text-gray-600 mt-4">Don't want to vote for this site? <a className="font-bold text-blue-800" href="/">Choose your own site!</a></p>
+
+                            </div>
+                        </form>
+                        )}
+
 
                         {/* Share panel, pushed to the bottom by flex layout */}
                         {(type === 'votesubmitted') && (
@@ -261,7 +387,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     <strong className="font-bold block">Set cookie</strong>
                 </div>
                 <p className="text-sm text-gray-700">
-                We'd like to store a cookie to track who you are and prevent repeat voting. Is that okay?
+                We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
                 </p>
                 {/* Recaptcha error message */}
                 <div className="w-full flex justify-start mt-4">
