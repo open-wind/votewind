@@ -169,10 +169,16 @@ export default function AutocompleteInput() {
   return (
 
   <div className="w-full" >
+        <header className="w-full mt-20 text-center py-6">
+            <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            VoteWind!
+            </h1>
+        </header>
+
       <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
-        Community wind generates cash for communities, reduces need for grid upgrades and stops CO<sub>2</sub> emissions.</p>
+        Community wind generates cash for communities, lessens the need for costly grid upgrades and helps tackle climate change.</p>
       <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
-        Cast your vote on where you'd like to have a community wind turbine with <b>VoteWind.org</b>!</p>
+        So cast your vote on where you'd like a community wind turbine with <b>VoteWind.org</b>!</p>
       {/* <p className="pl-5 pr-5 mb-5 text-sm sm:text-lg text-center">
         Once you've voted, <b>VoteWind.org</b> then offers useful resources and links to organisations if you want to help build a community wind project in your area. 
         </p> */}
@@ -180,7 +186,7 @@ export default function AutocompleteInput() {
 
   <div className="fixed left-1/2 transform -translate-x-1/2 w-full max-w-md px-5 z-50">
     <div className="relative">
-      <p className="mb-5 text-sm sm:text-lg text-center">To get started, enter your postcode or location below or click <b>Use my location</b></p>
+      <p className="mb-5 text-sm sm:text-lg text-center">To get started, enter your postcode or location, or click <b>Use my location</b></p>
 
       <Command shouldFilter={false} className="rounded-md border shadow-md p-0">
         <div className="relative">

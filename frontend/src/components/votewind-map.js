@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import Map, { Popup, Marker, GeolocateControl } from 'react-map-gl/maplibre';
+import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
 import maplibregl from 'maplibre-gl';
 import debounce from 'lodash.debounce';
@@ -14,12 +14,13 @@ import { VOTEWIND_COOKIE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZO
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function VotewindMap({ latitude=null, longitude=null, zoom=null, bounds=null }) {
+export default function VotewindMap({ latitude=null, longitude=null, zoom=null, bounds=null, hideInfo=false }) {
     const mapRef = useRef();
     const markerRef = useRef();
     const isFittingBounds = useRef(false);
     const isRecentering = useRef(false);
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [showInfo, setShowInfo] = useState(!hideInfo);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
     const [isBouncing, setIsBouncing] = useState(false);
@@ -170,7 +171,7 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
         if (!map) return;
         if (!turbinePosition) return;
         isRecentering.current = true;
-        map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
     }
 
     const mapZoomIn = (e) => {
@@ -311,8 +312,11 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
             {/* Modal */}
             <div className="fixed inset-0 z-[1001] flex items-center justify-center">
             <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
+                <div className="mb-3 text-center">
+                    <strong className="font-bold block">Set cookie</strong>
+                </div>
                 <p className="text-sm text-gray-700">
-                We'd like to store a cookie to remember your vote. Is that okay?
+                We'd like to store a cookie to track who you are and prevent repeat voting. Is that okay?
                 </p>
                 {/* Recaptcha error message */}
                 <div className="w-full flex justify-start mt-4">
@@ -343,105 +347,108 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
 
         {/*  Voting panel */}
         {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-2 sm:pb-6">
+        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-            {/* Close button */}
-            <button
-            onClick={closeVotingPanel}
-            className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
-            aria-label="Close vote panel"
-            >
-            &times;
-            </button>
+            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 py-1">
 
-            <form
-            onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleVote();
-            }}
-            >
+                {/* Close button */}
+                <button
+                onClick={closeVotingPanel}
+                className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                aria-label="Close vote panel"
+                >
+                &times;
+                </button>
 
-                {/* Content: Icon + Text */}
-                <div className="flex mt-1">
-                    <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
-                        <img
-                        alt="Vote"
-                        src="/icons/check-mark.svg"
-                        className="block"
-                        />
-                    </div>
+                <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleVote();
+                }}
+                >
 
-                    <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                        <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Cast turbine vote</h2>
-                        {/* Coordinates */}
-                        <p className="text-xs text-gray-700 mt-2 sm:mt-4">
-                            <b>Position: </b>
-                        {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
-                        </p>
-
-                        <p className="text-xs text-gray-500 sm:mb-8">
-                        <b>Planning constraints: </b>Footpaths (120m turbine) 
-                        </p>
-
-                        <div className="mt-1 hidden sm:block">
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                Email confirmation:
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="Optional: Enter email address to confirm vote"
-                                autoCorrect="off"
-                                autoCapitalize="none"
-                                autoComplete="off"
-                                spellCheck="false"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    {/* Content: Icon + Text */}
+                    <div className="flex mt-1">
+                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
+                            <img
+                            alt="Vote"
+                            src="/icons/check-mark.svg"
+                            className="block"
                             />
-                            <div className="w-full max-w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: email_explanation }} />
                         </div>
 
+                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                            <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Cast turbine vote</h2>
+                            {/* Coordinates */}
+                            <p className="text-xs text-gray-700 mt-2 sm:mt-4">
+                                <b>Position: </b>
+                            {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
+                            </p>
+
+                            <p className="text-xs text-gray-500 sm:mb-8">
+                            <b>Planning constraints: </b>Footpaths (120m turbine) 
+                            </p>
+
+                            <div className="mt-1 hidden sm:block">
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email confirmation:
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="Optional: Enter email address to confirm vote"
+                                    autoCorrect="off"
+                                    autoCapitalize="none"
+                                    autoComplete="off"
+                                    spellCheck="false"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: email_explanation }} />
+                            </div>
+
+                        </div>
                     </div>
-                </div>
 
-                <div className="mt-1 sm:hidden">
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Optional: Enter email to confirm vote"
-                        autoCorrect="off"
-                        autoCapitalize="none"
-                        autoComplete="off"
-                        spellCheck="false"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                    <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: email_explanation }} />
-                </div>
+                    <div className="mt-1 sm:hidden">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Optional: Enter email to confirm vote"
+                            autoCorrect="off"
+                            autoCapitalize="none"
+                            autoComplete="off"
+                            spellCheck="false"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: email_explanation }} />
+                    </div>
 
-                {/* Buttons: Side-by-side, full width combined */}
-                <div className="mt-2 flex gap-3">
-                <button type="button"
-                    onClick={closeVotingPanel}
-                    className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
-                >
-                    Cancel
-                </button>
-                <button type="submit" className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Cast your vote!
-                </button>
-                </div>
-            </form>
+                    {/* Buttons: Side-by-side, full width combined */}
+                    <div className="mt-2 flex justify-end gap-3">
+                    <button type="button"
+                        onClick={closeVotingPanel}
+                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button type="submit" className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Cast your vote!
+                    </button>
+                    </div>
+                </form>
+            </div>
 
         </div>
         )}
 
-        <div className="w-full h-full sm:w-[80vw] sm:h">
+        <div className="w-full h-full sm:h relative">
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
@@ -497,6 +504,23 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
             </div>
             </div>
 
+            {!turbineAdded && showInfo && (
+            <div className="absolute bottom-5 left-0 w-full px-4 z-30">
+                <div className="relative bg-blue-600 text-white py-4 px-4 rounded-md shadow-[0_-4px_12px_rgba(255,255,255,0.2)] max-w-screen-lg mx-auto text-center">
+                <p className="text-sm sm:text-base font-medium animate-fade-loop pr-1">
+                    Click on map to place <b>your wind turbine</b>
+                </p>
+                <button
+                    onClick={() => setShowInfo(false)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-sm hover:text-gray-300"
+                    aria-label="Dismiss"
+                >
+                    ×
+                </button>
+                </div>
+            </div>
+            )}
+
             {/* Main map */}
             <Map
                 ref={mapRef}
@@ -512,7 +536,10 @@ export default function VotewindMap({ latitude=null, longitude=null, zoom=null, 
                 style={{ width: '100%', height: '100%' }}
                 mapStyle="https://tiles.wewantwind.org/styles/openmaptiles/style.json"
                 interactiveLayerIds={['water']}
+                attributionControl={false}
             >
+                  <AttributionControl compact position="top-right" style={{ top: '40px' }}/>
+
                 {turbineAdded ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" >
                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_black.png" />

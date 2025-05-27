@@ -25,7 +25,6 @@ export default function Page() {
   return (
     <div>
       <VotewindMap longitude={params.longitude} latitude={params.latitude} zoom={params.zoom} bounds={bounds} />
-      {params.latitude} {params.longitude} {params.zoom} {bounds !== null ? bounds.join(", ") : ''}
     </div>
   );
 }

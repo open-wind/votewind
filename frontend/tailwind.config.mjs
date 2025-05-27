@@ -8,6 +8,15 @@ export default {
   ],
   theme: {
   	extend: {
+		keyframes: {
+			fadeInOut: {
+			'0%, 100%': { opacity: '0.4' },
+			'50%': { opacity: '1' },
+			},
+		},
+		animation: {
+			'fade-loop': 'fadeInOut 10s ease-in-out infinite',
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

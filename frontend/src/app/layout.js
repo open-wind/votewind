@@ -28,11 +28,6 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
         />
         <Navbar />
-         <header className="w-full mt-8 text-center py-6">
-            <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            VoteWind!
-            </h1>
-        </header>
         <main>{children}</main>
       </body>
     </html>

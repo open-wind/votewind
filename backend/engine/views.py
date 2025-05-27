@@ -14,7 +14,7 @@ from django.core.signing import BadSignature
 
 from .models import Postcode, Place, Boundary, UserID, Vote
 
-NUMBER_RESULTS_RETURNED = 10
+NUMBER_RESULTS_RETURNED = 26
 
 def OutputJson(json_array={'result': 'failure'}):
     json_data = json.dumps(json_array, cls=DjangoJSONEncoder, indent=2)

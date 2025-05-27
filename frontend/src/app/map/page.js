@@ -7,6 +7,6 @@ export default function Page() {
   const params = useParams();
     
   return (
-      <VotewindMap/>
+      <VotewindMap hideInfo={true}/>
   );
 }
