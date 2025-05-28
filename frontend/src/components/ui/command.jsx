@@ -1,7 +1,8 @@
 "use client";
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
-import { Search } from "lucide-react"
+import { Search, LocateFixed } from "lucide-react"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -33,16 +34,44 @@ const CommandDialog = ({
   );
 }
 
-const CommandInput = React.forwardRef(({ className, ...props }, ref) => (
+const CommandInput = React.forwardRef(({ showMagnifier = true, onLocate = null, className, ...props }, ref) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
-      ref={ref}
-      className={cn(
-        "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        className
+      {showMagnifier && (
+      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
       )}
-      {...props} />
+
+      <div className="relative w-full">
+        {(onLocate !== null) && (
+        <TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                  type="button"
+                  onClick={() => onLocate?.()}
+                  className="absolute top-1/2 -translate-y-1/2 flex items-center
+                              text-gray-600 hover:text-gray-800 focus:outline-none"
+                  aria-label="Use my location"
+                >
+                <LocateFixed className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={20} className="transform 
+    translate-x-12  font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                Use your location
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+        )}
+
+        <CommandPrimitive.Input
+          ref={ref}
+          className={cn(
+            "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+            className, 
+            (onLocate !== null) ? "pl-7" : "pl-3", 
+          )}
+          {...props} />
+      </div>
   </div>
 ))
 

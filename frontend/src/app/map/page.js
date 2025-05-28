@@ -7,6 +7,6 @@ export default function Page() {
   const params = useParams();
     
   return (
-      <VoteWindMap hideInfo={true}/>
+      <VoteWindMap hideInfo={true} type="overview"/>
   );
 }

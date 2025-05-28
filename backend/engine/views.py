@@ -8,9 +8,9 @@ from django.core.signing import BadSignature
 from django.contrib.gis.geos import Point
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string, get_template
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -22,7 +22,7 @@ NUMBER_RESULTS_RETURNED = 26
 COORDINATE_PRECISION = 5
 
 def OutputJson(json_array={'result': 'failure'}):
-    json_data = json.dumps(json_array, cls=DjangoJSONEncoder, indent=2)
+    json_data = json.dumps(json_array, cls=DjangoJSONEncoder, indent=0)
     return HttpResponse(json_data, content_type="text/json")
 
 def OutputError():
@@ -312,6 +312,43 @@ def ConfirmVote(request, uidb64, token):
         provisionalvote.confirmed = True
         provisionalvote.live = True
         provisionalvote.save()
-        return render(request, 'engine/vote_confirmed.html')
+        turbineposition = provisionalvote.geometry.coords
+        url_path = str(round(turbineposition[0], COORDINATE_PRECISION)) + '/' + str(round(turbineposition[1], COORDINATE_PRECISION)) + '/vote?type=voteconfirmed'
+        return redirect(settings.REACT_APPLICATION_BASEURL + url_path)
     else:
-        return render(request, 'engine/vote_not_confirmed.html')
+        return redirect(settings.REACT_APPLICATION_BASEURL + 'confirmationerror')
+
+@csrf_exempt
+def Votes(request):
+    """
+    Get data on all votes
+    """
+
+    distinctpoints = Vote.objects.filter(live=True).values('geometry').annotate(Count('id')).order_by()
+
+    features = []
+    index = 0
+    for distinctpoint in distinctpoints:
+        index += 1
+        allvotes_confirmed = Vote.objects.filter(confirmed=True).filter(geometry=distinctpoint['geometry']).count()
+        allvotes_unconfirmed = Vote.objects.filter(confirmed=False).filter(geometry=distinctpoint['geometry']).count()
+        feature = {
+            "type": "feature",
+            "id": str(index),
+            "properties": {
+                'id': str(index),
+                'position': str(round(distinctpoint['geometry'].coords[1], COORDINATE_PRECISION)) + "°N, " + str(round(distinctpoint['geometry'].coords[0], COORDINATE_PRECISION)) + "°E",
+                'votes_confirmed': allvotes_confirmed,
+                'votes_unconfirmed': allvotes_unconfirmed,
+                'lat': distinctpoint['geometry'].coords[1],
+                'lng': distinctpoint['geometry'].coords[0]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [distinctpoint['geometry'].coords[0], distinctpoint['geometry'].coords[1]]
+            }
+        }
+        features.append(feature)
+
+    geojson = { "type": "FeatureCollection", "features": features }
+    return OutputJson(geojson)

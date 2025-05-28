@@ -52,11 +52,11 @@ export default function SocialShareButtons({ title = '' }) {
     }
   }
 
-  const btnCls = 'h-8 w-8 sm:h-10 sm:w-10'
+  const btnCls = 'h-7 w-7 sm:h-10 sm:w-10'
   const iconCls = 'w-4 h-4 sm:w-5 sm:h-5'
 
   return (
-    <div className="bg-white  rounded-lg p-0">
+    <div className="bg-white rounded-lg p-0">
       <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Share on social media</p>
       <div className="flex flex-wrap gap-1 justify-center sm:justify-start">
         <Button variant="outline" size="icon" aria-label="Share on X" onClick={() => popup(links.x)} className={btnCls}><SiX className={iconCls} /></Button>

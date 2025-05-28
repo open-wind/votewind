@@ -171,19 +171,19 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     return (
     <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-[url('/images/sunrise-3579931_1920.jpg')] bg-cover bg-center">
         
-        <ScrollHint />
+        <ScrollHint targetRef={panelRef} />
 
         <section className="flex flex-col items-center px-4">
             {/* centred text above */}
-            {(type === 'votesubmitted') && (
+            {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                 <>
 
                     {/* Content: Icon + Text */}
-                    <div className="max-w-[800px] mx-auto mb-4 bg-white/70 p-5 sm:p-10 text-sm sm:text-medium">
+                    <div className="max-w-[800px] mx-auto mb-4 bg-white/70 p-5 sm:p-5 text-sm sm:text-medium">
                         <img
                             src="/icons/check-mark.svg"
                             alt="Vote"
-                            className="float-left w-20 h-20 sm:w-[200px] sm:h-[200px] mr-6 mb-4"
+                            className="float-left w-20 h-20 sm:w-[210px] sm:h-[210px] mr-6 mb-4"
                         />
 
                         <h1 className="text-2xl font-semibold text-left mb-2">
@@ -191,7 +191,8 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         </h1>
 
                         <h2 className="text-xl font-semibold text-left mb-4">
-                            Your vote has been received
+                            {(type == 'votesubmitted') && (<>Your vote has been received</>)}
+                            {(type == 'voteconfirmed') && (<>Your vote has been confirmed</>)}
                         </h2>
 
                         {(emailused === null) && 
@@ -202,14 +203,14 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         {(emailused !== null) && 
                         (
                             <>
-                                <p className="font-light mb-2">You'll receive an email shortly confirming your vote. Click on the link in the email and your vote will appear on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
+                                <p className="font-light mb-2">You'll receive an email shortly so you can confirm your vote. Click on the link in the email and your vote will appear on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
                                 <p className="font-light mb-2">Note: <i>your email address will not be visible on the map</i>. We'll never publish your email address and will only contact you about community wind related events and resources.</p> 
 
                                 <p className="font-light mb-2">If you don't receive an email in the next few minutes, check your spam folder or drop us an email at <a className="font-medium hover:text-blue-600" href="mailto:voting@votewind.org">voting@votewind.org</a>.</p>
                             </>
                         )}
 
-                        <p className="font-light mb-4">
+                        <p className={'font-light ' + ((emailused === null) ? ('mb-4 sm:mb-10'): ('mb-2 sm:mb-4'))}>
                             Details about the turbine position you voted for are provided below.
                         </p>
                         <p className="font-extrabold w-full bg-gray-300 pb-4 pt-4 pl-4 pr-4 text-center">
@@ -232,7 +233,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                         <div id="map" className="w-full h-full" >
 
-                        <div className="absolute left-8 top-8 z-40">
+                        <div className="absolute left-6 sm:left-8 top-8 z-40">
                         <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
 
                             <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
@@ -268,7 +269,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 <AttributionControl compact position="bottom-right" />
 
                                 <Marker longitude={initialViewState.longitude} latitude={initialViewState.latitude} draggable={false} anchor="bottom" offset={[0, 0]}>
-                                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_black.png" />
+                                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
                                 </Marker>
                             </Map>
 
@@ -315,7 +316,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                                 {/* Buttons: Side-by-side, full width combined */}
                                 <Button type="submit" variant="default" size="lg" className="flex-1 w-full text-lg mt-4 bg-blue-600 text-white px-4 py-6 rounded-lg hover:bg-blue-700 gap-2">
-                                <Image src="/icons/check-mark-monochrome.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                                <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
                                 Cast vote!
                                 </Button>
 
@@ -327,7 +328,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
 
                         {/* Share panel, pushed to the bottom by flex layout */}
-                        {(type === 'votesubmitted') && (
+                        {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                         <div className="mt-4 sm:mt-0">
                             <SocialShareButtons title="I just voted for a community wind turbine location!" />
                         </div>

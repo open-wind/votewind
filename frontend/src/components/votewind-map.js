@@ -1,22 +1,25 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 const querystring = require('querystring');
 import toast, { Toaster } from 'react-hot-toast';
-import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button"; // shadcn
+import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover"
+import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/components/functions/helpers"
 import Image from "next/image";
+import { Search } from 'lucide-react'
 
 import maplibregl from 'maplibre-gl';
 import debounce from 'lodash.debounce';
 
-import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
+import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
+import AutocompleteInput from './autocomplete-input';
 
 export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false }) {
     const router = useRouter();
@@ -24,16 +27,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const markerRef = useRef();
     const isFittingBounds = useRef(false);
     const isRecentering = useRef(false);
+    const inputRef = useRef(null);
+    const [query, setQuery] = useState('');
     const [initialPosition, setInitialPosition] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude), type: type})
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
     const [turbineAdded, setTurbineAdded] = useState(false);
+    const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [hasConsent, setHasConsent] = useState(null); // null = still loading
     const [showConsentBanner, setShowConsentBanner] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
     const [error, setError] = useState('');
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -42,6 +49,51 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setIsBouncing(true);
         setTimeout(() => setIsBouncing(false), 500); // match animation duration
     };
+
+    const incorporateBaseDomain = (baseurl, json, style_type) => {
+
+        let newjson = JSON.parse(JSON.stringify(json));
+        const sources_keys = Object.keys(newjson['sources'])
+        for (let i = 0; i < sources_keys.length; i++) {
+            const sources_key = sources_keys[i];
+            if ('url' in newjson['sources'][sources_key]) {
+                if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
+                    newjson['sources'][sources_key]['url'] = baseurl + newjson['sources'][sources_key]['url'];
+                }
+            }
+        }  
+
+        // Add voting style depending on supplied style_type
+        var vote_style = require('./stylesheets/votes-' + style_type + '.json');
+        for (let i = 0; i < vote_style.length; i++) newjson['layers'].push(vote_style[i]);
+
+        // Add constraint layers and other layers like voting and community energy groups
+  
+        //   var newlayers = [];
+        //   for(let i = 0; i < newjson['layers'].length; i++) {
+        //     if (newjson['layers'][i]['id'] === 'planning-constraints') {
+        //       for(let j = 0; j < planningconstraints.length; j++) newlayers.push(planningconstraints[j]);
+        //     } else {
+        //       newlayers.push(newjson['layers'][i]);
+        //     }
+        //   }    
+        //   newjson['layers'] = newlayers;
+
+        newjson['glyphs'] = baseurl + newjson['glyphs'];
+        newjson['sprite'] = baseurl + newjson['sprite'];
+        
+        return newjson;
+    }
+
+    const retrieveMapStyle = () => {
+        const style_type = (type == "overview") ? 'overview': 'addturbine';
+        var defaultStyle = require('./stylesheets/openmaptiles.json');
+        var newStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle, style_type);
+        return newStyle;
+    }
+
+
+    const mapStyle = retrieveMapStyle();
 
     useEffect(() => {
         if (!showConsentBanner) return;
@@ -97,6 +149,26 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     const onLoad = () => {
         setMapLoaded(true);
+
+        const map = mapRef.current?.getMap();
+
+       if (!map.hasImage('tick-dropshadow')) {
+            const img = new window.Image(); 
+            img.src = '/icons/check-mark-circle-dropshadow.png';
+            img.onload = () => {map.addImage('tick-dropshadow', img, { sdf: false });};
+        }
+
+        if (!map.hasImage('tick-desaturated-dropshadow')) {
+            const img = new window.Image(); 
+            img.src = '/icons/check-mark-circle-desaturated-dropshadow.png';
+            img.onload = () => {map.addImage('tick-desaturated-dropshadow', img, { sdf: false });};
+        }
+
+        if (!map.hasImage('tick-outline')) {
+            const img = new window.Image(); 
+            img.src = '/icons/check-mark-circle-outline.png';
+            img.onload = () => {map.addImage('tick-outline', img, { sdf: true });};
+        }
     }
 
     const updateURL = debounce((view) => {
@@ -146,6 +218,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     const onClick = (event) => {
         var acceptableposition = true;
+        const map = mapRef.current?.getMap?.();
+        if (map) map.removeFeatureState({ source: "votes" });
+
+        var isExistingVote = false;
 
         if (event.features.length > 0) {
             var id = event.features[0]['layer']['id'];
@@ -153,6 +229,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 acceptableposition = false;
                 toastOnshoreOnly();
             }
+            if (id.startsWith('votes-')) {
+                const feature_id = event.features[0]['properties']['id'];
+                const turbineposition = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
+                map.setFeatureState({ source: 'votes', id: feature_id },{ selected: true });
+                setTurbinePosition(turbineposition);
+                isExistingVote = true;
+            } 
+        } 
+
+        if (isExistingVote) setDisplayTurbine(false);
+        else {
+            if (!displayTurbine) setDisplayTurbine(true);
         }
 
         if (acceptableposition) {
@@ -163,6 +251,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     const resetSettings = () => {
         setTurbineAdded(false);
+        setDisplayTurbine(true);
         setError("");
         setEmail("");
     }
@@ -446,7 +535,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </Button>
 
                     <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
-                    <Image src="/icons/check-mark-monochrome.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                    <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
                     Cast vote!
                     </Button>
 
@@ -463,6 +552,41 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             {/* Vertical toolbar */}
             <div className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40">
             <div className="bg-gray-100 rounded-md shadow p-1 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <button
+                        type="button"
+                        aria-label="Search"
+                        onClick={() => inputRef.current?.setFocus()}
+                        className="w-8 h-8 sm:w-10 sm:h-10
+                                    bg-white rounded-md
+                                    flex items-center justify-center
+                                    focus:outline-none focus:ring-2 focus:ring-offset-1
+                                    focus:ring-blue-500"
+                        >
+                        <Search className="w-4 h-4" strokeWidth={4} color="#555555"/>
+                        </button>
+                    </PopoverTrigger>
+
+                    <PopoverContent
+                        side="right"
+                        sideOffset={12}
+                        alignOffset={-4}
+                        align="start"
+                       className="w-70 p-0 bg-white font-sm rounded-md shadow-lg z-50 focus:outline-none focus:ring-0"
+                    >
+                        <AutocompleteInput
+                        ref={inputRef}
+                        query={query}
+                        setQuery={setQuery}
+                        useLocate={true}
+                        submitOnSuggestionSelect={true}
+                        className="w-full"
+                        placeholder="Postcode or location"
+                        />
+                    </PopoverContent>
+                </Popover>
 
                 <TooltipProvider>
                     <Tooltip>
@@ -514,18 +638,25 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             </div>
 
             {!turbineAdded && showInfo && (
-            <div className="absolute bottom-5 left-0 w-full px-4 z-30">
-                <div className="relative bg-blue-600 text-white py-4 px-4 rounded-md shadow-[0_-4px_12px_rgba(255,255,255,0.2)] max-w-screen-sm mx-auto text-center">
-                <p className="text-sm sm:text-base font-light animate-fade-loop pr-4">
-                    Click on map to place <b>your wind turbine</b>
-                </p>
-                <button
-                    onClick={() => setShowInfo(false)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-sm hover:text-gray-300"
-                    aria-label="Dismiss"
+            <div className="absolute bottom-5 inset-x-0 flex justify-center px-4 z-30">
+                <div
+                    className="
+                    inline-flex items-center
+                    bg-blue-600 text-white
+                    py-2 px-4 rounded-3xl
+                    shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
+                    "
                 >
+                    <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
+                    Click on map to place <b className="font-bold">your wind turbine</b>
+                    </p>
+                    <button
+                    onClick={() => setShowInfo(false)}
+                    className="text-white text-sm hover:text-gray-300"
+                    aria-label="Dismiss"
+                    >
                     ×
-                </button>
+                    </button>
                 </div>
             </div>
             )}
@@ -543,15 +674,19 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 onMoveEnd={onMoveEnd}
                 onClick={onClick}
                 style={{ width: '100%', height: '100%' }}
-                mapStyle={VOTEWIND_MAPSTYLE}
-                interactiveLayerIds={['water']}
+                mapStyle={mapStyle}
+                interactiveLayerIds={[
+                    'water', 
+                    'votes-unconfirmed', 'votes-confirmed', 
+                    'votes-unconfirmed-single', 'votes-confirmed-single', 
+                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple' ]}
                 attributionControl={false}
             >
-                  <AttributionControl compact position="top-right" style={{ top: '60px', right: isMobile ? 4 : 20}}/>
+                  <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>
 
-                {turbineAdded ? (
+                {(turbineAdded && displayTurbine) ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
-                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_black.png" />
+                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
                 </Marker>
                 ) : null}
             </Map>

@@ -23,7 +23,7 @@ export default function Navbar() {
       </div>
 
       {/* Desktop links */}
-      <div className="gap-6 hidden pr-2 md:flex items-right text-sm text-black font-bold tracking-wider pl-1" style={{ textShadow: '0 0px 30px rgba(255,255,255,1)' }}>
+      <div className="gap-6 hidden pr-2 md:flex items-right text-sm text-blue-900 font-bold tracking-wider pl-1" style={{ textShadow: '0 0px 30px rgba(255,255,255,1)' }}>
         <a href="/" className="hover:underline">HOME</a>
         <a href="/map" className="hover:underline">MAP</a>
         <a href="/about" className="hover:underline">ABOUT</a>

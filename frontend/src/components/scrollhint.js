@@ -56,13 +56,24 @@ export default function ScrollHint({ targetRef, scrollBy }) {
   }
 
   return (
+   <div
+    className="
+      fixed bottom-4 inset-x-0   /* left:0; right:0; bottom:1rem */
+      flex justify-center        /* centre children horizontally */
+      pointer-events-none        /* let clicks fall through except on the button */
+      z-50
+    "
+  >
     <button
       aria-label="Scroll down"
       onClick={handleClick}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 sm:hidden
-                 text-gray-500 animate-bounce z-50"
+      className="
+        pointer-events-auto      /* this button is interactive again */
+        text-gray-500 animate-bounce
+      "
     >
       <FiChevronDown className="w-8 h-8" />
     </button>
+  </div>
   )
 }
