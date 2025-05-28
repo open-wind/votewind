@@ -10,12 +10,17 @@ export default {
   	extend: {
 		keyframes: {
 			fadeInOut: {
-			'0%, 100%': { opacity: '0.4' },
-			'50%': { opacity: '1' },
+				'0%, 100%': { opacity: '0.4' },
+				'50%': { opacity: '1' },
+			},
+			'zoom-slow': {
+				'0%':   { transform: 'scale(1)' },
+				'100%': { transform: 'scale(1.15)' },
 			},
 		},
 		animation: {
 			'fade-loop': 'fadeInOut 10s ease-in-out infinite',
+			'zoom-slow': 'zoom-slow 30s ease-in-out forwards',
 		},
   		colors: {
   			background: 'hsl(var(--background))',

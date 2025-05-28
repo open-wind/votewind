@@ -169,71 +169,63 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     }
 
     return (
-    <main ref={panelRef} className="pt-14 sm:pt-20 overflow-y-auto">
+    <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-[url('/images/sunrise-3579931_1920.jpg')] bg-cover bg-center">
         
         <ScrollHint />
 
-        <section className="flex flex-col items-center px-4 ">
+        <section className="flex flex-col items-center px-4">
             {/* centred text above */}
             {(type === 'votesubmitted') && (
                 <>
 
                     {/* Content: Icon + Text */}
-                    <div className="flex mt-1 sm:mt-0 max-w-[800px] mb-4">
-                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
-                            <img
-                            alt="Vote"
+                    <div className="max-w-[800px] mx-auto mb-4 bg-white/70 p-5 sm:p-10 text-sm sm:text-medium">
+                        <img
                             src="/icons/check-mark.svg"
-                            className="block"
-                            />
-                        </div>
+                            alt="Vote"
+                            className="float-left w-20 h-20 sm:w-[200px] sm:h-[200px] mr-6 mb-4"
+                        />
 
-                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                        <h1 className="text-2xl font-semibold text-left mb-2">
+                            Congratulations!
+                        </h1>
 
-                            <h1 className="text-2xl font-semibold text-left mb-4">
-                                Congratulations!
-                            </h1>
+                        <h2 className="text-xl font-semibold text-left mb-4">
+                            Your vote has been received
+                        </h2>
 
+                        {(emailused === null) && 
+                        (
+                            <p className="font-light mb-2">Your turbine position vote will now be included on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
+                        )}
 
-                            <h2 className="text-xl font-semibold text-left mb-4">
-                                Your vote has been received
-                            </h2>
+                        {(emailused !== null) && 
+                        (
+                            <>
+                                <p className="font-light mb-2">You'll receive an email shortly confirming your vote. Click on the link in the email and your vote will appear on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
+                                <p className="font-light mb-2">Note: <i>your email address will not be visible on the map</i>. We'll never publish your email address and will only contact you about community wind related events and resources.</p> 
 
-                            <div className="text-sm space-y-2">
+                                <p className="font-light mb-2">If you don't receive an email in the next few minutes, check your spam folder or drop us an email at <a className="font-medium hover:text-blue-600" href="mailto:voting@votewind.org">voting@votewind.org</a>.</p>
+                            </>
+                        )}
 
-                                {(emailused === null) && 
-                                (
-                                    <p className="font-light">Your turbine position vote will now be included on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
-                                )}
+                        <p className="font-light mb-4">
+                            Details about the turbine position you voted for are provided below.
+                        </p>
+                        <p className="font-extrabold w-full bg-gray-300 pb-4 pt-4 pl-4 pr-4 text-center">
+                            Share your turbine position on social media to increase votes!
+                        </p>
 
-                                {(emailused !== null) && 
-                                (
-                                    <>
-                                        <p className="font-light">You'll receive an email shortly confirming your vote. Click on the link in the email to confirm your vote and it will appear on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
-                                        <p className="font-light">Note: <i>your email address will not be visible on the map</i>. We'll never publish your email address and will only contact you about community wind related events and resources.</p> 
-
-                                        <p className="font-light">If you don't receive an email in the next few minutes, check your spam folder or drop us an email at <a className="font-medium hover:text-blue-600" href="mailto:voting@votewind.org">voting@votewind.org</a>.</p>
-                                    </>
-                            )}
-
-                            <p className="font-light">Details about the turbine position you voted for are provided below.</p>
-                            <p className="font-extrabold justify-end">Share your turbine position on social media so others can vote for it!</p>
-
-                            </div>
-
-                        </div>
+                        <div className="clear-left"></div>
                     </div>
-
-
-
 
                 </>
             )}
 
 
-            <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-8 mb-20">
+            <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-2 mb-8">
 
-                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-2xl ">
+                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-4xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.7)] rounded-lg">
                 {/* Map thumbnail */}
                     <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
 

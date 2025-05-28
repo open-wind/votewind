@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button"; // shadcn
+import { useIsMobile } from "@/components/functions/helpers"
 import Image from "next/image";
 
 import maplibregl from 'maplibre-gl';
@@ -34,7 +35,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [hasConsent, setHasConsent] = useState(null); // null = still loading
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [error, setError] = useState('');
-
+    const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
     const triggerBounce = () => {
@@ -355,7 +356,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         {/*  Voting panel */}
         {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
+        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
             <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
 
@@ -466,11 +467,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
+                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md active:bg-white focus:outline-none focus:ring-0">
                         ➕
                         </button>
                     </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="bg-white text-black text-lg border shadow px-3 py-1 rounded-md hidden sm:block">
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
                         Zoom into map
                     </TooltipContent>
                     </Tooltip>
@@ -479,11 +480,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded">
+                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md">
                         ➖
                         </button>
                     </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="bg-white text-black text-lg border shadow px-3 py-1 rounded-md hidden sm:block">
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
                         Zoom out of map
                     </TooltipContent>
                     </Tooltip>
@@ -493,7 +494,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10  bg-white rounded flex items-center justify-center">
+                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md flex items-center justify-center">
                         <img
                             alt="Wind turbine"
                             src="/icons/windturbine_black.png"
@@ -503,7 +504,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         />
                         </button>
                     </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="bg-white text-black text-lg border shadow px-3 py-1 rounded-md hidden sm:block">
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
                         Centre map on added turbine
                     </TooltipContent>
                     </Tooltip>
@@ -515,7 +516,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             {!turbineAdded && showInfo && (
             <div className="absolute bottom-5 left-0 w-full px-4 z-30">
                 <div className="relative bg-blue-600 text-white py-4 px-4 rounded-md shadow-[0_-4px_12px_rgba(255,255,255,0.2)] max-w-screen-sm mx-auto text-center">
-                <p className="text-sm sm:text-base font-medium animate-fade-loop pr-4">
+                <p className="text-sm sm:text-base font-light animate-fade-loop pr-4">
                     Click on map to place <b>your wind turbine</b>
                 </p>
                 <button
@@ -546,7 +547,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 interactiveLayerIds={['water']}
                 attributionControl={false}
             >
-                  <AttributionControl compact position="top-right" style={{ top: '40px' }}/>
+                  <AttributionControl compact position="top-right" style={{ top: '60px', right: isMobile ? 4 : 20}}/>
 
                 {turbineAdded ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
