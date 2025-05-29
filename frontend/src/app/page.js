@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { LocateFixed } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import AutocompleteInput from '@/components/autocomplete-input';
+import PartnerLogos from '@/components/partner-logos';
+import Slider from 'react-infinite-logo-slider'
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -28,19 +30,19 @@ export default function Home() {
 
       <div className="fixed top-1/3 -translate-y-1/2 left-0 text-center w-full items-center">
 
-        <header className="relative w-full sm:mt-0 text-center py-6">
-            <h1 className="text-center text-5xl sm:text-4xl sm:text-[100px] font-bold text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.65)' }}>
-            <span className="text-blue-500 pr-[1px]">Vote</span><span className="text-blue-600 pr-[1px]">Wind!</span>
+        <header className="relative w-full sm:mt-0 text-center py-3">
+            <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
+            <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
             </h1>
         </header>
 
         <div className="mx-auto w-full max-w-[640px]">
-          <p className="font-medium text-zinc-600 pl-10 pr-10 mb-5 text-xl sm:text-2xl text-center leading-tight">
-            Have your say on where you'd like a community wind turbine with <b className="font-bold"><span className="text-blue-500 pr-[1px]">Vote</span><span className="text-blue-600 pr-[1px]">Wind!</span></b>
+          <p className="font-light text-zinc-600 pl-10 pr-10 mb-5 text-xl sm:text-2xl text-center leading-tight">
+            Vote for where you'd like a community wind turbine.
           </p>
 
-          <p className="font-medium text-zinc-500 pl-5 pr-5 mb-5 text-medium sm:text-xl text-center leading-tight">
-            Community wind turbines generate cash for communities, reduce need for costly grid upgrades and help tackle climate change...
+          <p className="font-light text-zinc-600 pl-5 pr-5 mb-5 text-medium sm:text-xl text-center leading-tight">
+            Community wind generates cash for communities, reduces need for grid upgrades and helps tackle climate change...
           </p>
         </div>
 
@@ -83,6 +85,46 @@ export default function Home() {
           </AnimatePresence>
 
         </div>
+
+      </div>
+
+      <div className="fixed bottom-0 w-full bg-white py-0 h-[110px] sm:h-[140px]">
+
+        <Slider
+          width="250px"
+          duration={40}
+          pauseOnHover={true}
+          blurBorders={true}
+          blurBorderColor={'#fff'}
+        >
+          <Slider.Slide>
+            <img src="/logos/partner-cee.png" alt="any" className="pr-0 h-20" />
+          </Slider.Slide>
+          <Slider.Slide>
+            <img src="/logos/partner-ces.png" alt="any2" className="h-18" style={{ marginRight: "60px" }} />
+          </Slider.Slide>
+          <Slider.Slide>
+            <img src="/logos/partner-cew.png" alt="any3" className="h-12" style={{ marginLeft: "60px" }} />
+          </Slider.Slide>
+          <Slider.Slide>
+            <img src="/logos/partner-actionrenewables.png" alt="any" className="pr-4 h-14" style={{ marginLeft: "50px" }} />
+          </Slider.Slide>
+          <Slider.Slide>
+            <img src="/logos/partner-cse.png" alt="any" className="pr-4 h-12" style={{ marginLeft: "50px" }} />
+          </Slider.Slide>
+          <Slider.Slide>
+            <img src="/logos/partner-ashden.png" alt="any" className="pr-4 h-10" />
+          </Slider.Slide>
+        </Slider>
+
+        <div className="text-[14px] hidden sm:block text-center w-full z-50 font-light pt-2 pb-2">
+          An <a className="font-bold" href="">Energy Learning Network</a> project in partnership with <a className="font-bold" href="https://openwind.energy">Open Wind Energy</a>
+        </div>
+
+        <div className="fixed bottom-0 text-[9px] sm:hidden text-center w-full z-50 font-light pt-3 pb-2">
+          An <a className="font-bold" href="">Energy Learning Network</a> project in partnership with <a className="font-bold" href="https://openwind.energy">Open Wind Energy</a>
+        </div>
+
       </div>
 
     </div>

@@ -1,0 +1,85 @@
+[
+    {
+      "id": "votes-halo",
+      "type": "symbol",
+      "source": "votes",
+      "layout": {
+          "icon-image": "tick-outline", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.0325,
+            6, 0.065,
+            10, 0.13
+          ],
+
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "icon-offset": [0, 190]
+        },
+      "paint": {
+        "icon-color": "#2563EB",
+        "icon-opacity": ["case", ["boolean", ["feature-state", "selected"], false], 1, 0]
+      }
+    },
+    {
+      "id": "votes-unconfirmed",
+      "type": "symbol",
+      "source": "votes",
+      "filter": [">=", ["get", "votes_unconfirmed"], 1],
+      "paint": {
+          "icon-opacity": 1
+      },
+      "layout": {
+          "icon-image": "tick-desaturated-dropshadow", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.025,
+            6, 0.05,
+            10, 0.1
+          ],
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "votes-confirmed",
+      "type": "symbol",
+      "source": "votes",
+      "filter": [">=", ["get", "votes_confirmed"], 1],
+      "layout": {
+          "icon-image": "tick-dropshadow", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.025,
+            6, 0.05,
+            10, 0.1
+          ],
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "circle-count",
+      "type": "symbol",
+      "source": "votes",
+      "minzoom": 10,
+      "layout": {
+        "icon-image": "tick-white",
+        "icon-size": 0.08,
+        "icon-anchor": "bottom",
+        "icon-offset": [0, 0],
+        "icon-allow-overlap": true,
+        "text-field": ["to-string", ["+", ["get", "votes_confirmed"], ["get", "votes_unconfirmed"]]],
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 11,
+        "text-anchor": "center",
+        "text-offset": [0, -3.5],
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "icon-color": "#000000",
+        "icon-opacity": 1,
+        "text-color": "#000000"
+      }
+    }
+]

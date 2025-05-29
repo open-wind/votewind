@@ -50,7 +50,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setTimeout(() => setIsBouncing(false), 500); // match animation duration
     };
 
-    const incorporateBaseDomain = (baseurl, json, style_type) => {
+    const incorporateBaseDomain = (baseurl, json) => {
 
         let newjson = JSON.parse(JSON.stringify(json));
         const sources_keys = Object.keys(newjson['sources'])
@@ -63,8 +63,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         }  
 
-        // Add voting style depending on supplied style_type
-        var vote_style = require('./stylesheets/votes-' + style_type + '.json');
+        // Add voting stylesheet
+        var vote_style = require('./stylesheets/votes.json');
         for (let i = 0; i < vote_style.length; i++) newjson['layers'].push(vote_style[i]);
 
         // Add constraint layers and other layers like voting and community energy groups
@@ -86,9 +86,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }
 
     const retrieveMapStyle = () => {
-        const style_type = (type == "overview") ? 'overview': 'addturbine';
         var defaultStyle = require('./stylesheets/openmaptiles.json');
-        var newStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle, style_type);
+        var newStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
         return newStyle;
     }
 
@@ -169,6 +168,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             img.src = '/icons/check-mark-circle-outline.png';
             img.onload = () => {map.addImage('tick-outline', img, { sdf: true });};
         }
+
+        if (!map.hasImage('tick-white')) {
+            const img = new window.Image(); 
+            img.src = '/icons/check-mark-circle-outline.png';
+            img.onload = () => {map.addImage('tick-white', img, { sdf: false });};
+        }
+
     }
 
     const updateURL = debounce((view) => {
@@ -216,10 +222,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         requestAnimationFrame(mapCentreOnTurbine);
     }, [turbinePosition, turbineAdded]);
 
-    const onClick = (event) => {
-        var acceptableposition = true;
+    const deselectActiveVotes = () => {
         const map = mapRef.current?.getMap?.();
         if (map) map.removeFeatureState({ source: "votes" });
+    }
+    const onClick = (event) => {
+        var acceptableposition = true;
+        deselectActiveVotes();
 
         var isExistingVote = false;
 
@@ -232,6 +241,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (id.startsWith('votes-')) {
                 const feature_id = event.features[0]['properties']['id'];
                 const turbineposition = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
+                const map = mapRef.current?.getMap?.();
                 map.setFeatureState({ source: 'votes', id: feature_id },{ selected: true });
                 setTurbinePosition(turbineposition);
                 isExistingVote = true;
@@ -254,6 +264,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setDisplayTurbine(true);
         setError("");
         setEmail("");
+        deselectActiveVotes();
     }
     const closeVotingPanel = () => {
         resetSettings();
