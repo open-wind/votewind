@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.mapboxgl-popup-content.no-padding-popup {
+  padding: 0 !important;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

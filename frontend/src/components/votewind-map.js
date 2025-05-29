@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 const querystring = require('querystring');
 import toast, { Toaster } from 'react-hot-toast';
-import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
+import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover"
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const [error, setError] = useState('');
+    const [popupInfo, setPopupInfo] = useState(null);
+
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -91,6 +93,33 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }
 
     const mapStyle = retrieveMapStyle();
+    const popupLayers = ['votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
+
+    const onMouseMove = (e) => {
+        const feature = e.features?.[0];
+        if (!isMobile && feature && popupLayers.includes(feature.layer.id)) {
+            var content = '';
+            var heading = '';
+            if (feature.layer.id.startsWith('votes-')) {
+                const votes_confirmed = parseInt(feature.properties.votes_confirmed);
+                const votes_unconfirmed = parseInt(feature.properties.votes_unconfirmed);
+                heading = 'Votes';
+                content = getVoteText(votes_confirmed, votes_unconfirmed) + ' ';
+                content = content.replaceAll(' votes', '').replaceAll(' vote', '').replaceAll(' and ', ', ');
+            }
+            if (feature.layer.id.startsWith('organisations-')) {
+                heading = 'Community Energy Organisation';
+                content = feature.properties.name;
+            }
+
+            setPopupInfo({
+                lngLat: e.lngLat,
+                properties: {heading: heading, content: content}
+            });
+        } else {
+            setPopupInfo(null);
+        }
+    }
 
     useEffect(() => {
         if (!showConsentBanner) return;
@@ -229,6 +258,22 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             map.removeFeatureState({ source: "organisations" });
         }
     }
+
+    const getVoteText = (votes_confirmed, votes_unconfirmed) => {
+        var vote_text = '';
+        if (votes_confirmed != 0) {
+            vote_text += String(votes_confirmed) + ' confirmed vote';
+            if (votes_confirmed > 1) vote_text += 's';
+            if (votes_unconfirmed != 0) vote_text += ' and ';
+        }
+        if (votes_unconfirmed != 0) {
+            vote_text += String(votes_unconfirmed) + ' unconfirmed vote';
+            if (votes_unconfirmed > 1) vote_text += 's';
+        }
+
+        return vote_text
+    }
+
     const onClick = (event) => {
         var acceptableposition = true;
         deselectActiveItems();
@@ -252,17 +297,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 const votes_confirmed = parseInt(event.features[0]['properties']['votes_confirmed']);
                 const votes_unconfirmed = parseInt(event.features[0]['properties']['votes_unconfirmed']);
                 setVotesCast(votes_confirmed + votes_unconfirmed)
-                var vote_text = '';
-                if (votes_confirmed != 0) {
-                    vote_text += String(votes_confirmed) + ' confirmed vote';
-                    if (votes_confirmed > 1) vote_text += 's';
-                    if (votes_unconfirmed != 0) vote_text += ' and ';
-                }
-                if (votes_unconfirmed != 0) {
-                    vote_text += String(votes_unconfirmed) + ' unconfirmed vote';
-                    if (votes_unconfirmed > 1) vote_text += 's';
-                }
-                setVotesText(vote_text);
+                setVotesText(getVoteText(votes_confirmed, votes_unconfirmed));
                 isExistingVote = true;
             } 
 
@@ -517,7 +552,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         {turbineAdded && (
         <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
+            <div className="max-w-screen-xl mx-auto flex-1 px-0 sm:px-4 pb-2">
 
                 {/* Close button */}
                 <button
@@ -534,6 +569,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     e.stopPropagation();
                     handleVote();
                 }}
+                  className="flex flex-col justify-between h-full"
+
                 >
 
                     {/* Content: Icon + Text */}
@@ -818,7 +855,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 onMoveEnd={onMoveEnd}
                 onClick={onClick}
                 style={{ width: '100%', height: '100%' }}
-                // mapStyle={mapStyle}
                 interactiveLayerIds={[
                     'water', 
                     'votes-unconfirmed', 'votes-confirmed', 
@@ -826,14 +862,34 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
                     'organisations-default' ]}
                 attributionControl={false}
-            >
-                  <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>
+                onMouseMove={onMouseMove}
+                >
+                <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>
 
                 {(turbineAdded && displayTurbine) ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
                 </Marker>
                 ) : null}
+
+                {popupInfo && (
+                <Popup
+                    longitude={popupInfo.lngLat.lng}
+                    latitude={popupInfo.lngLat.lat}
+                    closeButton={false}
+                    closeOnClick={false}
+                    anchor="bottom"
+                    offset={10}
+                      className="no-padding-popup px-0 py-0"
+
+                >
+                    <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
+                        <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
+                        <p className="text-[9pt] pt-0 pb-0">{popupInfo.properties.content}</p>
+                    </div>
+                </Popup>
+                )}
+
             </Map>
 
         </div>
