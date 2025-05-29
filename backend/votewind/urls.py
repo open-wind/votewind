@@ -25,5 +25,6 @@ urlpatterns = [
     path('api/hascookie', views.HasValidCookie, name='hasvalidcookie'),
     path('api/vote', views.SubmitVote, name='vote'),
     path('votes/', views.Votes, name='votes'),
+    path('organisations/', views.Organisations, name='organisations'),
     re_path(r'^api/confirmvote/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9a-f]{1,32})/$', views.ConfirmVote, name='confirmvote'),
 ]

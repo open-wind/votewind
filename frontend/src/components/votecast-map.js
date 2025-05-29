@@ -6,18 +6,18 @@ const querystring = require('querystring');
 import Image from "next/image";
 import * as React from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from "framer-motion";
+import maplibregl from 'maplibre-gl';
 import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import SocialShareButtons from "@/components/social-share-buttons";
+import NumberedAction from './numbered-action';
 import ScrollHint from '@/components/scrollhint'
-import { Button } from "@/components/ui/button"; // shadcn
+import { Button } from "@/components/ui/button"; 
 
-import maplibregl from 'maplibre-gl';
-import debounce from 'lodash.debounce';
-import { Check } from 'lucide-react';
 
-import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, VOTEWIND_COOKIE, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
+import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -26,6 +26,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     const mapRef = useRef();
     const markerRef = useRef();
     const panelRef = useRef(null)
+    const [localgroups, setLocalGroups] = useState([]);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': parseFloat(longitude), 'latitude': parseFloat(latitude)});
     const [isBouncing, setIsBouncing] = useState(false);
@@ -56,6 +57,25 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         map.zoomOut();
     }
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(API_BASE_URL + '/organisations/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({position: {longitude: longitude, latitude: latitude} }),
+                });
+                const result = await response.json();
+                setLocalGroups(result.features);
+                console.log(result.features);
+            } catch (error) {
+                console.error('Fetch failed:', error);
+            }
+        };
+
+        fetchData();
+    }, [longitude, latitude]); 
+    
     useEffect(() => {
         if (!showConsentBanner) return;
 
@@ -173,24 +193,24 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         
         <ScrollHint targetRef={panelRef} />
 
-        <section className="flex flex-col items-center px-4">
+        <section className="flex flex-col items-center px-3">
             {/* centred text above */}
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                 <>
 
                     {/* Content: Icon + Text */}
-                    <div className="max-w-[800px] mx-auto mb-4 bg-white/70 p-5 sm:p-5 text-sm sm:text-medium">
+                    <div className="w-full max-w-[800px] mx-auto rounded-2xl mb-2 bg-white/70 p-4 sm:p-6 text-sm sm:text-medium">
                         <img
                             src="/icons/check-mark.svg"
                             alt="Vote"
-                            className="float-left w-20 h-20 sm:w-[210px] sm:h-[210px] mr-6 mb-4"
+                            className="float-left w-20 h-20 sm:w-[150px] sm:h-[150px] mr-2 sm:mr-6 mb-0"
                         />
 
-                        <h1 className="text-2xl font-semibold text-left mb-2">
+                        <h1 className="text-2xl sm:text-4xl font-extrabold text-left mb-4">
                             Congratulations!
                         </h1>
 
-                        <h2 className="text-xl font-semibold text-left mb-4">
+                        <h2 className="text-medium sm:text-xl font-semibold text-left mb-4">
                             {(type == 'votesubmitted') && (<>Your vote has been received</>)}
                             {(type == 'voteconfirmed') && (<>Your vote has been confirmed</>)}
                         </h2>
@@ -204,17 +224,13 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         (
                             <>
                                 <p className="font-light mb-2">You'll receive an email shortly so you can confirm your vote. Click on the link in the email and your vote will appear on the <a className="font-medium hover:text-blue-600" target="_new" href="/map">VoteWind.org Voting Map</a>.</p>
-                                <p className="font-light mb-2">Note: <i>your email address will not be visible on the map</i>. We'll never publish your email address and will only contact you about community wind related events and resources.</p> 
-
                                 <p className="font-light mb-2">If you don't receive an email in the next few minutes, check your spam folder or drop us an email at <a className="font-medium hover:text-blue-600" href="mailto:voting@votewind.org">voting@votewind.org</a>.</p>
+                                <p className="font-light mb-2">Note: <i>your email address will not be visible on the map</i>. We'll never publish your email address and will only contact you about community wind related events and resources.</p> 
                             </>
                         )}
 
-                        <p className={'font-light ' + ((emailused === null) ? ('mb-4 sm:mb-10'): ('mb-2 sm:mb-4'))}>
-                            Details about the turbine position you voted for are provided below.
-                        </p>
-                        <p className="font-extrabold w-full bg-gray-300 pb-4 pt-4 pl-4 pr-4 text-center">
-                            Share your turbine position on social media to increase votes!
+                        <p className="font-light mb-0">
+                            Details about the turbine position you voted for are provided below:
                         </p>
 
                         <div className="clear-left"></div>
@@ -224,9 +240,9 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
             )}
 
 
-            <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-2 mb-8">
+            <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-0">
 
-                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-4xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.7)] rounded-lg">
+                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
                 {/* Map thumbnail */}
                     <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
 
@@ -338,6 +354,137 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                 </CardContent>
             </Card>
+
+            {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
+
+            <div className="max-w-[800px] md:w-[800px] mx-auto mb-4 bg-white/80 p-5 p-4 sm:p-6 text-sm sm:text-medium mt-4 rounded-2xl mb-40">
+
+
+                <h1 className="text-4xl font-bold text-left mb-8">
+                    Next steps...
+                </h1>
+
+                <div className="grid grid-cols-[auto_1fr] gap-x-0">
+                    <div>
+                        <NumberedAction content="1" />
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">
+                        Share vote on social media
+                        </h2>
+                        <p className="font-light mb-2">
+                        Share your vote with others via social media — the more public support there is for a turbine location, the more likely it will receive planning permission.</p>
+                        <p className="font-bold mb-4">Can your turbine position get enough votes to win an election?</p>
+                        <div className="hidden sm:block">
+                        <SocialShareButtons title="I just voted for a community wind turbine location!" showstrap={false} />
+                        </div>
+
+                    </div>
+                </div>
+
+                <div className="sm:hidden">
+                <SocialShareButtons title="I just voted for a community wind turbine location!" showstrap={false} />
+                </div>
+
+                <div className="grid grid-cols-[auto_1fr] gap-x-0 mt-8">
+                    <div>
+                        <NumberedAction content="2" />
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">
+                        Join local community energy group
+                        </h2>
+                        <p className="font-light mb-2">
+                        Community energy groups rely on motivated volunteers to make projects happen - and are positive fun places too! 
+                        Reach out to your local community energy group and help make a community wind project happen in your area.</p>
+                        <p className="font-light mb-4">The following community energy groups are close to the turbine you voted for:
+                        </p>
+
+                        <div className="hidden sm:block space-y-4">
+                            {localgroups.map((feature) => (
+                            <div key={feature.id} className="p-4 bg-white shadow">
+                                {(feature.properties.url !== '') ? (
+                                <a
+                                href={feature.properties.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline text-sm"
+                                >
+                                <h3 className="text-lg font-semibold">{feature.properties.name}</h3>
+                                </a>
+                                ) : (
+                                <h3 className="text-lg font-semibold">{feature.properties.name}</h3>
+                                )}
+                                <p className="text-xs">
+                                Distance: {feature.properties.distance.toFixed(1)} km
+                                </p>
+                            </div>
+                            ))}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div className="sm:hidden space-y-4">
+                    {localgroups.map((feature) => (
+                    <div key={feature.id} className="p-4 bg-white shadow">
+                        {(feature.properties.url !== '') ? (
+                        <a
+                        href={feature.properties.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline text-sm"
+                        >
+                        <h3 className="text-lg font-semibold">{feature.properties.name}</h3>
+                        </a>
+                        ) : (
+                        <h3 className="text-lg font-semibold">{feature.properties.name}</h3>
+                        )}
+                        <p className="text-xs">
+                        Distance: {feature.properties.distance.toFixed(1)} km
+                        </p>
+                    </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-[auto_1fr] gap-x-0 mt-6">
+                    <div>
+                        <NumberedAction content="3" />
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-semibold mb-2">
+                        Start a community energy group
+                        </h2>
+                        <p className="font-light mb-2">
+                        If there are no community energy groups near you, use our simple guide below to get started creating your own community energy group. It's super easy and is an ideal way of building an effective team of people to make community wind projects happen.  
+                        </p>
+                        <p className="font-bold mb-2">
+                            Warning: you may make friends for life!
+                        </p>
+                        <a className="hidden sm:block" href="https://openwind.energy">
+                            <Button className="text-md mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 inline-flex items-center justify-center gap-2">
+                            Guide to creating community energy group
+                            </Button>
+                        </a>
+
+                    </div>
+                </div>
+
+                <a className="sm:hidden" href="https://openwind.energy">
+                    <Button className="text-xs mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 inline-flex items-center justify-center gap-2">
+                    Guide to creating community energy group
+                    </Button>
+                </a>
+
+                <div className="clear-left"></div>
+
+            </div>
+
+            )}
+
 
         </section>
 

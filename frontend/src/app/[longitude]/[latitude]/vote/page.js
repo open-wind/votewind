@@ -3,6 +3,7 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import VoteCastMap from '@/components/votecast-map';
+import PartnerLogos from '@/components/partner-logos';
 
 export default function Page() {
   const params = useParams();
@@ -23,6 +24,8 @@ export default function Page() {
   return (
     <div>
       <VoteCastMap longitude={params.longitude} latitude={params.latitude} type={type} emailused={emailused} />
+      <PartnerLogos />
+
     </div>
   );
 }

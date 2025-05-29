@@ -1,0 +1,54 @@
+[
+    {
+      "id": "organisations-halo",
+      "type": "symbol",
+      "source": "organisations",
+      "layout": {
+          "icon-image": "check-mark-circle-outline-sdf", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.0325,
+            6, 0.065,
+            10, 0.13
+          ],
+
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "icon-offset": [0, 190]
+        },
+      "paint": {
+        "icon-color": "deepskyblue",
+        "icon-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5, 0,
+          6, [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            1,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "organisations-default",
+      "type": "symbol",
+      "source": "organisations",
+      "paint": {
+          "icon-opacity": 1
+      },
+      "layout": {
+          "icon-image": "check-mark-blue", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.025,
+            6, 0.05,
+            10, 0.1
+          ],
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true
+      }
+    }
+]

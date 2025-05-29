@@ -8,6 +8,12 @@ from django.http import HttpResponse
 # from django.contrib.gis.admin import OSMGeoAdmin
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 
+ORGANISATION_TYPE_CHOICES = (
+    ("community-energy-group", "Community Energy Group"),
+    ("ngo", "National / Regional NGO"),
+    ("electricity", "Elecricity Company"),
+)
+
 class ExportCsvMixin:
     def export_as_csv(self, request, queryset):
 
@@ -229,3 +235,43 @@ class VoteAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
         'internetip',
         'created',
     )
+
+class Organisation(models.Model):
+    """
+    Stores information about organisations, eg. community energy groups
+    """
+
+    name = models.CharField(max_length=1000, default='', blank=True)
+    type = models.CharField(max_length=50, choices=ORGANISATION_TYPE_CHOICES, default="community-energy-group")
+    email = models.CharField(max_length=200, default='', blank=True)
+    address = models.TextField(default='', blank=True)
+    description = models.TextField(default='', blank=True)
+    url = models.CharField(max_length=1000, default='', blank=True)
+    geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('type', 'name')
+        indexes = [
+            models.Index(fields=['name',]),
+            models.Index(fields=['type',]),
+            models.Index(fields=['email',]),
+            models.Index(fields=['url',]),
+            GistIndex(fields=['geometry']),
+        ]
+class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
+    list_display = ['name', 'type', 'email', 'url', 'created']
+    actions = ["export_as_csv", "export_unique_emails_as_csv"]
+
+    list_filter = (
+        'type',
+    )
+
+    search_fields = (
+        'name',
+        'type',
+        'email',
+        'description',
+        'url'
+    )
+

@@ -4,7 +4,7 @@
       "type": "symbol",
       "source": "votes",
       "layout": {
-          "icon-image": "tick-outline", 
+          "icon-image": "check-mark-circle-outline-sdf", 
           "icon-size": [
             "interpolate", ["exponential", 2], ["zoom"],
             5, 0.0325,
@@ -17,8 +17,19 @@
           "icon-offset": [0, 190]
         },
       "paint": {
-        "icon-color": "#2563EB",
-        "icon-opacity": ["case", ["boolean", ["feature-state", "selected"], false], 1, 0]
+        "icon-color": "deepskyblue",
+        "icon-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5, 0,
+          6, [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            1,
+            0
+          ]
+        ]
       }
     },
     {
@@ -30,7 +41,7 @@
           "icon-opacity": 1
       },
       "layout": {
-          "icon-image": "tick-desaturated-dropshadow", 
+          "icon-image": "check-mark-circle-desaturated-dropshadow", 
           "icon-size": [
             "interpolate", ["exponential", 2], ["zoom"],
             5, 0.025,
@@ -47,7 +58,7 @@
       "source": "votes",
       "filter": [">=", ["get", "votes_confirmed"], 1],
       "layout": {
-          "icon-image": "tick-dropshadow", 
+          "icon-image": "check-mark-circle-dropshadow", 
           "icon-size": [
             "interpolate", ["exponential", 2], ["zoom"],
             5, 0.025,
@@ -64,7 +75,7 @@
       "source": "votes",
       "minzoom": 10,
       "layout": {
-        "icon-image": "tick-white",
+        "icon-image": "check-mark-circle-outline",
         "icon-size": 0.08,
         "icon-anchor": "bottom",
         "icon-offset": [0, 0],

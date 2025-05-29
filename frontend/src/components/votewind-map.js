@@ -30,11 +30,15 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const inputRef = useRef(null);
     const [query, setQuery] = useState('');
     const [initialPosition, setInitialPosition] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude), type: type})
+    const [processing, setProcessing] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
+    const [votesCast, setVotesCast] = useState(null);
+    const [votesText, setVotesText] = useState('');
+    const [organisation, setOrganisation] = useState(null);
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -63,21 +67,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         }  
 
-        // Add voting stylesheet
-        var vote_style = require('./stylesheets/votes.json');
-        for (let i = 0; i < vote_style.length; i++) newjson['layers'].push(vote_style[i]);
+        // Add constraint layers
+        // ************* TODO **************
 
-        // Add constraint layers and other layers like voting and community energy groups
-  
-        //   var newlayers = [];
-        //   for(let i = 0; i < newjson['layers'].length; i++) {
-        //     if (newjson['layers'][i]['id'] === 'planning-constraints') {
-        //       for(let j = 0; j < planningconstraints.length; j++) newlayers.push(planningconstraints[j]);
-        //     } else {
-        //       newlayers.push(newjson['layers'][i]);
-        //     }
-        //   }    
-        //   newjson['layers'] = newlayers;
+        // Add voting stylesheet
+        var votes_style = require('./stylesheets/votes.json');
+        for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
+
+        // Add organisations stylesheet
+        var organisations_style = require('./stylesheets/organisations.json');
+        for (let i = 0; i < organisations_style.length; i++) newjson['layers'].push(organisations_style[i]);
 
         newjson['glyphs'] = baseurl + newjson['glyphs'];
         newjson['sprite'] = baseurl + newjson['sprite'];
@@ -90,7 +89,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         var newStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
         return newStyle;
     }
-
 
     const mapStyle = retrieveMapStyle();
 
@@ -133,8 +131,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     if (zoom === null) zoom = MAP_DEFAULT_ZOOM;
     if ((latitude === null) || (longitude === null)) {
         bounds = [
-            [MAP_DEFAULT_BOUNDS.left, MAP_DEFAULT_BOUNDS.bottom], // southwest
-            [MAP_DEFAULT_BOUNDS.right, MAP_DEFAULT_BOUNDS.top],  // northeast
+            [MAP_DEFAULT_BOUNDS.left, MAP_DEFAULT_BOUNDS.bottom], 
+            [MAP_DEFAULT_BOUNDS.right, MAP_DEFAULT_BOUNDS.top],
         ];
         latitude = MAP_DEFAULT_CENTRE.latitude;
         longitude = MAP_DEFAULT_CENTRE.longitude;
@@ -147,36 +145,31 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     };
 
     const onLoad = () => {
-        setMapLoaded(true);
-
         const map = mapRef.current?.getMap();
+        if (!map) return;
 
-       if (!map.hasImage('tick-dropshadow')) {
-            const img = new window.Image(); 
-            img.src = '/icons/check-mark-circle-dropshadow.png';
-            img.onload = () => {map.addImage('tick-dropshadow', img, { sdf: false });};
+        // Load any images that are too fiddly to incorporate into default images
+        const images_to_load = [    'check-mark-circle-dropshadow',
+                                    'check-mark-circle-desaturated-dropshadow', 
+                                    'check-mark-circle-outline', 
+                                    'check-mark-circle-outline-sdf', 
+                                    'check-mark-blue',
+                                    'check-mark-person'];
+
+                                    for(let i = 0; i < images_to_load.length; i++) {
+            const image_id = images_to_load[i];
+            if (!map.hasImage(image_id)) {
+                const img = new window.Image();
+                img.src = `/icons/${image_id}.png`;
+                img.onload = () => map.addImage(image_id, img, { sdf: image_id.endsWith('-sdf')});
+
+            }
         }
 
-        if (!map.hasImage('tick-desaturated-dropshadow')) {
-            const img = new window.Image(); 
-            img.src = '/icons/check-mark-circle-desaturated-dropshadow.png';
-            img.onload = () => {map.addImage('tick-desaturated-dropshadow', img, { sdf: false });};
-        }
-
-        if (!map.hasImage('tick-outline')) {
-            const img = new window.Image(); 
-            img.src = '/icons/check-mark-circle-outline.png';
-            img.onload = () => {map.addImage('tick-outline', img, { sdf: true });};
-        }
-
-        if (!map.hasImage('tick-white')) {
-            const img = new window.Image(); 
-            img.src = '/icons/check-mark-circle-outline.png';
-            img.onload = () => {map.addImage('tick-white', img, { sdf: false });};
-        }
-
+        map.setStyle(mapStyle);
+        setMapLoaded(true);
     }
-
+        
     const updateURL = debounce((view) => {
         const longitude = view.longitude.toFixed(5);
         const latitude = view.latitude.toFixed(5);
@@ -222,40 +215,82 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         requestAnimationFrame(mapCentreOnTurbine);
     }, [turbinePosition, turbineAdded]);
 
-    const deselectActiveVotes = () => {
+    useEffect(() => {
+        if (organisation === null) return;
+        requestAnimationFrame(mapCentreOnOrganisation);
+    }, [organisation]);
+
+    const deselectActiveItems = () => {
+        setVotesCast(null);
+        setVotesText(null);
         const map = mapRef.current?.getMap?.();
-        if (map) map.removeFeatureState({ source: "votes" });
+        if (map) {
+            map.removeFeatureState({ source: "votes" });
+            map.removeFeatureState({ source: "organisations" });
+        }
     }
     const onClick = (event) => {
         var acceptableposition = true;
-        deselectActiveVotes();
+        deselectActiveItems();
 
+        var turbineposition_new = {'longitude': event.lngLat.lng, 'latitude': event.lngLat.lat};
         var isExistingVote = false;
-
+        var isOrganisation = false;
+        
         if (event.features.length > 0) {
             var id = event.features[0]['layer']['id'];
             if (id == 'water') {
                 acceptableposition = false;
                 toastOnshoreOnly();
             }
+
             if (id.startsWith('votes-')) {
                 const feature_id = event.features[0]['properties']['id'];
-                const turbineposition = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
+                turbineposition_new = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
                 const map = mapRef.current?.getMap?.();
                 map.setFeatureState({ source: 'votes', id: feature_id },{ selected: true });
-                setTurbinePosition(turbineposition);
+                const votes_confirmed = parseInt(event.features[0]['properties']['votes_confirmed']);
+                const votes_unconfirmed = parseInt(event.features[0]['properties']['votes_unconfirmed']);
+                setVotesCast(votes_confirmed + votes_unconfirmed)
+                var vote_text = '';
+                if (votes_confirmed != 0) {
+                    vote_text += String(votes_confirmed) + ' confirmed vote';
+                    if (votes_confirmed > 1) vote_text += 's';
+                    if (votes_unconfirmed != 0) vote_text += ' and ';
+                }
+                if (votes_unconfirmed != 0) {
+                    vote_text += String(votes_unconfirmed) + ' unconfirmed vote';
+                    if (votes_unconfirmed > 1) vote_text += 's';
+                }
+                setVotesText(vote_text);
                 isExistingVote = true;
             } 
+
+            if (id.startsWith('organisations-')) {
+                const feature_id = event.features[0]['properties']['id'];
+                const map = mapRef.current?.getMap?.();
+                map.setFeatureState({ source: 'organisations', id: feature_id },{ selected: true });
+                isOrganisation = true;
+                setOrganisation(event.features[0]['properties']);
+            } 
+
         } 
 
-        if (isExistingVote) setDisplayTurbine(false);
+        if ((isExistingVote) || (isOrganisation)) setDisplayTurbine(false);
         else {
             if (!displayTurbine) setDisplayTurbine(true);
         }
 
-        if (acceptableposition) {
-            setTurbinePosition({'longitude': event.lngLat.lng, 'latitude': event.lngLat.lat});
-            setTurbineAdded(true);
+        if (isOrganisation) {
+            setTurbinePosition(null);
+            setTurbineAdded(false);
+        }
+        else {
+            setOrganisation(null);
+            if (acceptableposition) {
+                setTurbinePosition(turbineposition_new);
+                setTurbineAdded(true);
+            }
         }
     }
 
@@ -264,9 +299,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setDisplayTurbine(true);
         setError("");
         setEmail("");
-        deselectActiveVotes();
+        setVotesCast(null);
+        setVotesText('');
+        setOrganisation(null);
+        deselectActiveItems();
     }
-    const closeVotingPanel = () => {
+
+    const closePanel = () => {
         resetSettings();
     }
 
@@ -276,6 +315,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!turbinePosition) return;
         isRecentering.current = true;
         map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+    }
+
+    const mapCentreOnOrganisation = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+        if (organisation === null) return;
+        isRecentering.current = true;
+        map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
     }
 
     const mapZoomIn = (e) => {
@@ -300,6 +347,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         if ((email) && (email !== '')) voteparameters.email = email;
 
+        setProcessing(true);
         const res = await fetch(API_BASE_URL + '/api/vote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -309,6 +357,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         const data = await res.json();
         if (!data.success) {
+            setProcessing(false);
             setError("CAPTCHA verification failed. Please try again.");
             return;
         }
@@ -331,6 +380,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             return;
         }
 
+        setProcessing(true);
         const res = await fetch(API_BASE_URL + '/api/setcookie', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -341,10 +391,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const data = await res.json();
 
         if (!data.success) {
+            setProcessing(false);
             setError("CAPTCHA verification failed. Please try again.");
             return;
         }
 
+        setProcessing(false);
         setError('');
         setShowConsentBanner(false);
         submitVote();
@@ -385,6 +437,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     return (
     <main className="flex justify-center items-center w-screen h-screen">
+
+        {processing && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
+            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
+        </div>
+        )}
 
         {alertMessage && (
         <>
@@ -462,7 +521,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 {/* Close button */}
                 <button
-                onClick={closeVotingPanel}
+                onClick={closePanel}
                 className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
                 aria-label="Close vote panel"
                 >
@@ -480,15 +539,36 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     {/* Content: Icon + Text */}
                     <div className="flex mt-1 sm:mt-0">
                         <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
+                            <div className="relative inline-block">
                             <img
-                            alt="Vote"
-                            src="/icons/check-mark.svg"
-                            className="block"
+                                src="/icons/check-mark.svg"
+                                alt="Vote"
+                                className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
+
+                            {/* Red circle badge */}
+                            {(votesCast !== null) && (
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-red-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
+                                        {votesCast}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    {votesText} for this location
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            )}
+                            </div>
                         </div>
 
                         <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
                             <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">Wind Turbine Vote</h2>
+
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
                                 <b>Position: </b>
@@ -541,7 +621,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     {/* Buttons: Side-by-side, full width combined */}
                     <div className="mt-2 flex justify-end gap-3">
-                    <Button type="button" onClick={closeVotingPanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                    <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
                     Cancel
                     </Button>
 
@@ -552,6 +632,59 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     </div>
                 </form>
+            </div>
+
+        </div>
+        )}
+
+        {/*  Organisation info panel */}
+        {(organisation !== null) && (
+        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
+
+            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
+
+                {/* Close button */}
+                <button
+                onClick={closePanel}
+                className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                aria-label="Close vote panel"
+                >
+                &times;
+                </button>
+
+                    {/* Content: Icon + Text */}
+                    <div className="flex mt-1 sm:mt-0 sm:w-[800px] mx-auto">
+
+                        <div className="flex-shrink-0 w-20 h-20 sm:w-40 sm:h-40 ml-5 sm:mr-10">
+                            <div className="relative inline-block">
+                            <img
+                                src="/icons/multiple-users-silhouette.svg"
+                                alt="Vote"
+                                className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
+                            />
+                            </div>
+                        </div>
+
+                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                            {(organisation.url !== '') ? (
+                            <a
+                            href={organisation.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline text-sm"
+                            >
+                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                            </a>
+                            ) : (
+                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                            )}
+
+                            <p className="text-xs text-gray-700 mt-2 sm:mt-4">{organisation.description}</p>
+
+                        </div>
+                    </div>
+
+
             </div>
 
         </div>
@@ -640,7 +773,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </button>
                     </TooltipTrigger>
                     <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Centre map on added turbine
+                        Centre map on selected turbine position
                     </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -648,7 +781,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             </div>
             </div>
 
-            {!turbineAdded && showInfo && (
+            {!turbineAdded && showInfo && (organisation === null) && (
             <div className="absolute bottom-5 inset-x-0 flex justify-center px-4 z-30">
                 <div
                     className="
@@ -685,12 +818,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 onMoveEnd={onMoveEnd}
                 onClick={onClick}
                 style={{ width: '100%', height: '100%' }}
-                mapStyle={mapStyle}
+                // mapStyle={mapStyle}
                 interactiveLayerIds={[
                     'water', 
                     'votes-unconfirmed', 'votes-confirmed', 
                     'votes-unconfirmed-single', 'votes-confirmed-single', 
-                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple' ]}
+                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
+                    'organisations-default' ]}
                 attributionControl={false}
             >
                   <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>

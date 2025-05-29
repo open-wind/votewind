@@ -1,113 +1,48 @@
-import { useRef, useEffect, useState } from "react";
+'use client';
 
-const partners = [
-  { name: "CEE", logo: "/logos/partner-cee.png", url: "https://partner-a.com" },
-  { name: "CES", logo: "/logos/partner-ces.png", url: "https://partner-b.com" },
-  { name: "CEW", logo: "/logos/partner-cew.png", url: "https://partner-c.com" },
-  { name: "Ashden", logo: "/logos/partner-ashden.png", url: "https://partner-c.com" },
-  { name: "CSE", logo: "/logos/partner-cse.png", url: "https://partner-c.com" },
-  { name: "Action Renewables", logo: "/logos/partner-actionrenewables.png", url: "https://partner-c.com" },
-
-];
-
-export default function PartnerLogos() {
-  const scrollRef = useRef(null);
-  const [isHovering, setIsHovering] = useState(false);
-
-  // ✅ Auto-scroll effect
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    let frameId;
-
-    const scrollStep = () => {
-      if (!isHovering) {
-        scrollContainer.scrollLeft += 0.2;
-            console.log("scrolling:", scrollContainer.scrollLeft); // ✅ log it
+import Slider from 'react-infinite-logo-slider'
 
 
-        if (
-          scrollContainer.scrollLeft + scrollContainer.clientWidth >=
-          scrollContainer.scrollWidth
-        ) {
-          scrollContainer.scrollLeft = 0; // loop back
-        }
-      }
+export default function PartnerLogos () {
 
-      frameId = requestAnimationFrame(scrollStep);
-    };
+    return (
+     <div className="fixed bottom-0 w-full bg-white py-0 sm:py-2 h-[110px] sm:h-[130px] pointer-events-none" >
 
-    const timeoutId = setTimeout(() => {
-      frameId = requestAnimationFrame(scrollStep);
-    }, 300); // allow time for layout
+        <Slider
+          width="200px"
+          duration={80}
+          // pauseOnHover={true}
+          blurBorders={true}
+          blurBorderColor={'#fff'} 
+        >
+          <Slider.Slide className="mr-4">
+            <a className="pointer-events-auto" target="_partner" href="https://ashden.org/energy-learning-network/"><img src="/logos/partner-ashden.png" alt="Ashden" className="h-10" /></a>
+          </Slider.Slide>
+          <Slider.Slide>
+            <a className="pointer-events-auto" target="_partner" href="https://communityenergyengland.org/pages/energy-learning-network/"><img src="/logos/partner-cee.png" alt="Community Energy England" className="h-20" /></a>
+          </Slider.Slide>
+          <Slider.Slide className="mr-10">
+            <a className="pointer-events-auto" target="_partner" href="https://communityenergyscotland.org.uk/projects/energy-learning-network/"><img src="/logos/partner-ces.png" alt="Community Energy Scotland" /></a>
+          </Slider.Slide>
+          <Slider.Slide className="mr-10">
+            <a className="pointer-events-auto" target="_partner" href="https://communityenergy.wales/energy-learning-network"><img src="/logos/partner-cew.png" alt="Community Energy Wales" className="h-12" /></a>
+          </Slider.Slide>
+          <Slider.Slide className="mr-14">
+            <a className="pointer-events-auto" target="_partner" href="https://actionrenewables.co.uk/energy-learning-network/"><img src="/logos/partner-actionrenewables.png" alt="Action Renewables" className="h-14" /></a>
+          </Slider.Slide>
+          <Slider.Slide className="mr-0">
+            <a className="pointer-events-auto" target="_partner" href="https://www.cse.org.uk/my-community/community-projects/energy-learning-network/"><img src="/logos/partner-cse.png" alt="Centre for Sustainable Energy" className="h-14" /></a>
+          </Slider.Slide>
+        </Slider>
 
-    return () => {
-      cancelAnimationFrame(frameId);
-      clearTimeout(timeoutId);
-    };
-  }, [isHovering]);
+        <div className="text-[14px] hidden sm:block text-center w-full z-50 font-light pt-2 pb-2">
+          An <a className="font-bold" target="_partner" href="https://ashden.org/energy-learning-network/">Energy Learning Network</a> project in partnership with <a className="font-bold" target="_partner" href="https://openwind.energy">Open Wind Energy</a>
+        </div>
 
-  // ✅ Drag-to-scroll logic
-  let isDown = false;
-  let startX;
-  let scrollLeft;
+        <div className="fixed bottom-0 text-[9px] sm:hidden text-center w-full z-50 font-light pt-3 pb-2">
+          An <a className="font-bold" target="_partner" href="https://ashden.org/energy-learning-network/">Energy Learning Network</a> project in partnership with <a className="font-bold" target="_partner" href="https://openwind.energy">Open Wind Energy</a>
+        </div>
 
-  const startDrag = (e) => {
-    isDown = true;
-    scrollRef.current.classList.add("cursor-grabbing");
-    startX = e.pageX || e.touches?.[0].pageX;
-    scrollLeft = scrollRef.current.scrollLeft;
-  };
-
-  const stopDrag = () => {
-    isDown = false;
-    scrollRef.current.classList.remove("cursor-grabbing");
-  };
-
-  const dragMove = (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    const x = e.pageX || e.touches?.[0].pageX;
-    const walk = (x - startX) * 1.5;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  return (
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow z-50">
-      <div
-        ref={scrollRef}
-        onMouseDown={startDrag}
-        onMouseLeave={() => {
-          stopDrag();
-          setIsHovering(false);
-        }}
-        onMouseUp={stopDrag}
-        onMouseMove={dragMove}
-        onMouseEnter={() => setIsHovering(true)}
-        onTouchStart={startDrag}
-        onTouchEnd={stopDrag}
-        onTouchMove={dragMove}
-          style={{ maxWidth: "100vw" }} // explicitly ensure it doesn't collapse
-
-  className="flex overflow-x-auto whitespace-nowrap gap-8 px-6 py-4 cursor-grab no-scrollbar w-full"
-      >
-        {partners.map((partner) => (
-          <a
-            key={partner.name}
-            href={partner.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0"
-          >
-            <img
-              src={partner.logo}
-              alt={partner.name}
-              className="h-12 object-contain"
-            />
-          </a>
-        ))}
       </div>
-    </div>
-  );
+    )
 }

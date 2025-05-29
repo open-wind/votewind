@@ -5,6 +5,7 @@ from time import sleep
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.signing import BadSignature
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
@@ -16,7 +17,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Postcode, Place, Boundary, UserID, Vote
+from .models import Postcode, Place, Boundary, UserID, Vote, Organisation
 
 NUMBER_RESULTS_RETURNED = 26
 COORDINATE_PRECISION = 5
@@ -291,6 +292,22 @@ def SubmitVote(request):
 
     CreateVote(request, vote_parameters)
 
+    if email_set is True:
+        # Deactivate any prior votes same user may have made
+        user_has_valid_cookie = True
+        try:
+            userid = request.get_signed_cookie(settings.COOKIE_NAME, salt=settings.SECRET_KEY)
+        except KeyError:
+            user_has_valid_cookie = False
+        except Exception:
+            user_has_valid_cookie = False
+
+        if user_has_valid_cookie:
+            userid_record = UserID.objects.filter(userid=userid).first()
+            if userid_record is None: user_has_valid_cookie = False
+        
+        if user_has_valid_cookie: Vote.objects.filter(userid=userid).update(live=False)
+
     return JsonResponse({"success": True, "message": "Vote registered"})
 
 @csrf_exempt
@@ -330,8 +347,8 @@ def Votes(request):
     index = 0
     for distinctpoint in distinctpoints:
         index += 1
-        allvotes_confirmed = Vote.objects.filter(confirmed=True).filter(geometry=distinctpoint['geometry']).count()
-        allvotes_unconfirmed = Vote.objects.filter(confirmed=False).filter(geometry=distinctpoint['geometry']).count()
+        allvotes_confirmed = Vote.objects.filter(live=True).filter(confirmed=True).filter(geometry=distinctpoint['geometry']).count()
+        allvotes_unconfirmed = Vote.objects.filter(live=True).filter(confirmed=False).filter(geometry=distinctpoint['geometry']).count()
         feature = {
             "type": "feature",
             "id": str(index),
@@ -340,12 +357,58 @@ def Votes(request):
                 'position': str(round(distinctpoint['geometry'].coords[1], COORDINATE_PRECISION)) + "°N, " + str(round(distinctpoint['geometry'].coords[0], COORDINATE_PRECISION)) + "°E",
                 'votes_confirmed': allvotes_confirmed,
                 'votes_unconfirmed': allvotes_unconfirmed,
-                'lat': distinctpoint['geometry'].coords[1],
-                'lng': distinctpoint['geometry'].coords[0]
+                'lng': distinctpoint['geometry'].coords[0],
+                'lat': distinctpoint['geometry'].coords[1]
             },
             "geometry": {
                 "type": "Point",
                 "coordinates": [distinctpoint['geometry'].coords[0], distinctpoint['geometry'].coords[1]]
+            }
+        }
+        features.append(feature)
+
+    geojson = { "type": "FeatureCollection", "features": features }
+    return OutputJson(geojson)
+
+@csrf_exempt
+def Organisations(request):
+    """
+    Get organisations orderd by proximity to supplied position
+    """
+
+    try:
+        data = json.loads(request.body)
+    except (ValueError, KeyError):
+        data = {}
+
+    typefilter = 'community-energy-group'
+
+    if 'position' in data:
+        centre = Point(float(data['position']['longitude']), float(data['position']['latitude']), srid=4326)    
+        firstcutsize = 10
+        organisations = Organisation.objects.filter(type=typefilter).annotate(distance=Distance('geometry' , centre )).order_by('distance')[:firstcutsize]
+    else:
+        organisations = Organisation.objects.filter(type=typefilter).order_by('name')
+
+    features = []
+    for organisation in organisations:
+        properties = {  'id': organisation.pk, \
+                        'name': organisation.name, \
+                        'address': organisation.address, \
+                        'description': organisation.description, \
+                        'url': organisation.url, \
+                        'lng': organisation.geometry.coords[0], \
+                        'lat': organisation.geometry.coords[1] }
+        if hasattr(organisation, 'distance'):
+            properties['distance'] = float(organisation.distance.m) / 1000
+
+        feature = {
+            "type": "feature",
+            "id": str(organisation.pk),
+            "properties": properties,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [organisation.geometry.coords[0], organisation.geometry.coords[1]]
             }
         }
         features.append(feature)

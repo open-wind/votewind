@@ -18,6 +18,10 @@
       "type": "geojson",
       "data": "http://localhost:8000/votes/"
     },
+    "organisations": {
+      "type": "geojson",
+      "data": "http://localhost:8000/organisations/"
+    },
     "attribution": {
       "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>",
       "type": "vector"
