@@ -3,23 +3,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-const querystring = require('querystring');
+import maplibregl from 'maplibre-gl';
+import debounce from 'lodash.debounce';
 import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover"
+import Image from "next/image";
+import { Search, Video } from 'lucide-react'
+const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/components/functions/helpers"
-import Image from "next/image";
-import { Search } from 'lucide-react'
-
-import maplibregl from 'maplibre-gl';
-import debounce from 'lodash.debounce';
+import CesiumModal from './cesium-modal';
+import AutocompleteInput from './autocomplete-input';
 
 import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
-import AutocompleteInput from './autocomplete-input';
 
 export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false }) {
     const router = useRouter();
@@ -33,6 +33,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [processing, setProcessing] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
+    const [showCesiumViewer, setShowCesiumViewer] = useState(false);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
@@ -574,9 +575,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 >
 
                     {/* Content: Icon + Text */}
-                    <div className="flex mt-1 sm:mt-0">
+                    <div className="flex mt-0 sm:mt-0">
                         <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
                             <div className="relative inline-block">
+
                             <img
                                 src="/icons/check-mark.svg"
                                 alt="Vote"
@@ -604,8 +606,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </div>
 
                         <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">Wind Turbine Vote</h2>
-
+                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">Wind Turbine Vote     
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Video onClick={() => setShowCesiumViewer(true)} className="w-6 h-6 sm:w-8 sm:h-8 inline-flex ml-3 relative -top-[3px] fill-current text-blue-600" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    3D view of turbine
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            </h2>
+                                
+                                
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
                                 <b>Position: </b>
@@ -658,16 +672,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     {/* Buttons: Side-by-side, full width combined */}
                     <div className="mt-2 flex justify-end gap-3">
-                    <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
-                    Cancel
-                    </Button>
+                        <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                        Cancel
+                        </Button>
 
-                    <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
-                    <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
-                    Cast vote!
-                    </Button>
-
+                        <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
+                        <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                        Cast vote!
+                        </Button>
                     </div>
+                    
                 </form>
             </div>
 
@@ -891,6 +905,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 )}
 
             </Map>
+
+        {/* Cesium viewer */}
+        <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
 
         </div>
     </main>

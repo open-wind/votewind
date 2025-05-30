@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+
+    <style>
+  html, body, #cesiumContainer {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+</style>
+
+  <div id="cesiumContainer"></div>
+  <script type="module">
+    // Your access token can be found at: https://ion.cesium.com/tokens.
+    // Replace `your_access_token` with your Cesium ion access token.
+
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYmI4ZjUzZS1mZDlhLTRhNTAtODg2MS1hNTE0YzFiMTg3N2UiLCJpZCI6MTY2MDk4LCJpYXQiOjE3MTU1MDYyMDJ9.NfVaQVWw4a3w9a_nS7q4WDav761MOStpPDAoDfxpHaQ';
+
+const terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+
+
+    // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+const viewer = new Cesium.Viewer("cesiumContainer", {
+contextOptions: {
+    webgl: {
+      alpha: false,
+      antialias: true
+    }
+  },
+  terrainProvider: terrainProvider,
+  animation: false,
+  baseLayerPicker: false,
+  fullscreenButton: false,
+  geocoder: false,
+  homeButton: false,
+  infoBox: false,
+  sceneModePicker: false,
+  selectionIndicator: false,
+  timeline: false,
+  navigationHelpButton: false,
+  navigationInstructionsInitiallyVisible: false,
+  shouldAnimate: false
+});
+      
+
+viewer.scene.globe.enableLighting = true;
+viewer.scene.skyAtmosphere.show = true;
+viewer.scene.sun.show = true;
+viewer.shadows = true;
+viewer.scene.shadowMap.enabled = true;
+viewer.shadowMap.maximumDistance = 1000.0; // Limit distance for higher quality nearby
+viewer.scene.shadowMap.softShadows = true;
+viewer.scene.shadowMap.size = 4096;
+viewer.scene.postProcessStages.fxaa.enabled = true;
+viewer.resolutionScale = window.devicePixelRatio;
+viewer.scene.light = new Cesium.SunLight();
+viewer.scene.light.intensity = 0.8;
+viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date("2025-05-30T14:00:00Z"));
+
+
+// // Azimuth 225° = Southwest
+// const azimuthDegrees = 225;
+// const azimuthRadians = Cesium.Math.toRadians(azimuthDegrees);
+
+// // Assume light comes down at a 45° vertical angle
+// const elevationRadians = Cesium.Math.toRadians(20);
+
+// // Convert azimuth + elevation to a direction vector
+// const x = Math.cos(elevationRadians) * Math.sin(azimuthRadians);
+// const y = Math.cos(elevationRadians) * Math.cos(azimuthRadians);
+// const z = Math.sin(elevationRadians);
+
+// // Create the custom sun light direction vector
+// const sunDirection = new Cesium.Cartesian3(-x, -y, -z); // Invert to point *from* the sun
+
+// // Apply directional light
+// viewer.scene.light = new Cesium.DirectionalLight({
+//   direction: sunDirection
+// });
+
+
+// // Simulate a softer sunlight direction
+// viewer.scene.light = new Cesium.DirectionalLight({
+//   direction: new Cesium.Cartesian3(-0.2, -0.2, -0.1)
+// });
+
+try {
+  const tileset = await Cesium.createGooglePhotorealistic3DTileset();
+  viewer.scene.primitives.add(tileset);
+} catch (error) {
+  console.log(`Failed to load tileset: ${error}`);
+}
+
+const longitude = -0.147;
+const latitude = 50.828;
+let angle = Math.PI / 2; 
+const radius = 400;
+const yPan = 0;
+
+// Initial orientation of objects
+const heading = Cesium.Math.toRadians(220); // Southwest
+const pitch = 0;
+const roll = 0;
+const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+
+const positions = [Cesium.Cartographic.fromDegrees(longitude, latitude)];
+const updatedPositions = await Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
+const terrainHeight = updatedPositions[0].height;
+
+const basePosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, terrainHeight);
+const bladePosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, terrainHeight + 100); // 100m hub height
+
+viewer.entities.add({
+  name: "Turbine Tower",
+  position: basePosition,
+  orientation: Cesium.Transforms.headingPitchRollQuaternion(basePosition, hpr),
+  model: {
+    uri: '/3d/windturbine_tower.gltf',
+    scale: 29.28,
+    shadows: Cesium.ShadowMode.ENABLED,
+    color: Cesium.Color.WHITE.withAlpha(1.0),
+    colorBlendMode: Cesium.ColorBlendMode.MIX,
+    colorBlendAmount: 0.2
+  }
+});
+
+const bladesEntity = viewer.entities.add({
+  name: "Turbine Blades",
+  position: bladePosition,
+  orientation: Cesium.Transforms.headingPitchRollQuaternion(bladePosition, hpr),
+  model: {
+    uri: '/3d/windturbine_blades.gltf',
+    scale: 28.48,
+    shadows: Cesium.ShadowMode.CAST_ONLY,
+    color: Cesium.Color.WHITE.withAlpha(1.0),
+    colorBlendMode: Cesium.ColorBlendMode.MIX,
+    colorBlendAmount: 0.25 // Simulate ambient light fill
+  }
+});
+
+viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 100 + terrainHeight),
+    orientation: {
+    heading: Cesium.Math.toRadians(0.0),
+    pitch: Cesium.Math.toRadians(-35.0),
+    }
+});
+
+let bladeAngle = 0;
+const startTime = Cesium.JulianDate.now();
+
+viewer.scene.postRender.addEventListener(() => {
+  const now = viewer.clock.currentTime;
+  const elapsed = Cesium.JulianDate.secondsDifference(now, startTime);
+  const rpm = 15; // rotations per minute
+  const angle = ((rpm * 2 * Math.PI) / 60) * elapsed;
+
+  bladesEntity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
+    bladePosition,
+    new Cesium.HeadingPitchRoll(heading, angle, 0)
+  );
+});
+
+
+viewer.clock.shouldAnimate = true; 
+
+const center = Cesium.Cartesian3.fromDegrees(longitude, latitude, terrainHeight); 
+const heightAbove = 0 + terrainHeight;
+const transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+const cameraOffset = new Cesium.Cartesian3(-radius, (-radius / 4), heightAbove)
+
+viewer.scene.camera.lookAtTransform(transform, cameraOffset);
+
+// Slide the camera upward in world coordinates (e.g. Y axis up)
+const moveUpAmount = 100; // adjust as needed
+viewer.scene.camera.moveUp(yPan);
+
+// viewer.clock.onTick.addEventListener(() => {
+//     angle += 0.0004; // adjust speed
+//     const x = radius * Math.cos(angle);
+//     const y = radius * Math.sin(angle);
+
+//     viewer.scene.camera.lookAtTransform(
+//         transform,
+//         new Cesium.Cartesian3(x, y, heightAbove)
+//     );
+//     viewer.scene.camera.moveUp(yPan);
+// });
+
+
+</script>
+ </div>
+</body>
+</html>

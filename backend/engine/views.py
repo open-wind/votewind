@@ -1,3 +1,4 @@
+import os
 import json
 import uuid
 import requests
@@ -369,6 +370,20 @@ def Votes(request):
 
     geojson = { "type": "FeatureCollection", "features": features }
     return OutputJson(geojson)
+
+@csrf_exempt
+def CesiumJIT(request):
+    """
+    Retrieves CesiumJS token
+    """
+
+    origin = request.headers.get("Origin")
+    
+    if origin not in settings.CORS_ALLOWED_ORIGINS:
+        return HttpResponseForbidden("Unauthorized origin")
+
+    token = os.environ.get("CESIUM_ION_TOKEN")
+    return JsonResponse({"token": token})
 
 @csrf_exempt
 def Organisations(request):
