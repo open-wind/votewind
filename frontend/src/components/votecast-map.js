@@ -8,13 +8,15 @@ import * as React from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import maplibregl from 'maplibre-gl';
-import Map, { AttributionControl, Marker, GeolocateControl } from 'react-map-gl/maplibre';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipArrow, TooltipProvider } from "@/components/ui/tooltip";
+import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
+import { Video } from 'lucide-react'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; 
 import SocialShareButtons from "@/components/social-share-buttons";
 import NumberedAction from './numbered-action';
 import ScrollHint from '@/components/scrollhint'
-import { Button } from "@/components/ui/button"; 
+import CesiumModal from './cesium-modal';
 
 
 import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
@@ -29,6 +31,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     const [localgroups, setLocalGroups] = useState([]);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': parseFloat(longitude), 'latitude': parseFloat(latitude)});
+    const [showCesiumViewer, setShowCesiumViewer] = useState(false);
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -249,7 +252,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                         <div id="map" className="w-full h-full" >
 
-                        <div className="absolute left-6 sm:left-8 top-8 z-40">
+                        <div className="absolute left-8 sm:left-8 top-8 z-40">
                         <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
 
                             <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
@@ -297,7 +300,19 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     <div className="flex flex-col justify-between self-stretch text-center sm:text-left">
                         {/* Top-of-column text */}
                         <div>
-                            <h1 className="text-4xl font-bold leading-snug mt-0 mb-1">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}</h1>
+                            <h1 className="text-3xl sm:text-4xl font-bold leading-snug mt-0 mb-1">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Video onClick={() => setShowCesiumViewer(true)} className="w-8 h-8 sm:w-12 sm:h-12 inline-flex ml-4 relative -top-[3px] sm:-top-[6px] fill-current text-blue-600" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    3D view of turbine
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            </h1>
+
                             <h2 className="text-2xl font-light leading-snug">{turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E</h2>
                             <p className="mt-1 text-sm text-gray-600">Planning constraints</p>
                         </div>
@@ -474,7 +489,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                 </div>
 
                 <a className="sm:hidden" href="https://openwind.energy">
-                    <Button className="text-xs mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 inline-flex items-center justify-center gap-2">
+                    <Button className="w-full sm:w-auto text-xs mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 gap-2">
                     Guide to creating community energy group
                     </Button>
                 </a>
@@ -659,9 +674,8 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         </div>
         )}
 
-
-
-
+    {/* Cesium viewer */}
+    <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
 
     </main>
 

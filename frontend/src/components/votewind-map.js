@@ -551,7 +551,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         {/*  Voting panel */}
         {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
+        <div className="fixed bottom-0 left-0 w-full h-1/3 min-h-[305px] overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-0 sm:pt-0 sm:pb-2">
 
             <div className="max-w-screen-xl mx-auto flex-1 px-0 sm:px-4 pb-2">
 
@@ -576,7 +576,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     {/* Content: Icon + Text */}
                     <div className="flex mt-0 sm:mt-0">
-                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
+                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-40">
                             <div className="relative inline-block">
 
                             <img
@@ -618,15 +618,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 </Tooltip>
                             </TooltipProvider>
                             </h2>
-                                
-                                
+
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
                                 <b>Position: </b>
                             {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
                             </p>
 
-                            <p className="text-xs text-gray-500 sm:mb-8">
+                            <p className="text-xs text-gray-500 sm:mb-4">
                             <b>Planning constraints: </b>Footpaths (120m turbine) 
                             </p>
 
@@ -671,7 +670,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </div>
 
                     {/* Buttons: Side-by-side, full width combined */}
-                    <div className="mt-2 flex justify-end gap-3">
+                    <div className="mt-2 flex justify-end gap-x-3">
                         <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
                         Cancel
                         </Button>
