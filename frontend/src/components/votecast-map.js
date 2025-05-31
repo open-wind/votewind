@@ -304,7 +304,9 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Video onClick={() => setShowCesiumViewer(true)} className="w-8 h-8 sm:w-12 sm:h-12 inline-flex ml-4 relative -top-[3px] sm:-top-[6px] fill-current text-blue-600" />
+                                    <button type="button" className="inline-flex ml-4 -translate-y-[2px] relative items-center justify-center sm:bottom-0 h-8 w-8 sm:h-10 sm:w-10 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                        <Video onClick={() => setShowCesiumViewer(true)} className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
+                                    </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
                                     3D view of turbine
@@ -390,7 +392,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         </h2>
                         <p className="font-light mb-2">
                         Share your vote with others via social media — the more public support there is for a turbine location, the more likely it will receive planning permission.</p>
-                        <p className="font-bold mb-4">Can your turbine position get enough votes to win an election?</p>
+                        <p className="font-bold mb-4">Can your turbine position get enough votes to get elected?</p>
                         <div className="hidden sm:block">
                         <SocialShareButtons title="I just voted for a community wind turbine location!" showstrap={false} />
                         </div>

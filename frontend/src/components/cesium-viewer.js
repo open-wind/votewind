@@ -38,7 +38,7 @@ export default function CesiumViewer({longitude, latitude}) {
   const [error, setError] = useState(null);
   const [isViewerReady, setIsViewerReady] = useState(false);
   const [windspeed, setWindspeed] = useState(null);
-  const [hourFloat, setHourFloat] = useState(14.0); // default 2pm
+  const [hourFloat, setHourFloat] = useState(12.0); // default 12pm
   const [isPlaying, setIsPlaying] = useState(false);  
   const intervalRef = useRef(null);
   const viewerRef = useRef(null);
@@ -381,8 +381,8 @@ export default function CesiumViewer({longitude, latitude}) {
                 <PlayIcon className="w-5 h-5" />
               )}
               <span className="font-mono min-w-[70px]">
-              {String(Math.floor(hourFloat)).padStart(2, '0')}:
-              {String(Math.round((hourFloat % 1) * 60)).padStart(2, '0')}
+              {(hourFloat < 13.0) ? String(Math.floor(hourFloat)).padStart(2, '0') : String(Math.floor(hourFloat- 12)).padStart(2, '0')}:
+              {String(Math.round((hourFloat % 1) * 60)).padStart(2, '0') + ((hourFloat < 12.0) ? ' AM': ' PM')}
             </span>
 
           </button>
