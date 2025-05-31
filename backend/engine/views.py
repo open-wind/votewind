@@ -18,7 +18,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Postcode, Place, Boundary, UserID, Vote, Organisation
+from .models import Postcode, Place, Boundary, UserID, Vote, Organisation, WindSpeed
 
 NUMBER_RESULTS_RETURNED = 26
 COORDINATE_PRECISION = 5
@@ -247,7 +247,25 @@ def HasValidCookie(request):
         return JsonResponse({'valid': True})
     except (KeyError, BadSignature):
         return JsonResponse({'valid': False})
-    
+
+@csrf_exempt
+def GetWindSpeed(request):
+    """
+    Gets wind speed for specific longitude/latitude
+    """
+
+    try:
+        data = json.loads(request.body)
+        longitude = float(data['position']['longitude'])
+        latitude = float(data['position']['latitude'])
+    except (KeyError, ValueError, KeyError):
+        return HttpResponseForbidden("POST variables missing")
+
+    position = Point(longitude, latitude, srid=4326)
+    windspeed = WindSpeed.objects.filter(geometry__contains=position).first()
+
+    return JsonResponse({'windspeed': round(windspeed.windspeed, 2)})
+
 @csrf_exempt
 def SubmitVote(request):
     """

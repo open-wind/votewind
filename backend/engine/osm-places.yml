@@ -4,6 +4,7 @@ osm-places:
     select:
       - place
       - name
+      - name:en
     where:
       - place = 'hamlet'
       - place = 'village'

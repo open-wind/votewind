@@ -128,7 +128,7 @@ class Place(models.Model):
     name = models.CharField(max_length=200, default='', blank=True)
     county = models.CharField(max_length=200, default='', blank=True)
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
-    boundary = models.ForeignKey(Boundary, on_delete=models.SET_NULL, related_name='boundary', null=True)
+    boundary = models.ForeignKey(Boundary, on_delete=models.SET_NULL, related_name='boundary', default='', null=True)
 
     def _get_geometry(self):
         return self.geometry
@@ -259,6 +259,7 @@ class Organisation(models.Model):
             models.Index(fields=['url',]),
             GistIndex(fields=['geometry']),
         ]
+
 class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
     list_display = ['name', 'type', 'email', 'url', 'created']
     actions = ["export_as_csv", "export_unique_emails_as_csv"]
@@ -275,3 +276,22 @@ class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMix
         'url'
     )
 
+class WindSpeed(models.Model):
+    windspeed = models.FloatField()
+    geometry = models.MultiPolygonField(srid=4326)
+
+    def __str__(self):
+        return f"{self.windspeed:.2f} m/s"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['windspeed',]),
+            GistIndex(fields=['geometry']),
+        ]
+
+class WindSpeedAdmin(LeafletGeoAdmin):
+    list_display = ['windspeed', 'geometry']
+
+    list_filter = (
+        'windspeed',
+    )

@@ -10,8 +10,6 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [uselocation, setUselocation] = useState(true);
   const inputRef = useRef(null);
-
-  window.CESIUM_BASE_URL = '/static/cesium';
   
   // Automatically focus on input field as soon as page loads
   useLayoutEffect(() => {

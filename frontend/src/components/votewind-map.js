@@ -906,7 +906,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             </Map>
 
         {/* Cesium viewer */}
+        {(turbinePosition !== null) && (
         <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
+        )}
 
         </div>
     </main>

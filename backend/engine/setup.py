@@ -1,5 +1,6 @@
 import sys
 import logging
+import ijson
 import json
 import csv
 import requests
@@ -9,6 +10,7 @@ import time
 import urllib.request
 import shutil
 import pyproj
+from decimal import Decimal
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
@@ -27,18 +29,13 @@ if __name__ == '__main__':
 from django.contrib.gis.db.models.functions import Area
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.utils import LayerMapping
-# from django.db.models import Value as V, F, CharField
-# from django.contrib.gis.db.models.functions import AsGeoJSON
-# from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.gis.geos import GEOSException, Polygon, GEOSGeometry, Point, fromstr
-# from django.contrib.gis.db.models.functions import Distance
-# from django.db import connection, transaction
-# from django.contrib.gis.db.models import Extent
 
 from engine.models import \
     Postcode, \
     Place, \
-    Boundary
+    Boundary, \
+    WindSpeed
 
 WORKING_FOLDER = str(Path(__file__).absolute().parent) + '/'
 LOG_SINGLE_PASS                     = WORKING_FOLDER + 'log.txt'
@@ -58,10 +55,16 @@ TRANSFORMER_FROM_27700              = None
 TRANSFORMER_SOURCE_4326             = None
 TRANSFORMER_DEST_27700              = None
 TRANSFORMER_TO_27700                = None
+WINDSPEED_URL                       = 'https://openwindenergy.s3.us-east-1.amazonaws.com/windspeeds-noabl--uk.geojson.zip'
 
 # ***********************************************************
 # ***************** General helper functions ****************
 # ***********************************************************
+
+def decimal_default(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError
 
 def initLogging():
     """
@@ -228,6 +231,28 @@ def getContainingCounty(point):
 
     return county.name
 
+def downloadWindSpeeds():
+    """
+    Download wind speed data
+    """
+
+    global WINDSPEED_URL, WORKING_FOLDER
+
+    windspeed_download_zip_path = basename(WINDSPEED_URL)
+    windspeed_download_unzip_path = WORKING_FOLDER + windspeed_download_zip_path.replace('.zip', '')
+    windspeed_dataset_path = windspeed_download_unzip_path
+
+    if not isfile(windspeed_dataset_path):
+
+        LogMessage("Downloading NOABL wind speed data...")
+
+        attemptDownloadUntilSuccess(WINDSPEED_URL, windspeed_download_zip_path)
+
+        with ZipFile(windspeed_download_zip_path, 'r') as zip_ref: zip_ref.extractall(WORKING_FOLDER)
+        os.remove(windspeed_download_zip_path)
+
+    return windspeed_dataset_path
+
 # ***********************************************************
 # ***********************************************************
 # ********************* MAIN APPLICATION ********************
@@ -280,7 +305,7 @@ def main():
     if boundaries.count() == 0:
         LogMessage("Importing osm-boundaries SHP into Django")
         boundary_mapping = {
-            'name': 'name',
+            'name:en': 'name',
             'council_name': 'council',
             'type': 'type',
             'level': 'level',
@@ -326,30 +351,33 @@ def main():
         layer = ds[0]
 
         for feature in layer:
-            name = feature.get("name")
+            name = feature.get("name:en")
             county = getContainingCounty(feature.geom.geos)
             if county == '':
                 LogMessage("Missing county for: " + name)
             if (name is not None) and (county != ''):
                 Place.objects.create(
-                    name=feature.get("name"),
+                    name=feature.get("name:en"),
                     county = county,
                     geometry=feature.geom.geos
                 )
             
         LogMessage("Finished importing places into Django")
 
-    LogMessage("Attaching places to similarly named boundaries, eg. Brighton [place] -> Brighton & Hove [boundary]")
     places = Place.objects.all()
-    count = 0
-    for place in places:
-        if count % 1000 == 0: LogMessage("Processing place: " + str(count) + "/" + str(len(places)))
-        if (place.name is None) or (place.name == ''): continue
-        boundary = Boundary.objects.annotate(area=Area('geometry')).filter(geometry__intersects=place.geometry).order_by('area').first()
-        if boundary is not None:
-            place.boundary = boundary
-            place.save()
-        count += 1
+    if places[0].boundary == '':
+
+        LogMessage("Attaching places to similarly named boundaries, eg. Brighton [place] -> Brighton & Hove [boundary]")
+
+        count = 0
+        for place in places:
+            if count % 1000 == 0: LogMessage("Processing place: " + str(count) + "/" + str(len(places)))
+            if (place.name is None) or (place.name == ''): continue
+            boundary = Boundary.objects.annotate(area=Area('geometry')).filter(geometry__intersects=place.geometry).order_by('area').first()
+            if boundary is not None:
+                place.boundary = boundary
+                place.save()
+            count += 1
 
     postcode_files = getFilesInFolder(POSTCODES_DOWNLOAD_FOLDER)
     if len(postcode_files) == 0:
@@ -360,12 +388,14 @@ def main():
         os.remove(zip_file)
         shutil.move(POSTCODES_DOWNLOAD_FOLDER + POSTCODES_SINGLEFILE, POSTCODES_DOWNLOAD_FOLDER + basename(POSTCODES_SINGLEFILE))
 
-    LogMessage("Importing postcodes into Django")
 
     # Only import postcodes if postcode table is empty
     postcodes_incomplete = []
     postcodes = Postcode.objects.all()
     if postcodes.count() == 0:
+
+        LogMessage("Importing postcodes into Django")
+
         postcodes_download = POSTCODES_DOWNLOAD_FOLDER + basename(POSTCODES_SINGLEFILE)
         with open(postcodes_download, 'r', newline='', encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -385,7 +415,26 @@ def main():
                     postcode.save()
                 count += 1
 
-    LogMessage("Number of postcodes missing positions: " + str(len(postcodes_incomplete)))
+        LogMessage("Number of postcodes missing positions: " + str(len(postcodes_incomplete)))
+
+    number_imported = 0
+    windspeeds = WindSpeed.objects.all()
+    if windspeeds.count() == 0:
+
+        windspeeds_path = downloadWindSpeeds()
+
+        with open(windspeeds_path, 'rb') as f:
+            parser = ijson.items(f, 'features.item')  # Streams each feature one at a time
+            count = 0
+
+            for feature in parser:
+                windspeed = feature['properties'].get('windspeed')
+                geometry = GEOSGeometry(json.dumps(feature['geometry'], default=decimal_default), srid=4326)
+                WindSpeed.objects.create(windspeed=windspeed, geometry=geometry)
+                count += 1
+                if count % 1000 == 0: LogMessage("Importing wind speed " + str(count))
+
+        LogMessage("Number of windspeed items imported: " + str(count))
 
 # Only remove log file on main thread
 if __name__ == "__main__":

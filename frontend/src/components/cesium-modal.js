@@ -22,12 +22,12 @@ export default function CesiumModal({ longitude, latitude, isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="relative w-full h-full sm:w-[80vw] sm:h-[80vh] bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="relative w-full h-full sm:w-[80vw] sm:h-[80vh] bg-white rounded-lg shadow-4xl overflow-hidden">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 z-10 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
+          className="absolute top-2 right-2 z-50 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
         >
           ✕
         </button>
@@ -35,7 +35,7 @@ export default function CesiumModal({ longitude, latitude, isOpen, onClose }) {
         {/* Full-screen button */}
         <button
           onClick={() => toggleFullscreen()}
-          className="absolute bottom-2 right-2 z-10 w-10 h-10 text-2xl bg-white/30 text-white px-2 py-1 font-extrabold rounded hover:bg-gray-900 transition shadow-sm"
+          className="hidden sm:block absolute bottom-2 right-2 z-50 w-10 h-10 text-2xl bg-white/30 text-white px-2 py-1 font-extrabold rounded hover:bg-gray-900 transition shadow-sm"
           title="Go fullscreen"
         >
           <Maximize size={24} />

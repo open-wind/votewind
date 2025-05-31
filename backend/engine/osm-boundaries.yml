@@ -3,6 +3,7 @@ osm-boundaries:
       - polygons
     select:
       - name
+      - name:en
       - council_name
       - boundary
       - admin_level
