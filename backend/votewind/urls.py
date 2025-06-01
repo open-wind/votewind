@@ -19,6 +19,7 @@ from engine import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/boundary', views.BoundaryGet, name='boundary'),
     path('api/locationsearch', views.LocationSearch, name='locationsearch'),
     path('api/locationget', views.LocationGet, name='locationget'),
     path('api/setcookie', views.SetCookie, name='setcookie'),

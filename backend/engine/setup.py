@@ -10,6 +10,7 @@ import time
 import urllib.request
 import shutil
 import pyproj
+import unicodedata
 from decimal import Decimal
 from datetime import datetime
 from dotenv import load_dotenv
@@ -29,7 +30,8 @@ if __name__ == '__main__':
 from django.contrib.gis.db.models.functions import Area
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.utils import LayerMapping
-from django.contrib.gis.geos import GEOSException, Polygon, GEOSGeometry, Point, fromstr
+from django.contrib.gis.geos import GEOSException, Polygon, MultiPolygon, GEOSGeometry, Point, fromstr
+from django.utils.text import slugify
 
 from engine.models import \
     Postcode, \
@@ -326,6 +328,45 @@ def main():
         Boundary.objects.filter(type='ceremonial').update(type="nonadministrative")
 
         LogMessage("Finished importing osm-boundaries SHP into Django")
+
+    LogMessage("Aggregating boundaries by council name")
+
+    # Step 0: Delete previous aggregate entries
+    Boundary.objects.filter(council_name__startswith='aggregate:').delete()
+
+    # Step 1: Get distinct council names
+    council_names = (
+        Boundary.objects
+        .exclude(council_name__isnull=True)
+        .exclude(council_name__exact='')
+        .order_by('council_name')
+        .values_list('council_name', flat=True)
+        .distinct('council_name')
+    )
+
+    # Step 2: For each council_name, union geometries and create aggregate object
+    for name in council_names:
+        LogMessage("Creating unionized geometries for: " + name)
+        pieces = Boundary.objects.filter(council_name=name)
+        union_geom = None
+
+        for p in pieces:
+            if union_geom is None:
+                union_geom = p.geometry
+            else:
+                union_geom = union_geom.union(p.geometry)
+
+        if union_geom:
+            # Ensure it's a MultiPolygon
+            if isinstance(union_geom, Polygon):
+                union_geom = MultiPolygon(union_geom)
+
+            Boundary.objects.create(
+                name=name,
+                council_name=f"aggregate:{name}",
+                geometry=union_geom,
+                slug=slugify(name)
+            )
 
     if not isfile(osm_places):
         LogMessage("Running osm-export-tool on: " + OSM_EXPORT_PLACES + '.yml')

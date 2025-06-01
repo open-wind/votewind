@@ -7,11 +7,11 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.signing import BadSignature
 from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import GEOSGeometry, Point, Polygon, MultiPolygon
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count
-from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string, get_template
 from django.utils.encoding import force_bytes
@@ -20,8 +20,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import Postcode, Place, Boundary, UserID, Vote, Organisation, WindSpeed
 
+# Number of results to return in a text query on postcodes/places
 NUMBER_RESULTS_RETURNED = 26
+
+# Coordinate precision to use when defining turbine positions - crucial to allow the 'same' turbine to be voted for, ie. 'same' within a certain tolerance
 COORDINATE_PRECISION = 5
+
+# Define outer world rectangle (or your custom bounds)
+WORLD_BOUNDS = Polygon.from_bbox((-180, -90, 180, 90))  # or use a larger one if needed
 
 def OutputJson(json_array={'result': 'failure'}):
     json_data = json.dumps(json_array, cls=DjangoJSONEncoder, indent=0)
@@ -110,6 +116,55 @@ def LocationGet(request):
             results_returned = {'boundary': results_boundary.name, 'longitude': ((boundary_extent[0] + boundary_extent[2]) / 2), 'latitude': ((boundary_extent[1] + boundary_extent[3]) / 2), 'bounds': boundary_extent, 'type': 'boundary:' + query}
 
     return OutputJson({'results': results_returned})
+
+
+
+def get_mask_geojson(request):
+    region = Region.objects.get(name="My Area")  # or filter dynamically
+    inner_geom = region.geometry
+
+    # Subtract region from world
+    mask_geom = WORLD_BOUNDS.difference(inner_geom)
+
+    # Serialize to GeoJSON
+    geojson = mask_geom.geojson  # or use Django's GeoJSON serializer if in FeatureCollection form
+
+    return JsonResponse({
+        "type": "Feature",
+        "geometry": mask_geom.geojson,
+        "properties": {},
+    })
+
+@csrf_exempt
+def BoundaryGet(request):
+    """
+    Retrieves boundary extent information for specific boundary 'slug', eg. 'east-sussex', 'barton-cambridgeshire'
+    """
+
+    query = request.GET.get('query','').strip().lower()
+
+    if not query:
+        raise Http404("Missing slug")
+    try:
+        boundary = Boundary.objects.get(slug=query)
+        boundary_extent = boundary.geometry.extent
+        # Subtract region from world
+        mask_geom = WORLD_BOUNDS.difference(boundary.geometry)
+        mask_geom = GEOSGeometry(mask_geom.wkt)
+        # mask_geom = mask_geom.simplify(0.0005, preserve_topology=True)
+        mask_geom = mask_geom.simplify(0.0001, preserve_topology=True)
+        mask_geojson_feature = {"type": "Feature", "properties": {}, "geometry": json.loads(mask_geom.geojson)}
+        mask_geojson_feature['properties'] = {  'boundary': boundary.name, \
+                                                'slug': boundary.slug, \
+                                                'longitude': ((boundary_extent[0] + boundary_extent[2]) / 2), \
+                                                'latitude': ((boundary_extent[1] + boundary_extent[3]) / 2), \
+                                                'bounds': boundary_extent, \
+                                                'type': 'boundary:' + query }
+
+        mask_geojson = {"type": "FeatureCollection", "features": [mask_geojson_feature]}        
+        return HttpResponse(json.dumps(mask_geojson), content_type='application/vnd.geo+json')
+    except Boundary.DoesNotExist:
+        raise Http404("Boundary not found")
 
 def get_client_ip(request):
     """

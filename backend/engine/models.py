@@ -4,6 +4,7 @@ from django.contrib.gis.db import models
 from django.contrib import admin
 from django.contrib.postgres.indexes import GistIndex
 from django.http import HttpResponse
+from django.utils.text import slugify
 
 # from django.contrib.gis.admin import OSMGeoAdmin
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
@@ -82,12 +83,19 @@ class PostcodeAdmin(LeafletGeoAdmin):
         'search'
     )
 
+SLUG_LOOKUP = {
+    'Alba / Scotland': 'scotland', \
+	'Cymru / Wales': 'wales', \
+	'Northern Ireland / Tuaisceart Éireann': 'northernireland' \
+}
+
 class Boundary(models.Model):
     """
     Stores boundaries, eg. parish council, local authority, county, country
     """
 
     name = models.CharField(max_length = 200, blank=True, null=True)
+    slug = models.SlugField(max_length = 100, blank=True)
     council_name = models.CharField(max_length = 200, blank=True, null=True)
     type = models.CharField(max_length = 100, blank=True, null=True)
     level = models.CharField(max_length = 5, blank=True, null=True)
@@ -102,19 +110,105 @@ class Boundary(models.Model):
         ordering = ('name',) 
         indexes = [
             models.Index(fields=['name',]),
+            models.Index(fields=['slug',]),
             models.Index(fields=['council_name',]),
             models.Index(fields=['level',]),
             GistIndex(fields=['geometry']),
         ]
 
+    def reset(self, *args, **kwargs):
+        self.slug = ''
+        super().save(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        if (not self.slug) or (self.slug == ''):
+            print(self.name)
+            if self.name in SLUG_LOOKUP: 
+                self.slug = SLUG_LOOKUP[self.name]
+                super().save(*args, **kwargs)
+                return
+            
+            base_slug = slugify(self.name)
+            sameslug = (
+                Boundary.objects
+                .filter(slug=base_slug)
+                .order_by('pk')
+                .values_list('pk', flat=True)
+            )
+
+            if (len(list(sameslug)) == 0) and (self.name not in SLUG_LOOKUP.values()):
+                # base_slug is unique so save
+                self.slug = base_slug
+                super().save(*args, **kwargs)
+                return
+
+            if self.level in ['6', '7', '8']:
+                samenames = (
+                    Boundary.objects
+                    .filter(level__in=['6', '7', '8'])
+                    .filter(name=self.name)
+                    .exclude(pk=self.pk)
+                )
+
+                if samenames:
+                    # Choose 'nonadministrative' (eg. historical county) if it exists over 'administrative'
+                    if self.type == 'nonadministrative':
+                        if (samenames.count() == 1) and (samenames[0].type == 'administrative'):
+                            self.slug = base_slug
+                            super().save(*args, **kwargs)
+                            return
+                    # If samenames and no clear rules for giving slug, don't save any slug
+                else:
+                    # No other boundary with same name so slugify
+                    self.slug = base_slug
+                    super().save(*args, **kwargs)
+                    return
+
+            if self.level in ['9', '10']:
+                containing = (
+                    Boundary.objects
+                    .filter(level=6)
+                    .filter(geometry__contains=self.geometry.centroid)
+                    .exclude(pk=self.pk)
+                    .first()
+                )
+
+                if containing:
+                    slug_containing = slugify(f"{self.name} {containing.name}")
+                else:
+                    slug_containing = base_slug + '-uk'
+                    print("Problem - no containing boundary for: " + self.name + ' so using -uk as containing name')
+
+                samename_containing = (
+                    Boundary.objects
+                    .filter(level__in=['9', '10'])
+                    .filter(slug__regex=r'^' + slug_containing + '(-\d+)?$')
+                    .exclude(pk=self.pk)
+                    .order_by('-slug')
+                    .first()
+                )
+
+                if samename_containing:
+                    slug_latest_index = samename_containing.slug.replace(slug_containing, '').replace('-', '')
+                    if slug_latest_index == '': slug_index = 2
+                    else: slug_index = 1 + int(slug_latest_index)
+                    self.slug = slug_containing + '-' + str(slug_index)
+                else:
+                    self.slug = slug_containing
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
 class BoundaryAdmin(LeafletGeoAdmin):
-    list_display = ['name', 'council_name', 'type', 'level']
+    list_display = ['name', 'slug', 'council_name', 'type', 'level']
+
+    ordering = ('name', 'slug', 'council_name', 'type', 'level') 
 
     search_fields = (
         'name',
+        'slug',
         'council_name',
         'level',
         'type'

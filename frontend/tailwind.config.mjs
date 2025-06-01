@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			condensed: ['"Inter Tight"', 'sans-serif'], // or another narrow font
+		},
 		keyframes: {
 			fadeInOut: {
 				'0%, 100%': { opacity: '0.4' },

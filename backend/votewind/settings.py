@@ -41,11 +41,25 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 REACT_APPLICATION_BASEURL = os.environ.get("REACT_APPLICATION_BASEURL")
 
-CORS_ALLOWED_ORIGINS = []
+# CORS_ALLOWED_ORIGINS = []
+# for host in ALLOWED_HOSTS:
+#     CORS_ALLOWED_ORIGINS.append('http://' + host)
+#     CORS_ALLOWED_ORIGINS.append('https://' + host)
+
+CORS_ALLOWED_ORIGIN_REGEXES = []
+
 for host in ALLOWED_HOSTS:
-    CORS_ALLOWED_ORIGINS.append('http://' + host)
-    CORS_ALLOWED_ORIGINS.append('https://' + host)
-    
+    host_regex = host.replace(r'.', r'\.')
+    CORS_ALLOWED_ORIGIN_REGEXES.append(r'^http?:\/\/([a-zA-Z0-9-]+\.)*' + host_regex + r'(:\d+)?$')
+    CORS_ALLOWED_ORIGIN_REGEXES.append(r'^https?:\/\/([a-zA-Z0-9-]+\.)*' + host_regex + r'(:\d+)?$')
+
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^https?:\/\/([a-zA-Z0-9-]+\.)*example\.com(:\d+)?$",
+
+#     r"^https:\/\/.*\.example\.com$",
+#     r"^http:\/\/.*\.example\.com(:\d+)?$",  # for local dev with ports
+# ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 LEAFLET_CONFIG = {
