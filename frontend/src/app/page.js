@@ -14,8 +14,11 @@ export default function Main() {
   useEffect(() => {
     const sd = getSubdomain();
 
-    if (sd === null ) setIsReady(true);
-
+    if (sd === null ) {
+      setIsReady(true);
+      return;
+    }
+    
     fetch(API_BASE_URL + `/api/boundary?query=${sd}`)
       .then(res => res.json())
       .then((data) => {

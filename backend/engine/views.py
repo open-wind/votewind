@@ -6,7 +6,7 @@ from time import sleep
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.signing import BadSignature
-from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.db.models.functions import Distance, Area
 from django.contrib.gis.geos import GEOSGeometry, Point, Polygon, MultiPolygon
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
@@ -117,24 +117,6 @@ def LocationGet(request):
 
     return OutputJson({'results': results_returned})
 
-
-
-def get_mask_geojson(request):
-    region = Region.objects.get(name="My Area")  # or filter dynamically
-    inner_geom = region.geometry
-
-    # Subtract region from world
-    mask_geom = WORLD_BOUNDS.difference(inner_geom)
-
-    # Serialize to GeoJSON
-    geojson = mask_geom.geojson  # or use Django's GeoJSON serializer if in FeatureCollection form
-
-    return JsonResponse({
-        "type": "Feature",
-        "geometry": mask_geom.geojson,
-        "properties": {},
-    })
-
 @csrf_exempt
 def BoundaryGet(request):
     """
@@ -146,14 +128,17 @@ def BoundaryGet(request):
     if not query:
         raise Http404("Missing slug")
     try:
-        boundary = Boundary.objects.get(slug=query)
+        boundary = Boundary.objects.filter(slug=query).order_by('-type', 'level').first()
         boundary_extent = boundary.geometry.extent
-        # Subtract region from world
-        mask_geom = WORLD_BOUNDS.difference(boundary.geometry)
-        mask_geom = GEOSGeometry(mask_geom.wkt)
-        # mask_geom = mask_geom.simplify(0.0005, preserve_topology=True)
-        mask_geom = mask_geom.simplify(0.0001, preserve_topology=True)
-        mask_geojson_feature = {"type": "Feature", "properties": {}, "geometry": json.loads(mask_geom.geojson)}
+
+        # # Subtract region from world
+        # mask_geom = WORLD_BOUNDS.difference(boundary.geometry)
+        # mask_geom = GEOSGeometry(mask_geom.wkt)
+        # mask_geom = mask_geom.simplify(0.0001, preserve_topology=True)
+        # mask_geojson_feature = {"type": "Feature", "properties": {}, "geometry": json.loads(mask_geom.geojson)}
+        # ******** USE TIPPECANOE TO LOAD OVERLAYS ***********
+
+        mask_geojson_feature = {"type": "Feature", "properties": {}}
         mask_geojson_feature['properties'] = {  'boundary': boundary.name, \
                                                 'slug': boundary.slug, \
                                                 'longitude': ((boundary_extent[0] + boundary_extent[2]) / 2), \
@@ -165,6 +150,37 @@ def BoundaryGet(request):
         return HttpResponse(json.dumps(mask_geojson), content_type='application/vnd.geo+json')
     except Boundary.DoesNotExist:
         raise Http404("Boundary not found")
+
+@csrf_exempt
+def ContainingBoundaries(request):
+    """
+    Gets list of all boundaries, ordered by smallest to largest area, that have slugs and contain specific point
+    """
+
+    try:
+        data = json.loads(request.body)
+        longitude = float(data['position']['longitude'])
+        latitude = float(data['position']['latitude'])
+    except (KeyError, ValueError, KeyError):
+        return HttpResponseForbidden("POST variables missing")
+
+    position = Point(longitude, latitude, srid=4326)
+    containing_slugs = (
+        Boundary.objects
+        .filter(simplified_geometry__contains=position)
+        .exclude(slug__isnull=True)
+        .exclude(slug__exact='')
+        .order_by('area')
+    )
+
+    results, slugs = [], set()
+    for containing_slug in containing_slugs:
+        slug = containing_slug.slug
+        if slug in slugs: continue
+        slugs.add(slug)
+        results.append({'name': containing_slug.name, 'slug': slug})
+
+    return JsonResponse({'success': True, 'results': results})
 
 def get_client_ip(request):
     """
@@ -452,7 +468,7 @@ def CesiumJIT(request):
 
     origin = request.headers.get("Origin")
     
-    if origin not in settings.CORS_ALLOWED_ORIGINS:
+    if origin not in settings.CESIUM_ALLOWED_ORIGINS:
         return HttpResponseForbidden("Unauthorized origin")
 
     token = os.environ.get("CESIUM_ION_TOKEN")

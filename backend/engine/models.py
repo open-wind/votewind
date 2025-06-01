@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.postgres.indexes import GistIndex
 from django.http import HttpResponse
 from django.utils.text import slugify
+from django.contrib.gis.geos import MultiPolygon, Polygon
 
 # from django.contrib.gis.admin import OSMGeoAdmin
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
@@ -54,6 +55,15 @@ class ExportUniqueEmailCsvMixin:
 
     export_unique_emails_as_csv.short_description = "Export unique emails"
 
+class ClipRegion(models.Model):
+    geometry = models.MultiPolygonField()
+
+    def __str__(self):
+        return f"ClipRegion {self.pk}"  # or any identifier you'd like
+    
+class ClipRegionAdmin(LeafletGeoAdmin):
+    list_display = ['id']
+
 class Postcode(models.Model):
     """
     Stores postcodes
@@ -99,8 +109,10 @@ class Boundary(models.Model):
     council_name = models.CharField(max_length = 200, blank=True, null=True)
     type = models.CharField(max_length = 100, blank=True, null=True)
     level = models.CharField(max_length = 5, blank=True, null=True)
+    area = models.IntegerField(null=True, blank=True, db_index=True)
     geometry = models.MultiPolygonField(srid=4326, geography=False, blank=True, null=True)
-    
+    simplified_geometry = models.MultiPolygonField(srid=4326, null=True, blank=True)
+
     def _get_geometry(self):
         return self.geometry
 
@@ -121,6 +133,19 @@ class Boundary(models.Model):
         super().save(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        if self.geometry:
+            # Optional: transform to 3857 for area in m²
+            geom = self.geometry.transform(3857, clone=True)
+            # We don't need hugely accurate area as only used for selecting smaller and larger area through queries
+            self.area = int(geom.area / (1000 * 1000))
+            simplified = self.geometry.simplify(tolerance=0.001, preserve_topology=True)
+
+            # Ensure it's a MultiPolygon
+            if isinstance(simplified, Polygon):
+                simplified = MultiPolygon(simplified)
+
+            self.simplified_geometry = simplified
+
         if (not self.slug) or (self.slug == ''):
             print(self.name)
             if self.name in SLUG_LOOKUP: 
@@ -142,10 +167,10 @@ class Boundary(models.Model):
                 super().save(*args, **kwargs)
                 return
 
-            if self.level in ['6', '7', '8']:
+            if self.level in ['', '6', '7', '8']:
                 samenames = (
                     Boundary.objects
-                    .filter(level__in=['6', '7', '8'])
+                    .filter(level__in=['', '6', '7', '8'])
                     .filter(name=self.name)
                     .exclude(pk=self.pk)
                 )
@@ -202,9 +227,9 @@ class Boundary(models.Model):
         return self.name
 
 class BoundaryAdmin(LeafletGeoAdmin):
-    list_display = ['name', 'slug', 'council_name', 'type', 'level']
+    list_display = ['name', 'slug', 'council_name', 'type', 'level', 'area']
 
-    ordering = ('name', 'slug', 'council_name', 'type', 'level') 
+    ordering = ('name', 'slug', 'council_name', 'type', 'level', 'area') 
 
     search_fields = (
         'name',

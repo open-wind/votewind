@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
 import AutocompleteInput from './autocomplete-input';
+import SlugList from './sluglist';
 
 import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
@@ -37,6 +38,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
+    const [containingSlugs, setContainingSlugs] = useState(null);
     const [votesCast, setVotesCast] = useState(null);
     const [votesText, setVotesText] = useState('');
     const [organisation, setOrganisation] = useState(null);
@@ -136,6 +138,30 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         return () => clearInterval(tryRender);
     }, [showConsentBanner]);
+
+    useEffect(() => {
+
+        if(!turbineAdded) return;
+
+        const retrieveContainingBoundaries = async () => {
+            const res = await fetch(API_BASE_URL + '/api/containingboundaries', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({position: turbinePosition})
+            });
+
+            const data = await res.json();
+            if (!data.success) {
+                setError("Unable to retrieve containing boundaries");
+                return;
+            }
+
+            setContainingSlugs(data.results);
+        }
+
+        retrieveContainingBoundaries();
+
+    }, [turbinePosition])
 
     useEffect(() => {
         const map = mapRef.current?.getMap?.();
@@ -628,8 +654,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </p>
 
                             <p className="text-xs text-gray-500 sm:mb-4">
-                            <b>Planning constraints: </b>Footpaths (120m turbine) 
-                            </p>
+                            <b>Planning constraints: </b>Footpaths (120m turbine)</p> 
+                            {containingSlugs && (
+
+                                <SlugList containingSlugs={containingSlugs} />
+                                // <p className="text-xs text-gray-500 sm:mb-4">
+
+                                // <span>Detailed constraints map: </span>
+                                // <a className="font-bold text-blue-800" target="_new" href={`http://${containingSlugs[0].slug}.votewind.org:3000`}>{containingSlugs[0].name}</a>
+
+                                // {containingSlugs.map((item, index) => (
+                                //     <a key={index} target="_new" href={`http://${item.slug}.votewind.org:3000`}>{item.name}</a>
+                                // )).reduce((prev, curr) => [prev, ', ', curr])}
+                                // </p>
+                            )}
 
                             <div className="mt-1 hidden sm:block">
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

@@ -41,10 +41,10 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 REACT_APPLICATION_BASEURL = os.environ.get("REACT_APPLICATION_BASEURL")
 
-# CORS_ALLOWED_ORIGINS = []
-# for host in ALLOWED_HOSTS:
-#     CORS_ALLOWED_ORIGINS.append('http://' + host)
-#     CORS_ALLOWED_ORIGINS.append('https://' + host)
+CESIUM_ALLOWED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    CESIUM_ALLOWED_ORIGINS.append('http://' + host)
+    CESIUM_ALLOWED_ORIGINS.append('https://' + host)
 
 CORS_ALLOWED_ORIGIN_REGEXES = []
 

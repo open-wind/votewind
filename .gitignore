@@ -1,6 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-/backend/engine/overall-clipping-union.gpkg
+/backend/engine/osm-boundaries-overlays.geojson
+/backend/osm-boundaries-overlays.mbtiles
+/backend/osm-boundaries-overlays.mbtiles-journal
 /backend/engine/windspeeds-noabl--uk.geojson
 /frontend/node_modules
 *.log
