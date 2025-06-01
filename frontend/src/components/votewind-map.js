@@ -22,7 +22,7 @@ import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false }) {
+export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false, turbineAtCentre=false }) {
     const router = useRouter();
     const mapRef = useRef();
     const markerRef = useRef();
@@ -35,9 +35,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
     const [showCesiumViewer, setShowCesiumViewer] = useState(false);
-    const [turbineAdded, setTurbineAdded] = useState(false);
+    const [turbineAdded, setTurbineAdded] = useState(turbineAtCentre);
     const [displayTurbine, setDisplayTurbine] = useState(true);
-    const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
+    const [turbinePosition, setTurbinePosition] = useState({'longitude': turbineAtCentre ? parseFloat(longitude): null, 'latitude': turbineAtCentre ? parseFloat(latitude): null});
     const [containingSlugs, setContainingSlugs] = useState(null);
     const [votesCast, setVotesCast] = useState(null);
     const [votesText, setVotesText] = useState('');
@@ -230,7 +230,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const longitude = view.longitude.toFixed(5);
         const latitude = view.latitude.toFixed(5);
         const zoom = view.zoom.toFixed(2)
-        window.history.replaceState(null, '', `/${longitude}/${latitude}/${zoom}`)
+        var url = `/${longitude}/${latitude}/${zoom}`;
+        window.history.replaceState(null, '', url)
     }, 300);
 
     const onMoveEnd = (e) => {
@@ -245,6 +246,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         toast.dismiss();
         toast.error('Onshore wind only');
     }
+
     const onTurbineMarkerDragEnd = (event) => {
         var acceptableposition = true;
         const lngLat = event.lngLat;
@@ -656,17 +658,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <p className="text-xs text-gray-500 sm:mb-4">
                             <b>Planning constraints: </b>Footpaths (120m turbine)</p> 
                             {containingSlugs && (
-
-                                <SlugList containingSlugs={containingSlugs} />
-                                // <p className="text-xs text-gray-500 sm:mb-4">
-
-                                // <span>Detailed constraints map: </span>
-                                // <a className="font-bold text-blue-800" target="_new" href={`http://${containingSlugs[0].slug}.votewind.org:3000`}>{containingSlugs[0].name}</a>
-
-                                // {containingSlugs.map((item, index) => (
-                                //     <a key={index} target="_new" href={`http://${item.slug}.votewind.org:3000`}>{item.name}</a>
-                                // )).reduce((prev, curr) => [prev, ', ', curr])}
-                                // </p>
+                            <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
                             )}
 
                             <div className="mt-1 hidden sm:block">

@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import maplibregl from 'maplibre-gl';
-import Map, { AttributionControl } from 'react-map-gl/maplibre';
+import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/components/functions/helpers"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import LayerTogglePanel from './map-layer-panel';
+import { APP_BASE_URL } from '@/lib/config';
 
 export default function DetailedMap({ subdomain=null, data=null }) {
     const mapRef = useRef();
     const isMobile = useIsMobile();
     const [mapInstance, setMapInstance] = useState(null);
     const [mapReady, setMapReady] = useState(false);
+    const searchParams = useSearchParams();
 
     const padding = {
         top: 100,
@@ -31,6 +36,18 @@ export default function DetailedMap({ subdomain=null, data=null }) {
             [east + paddingDegrees, north + paddingDegrees],
         ];
     }
+
+    const longitude = useMemo(() => {
+        const raw = searchParams.get('longitude');
+        if (!raw) return null;
+        return parseFloat(raw);
+    }, [searchParams]);
+
+    const latitude = useMemo(() => {
+        const raw = searchParams.get('latitude');
+        if (!raw) return null;
+        return parseFloat(raw);
+    }, [searchParams]);
 
     useEffect(() => {
         if (!mapInstance || typeof mapInstance.setMaxBounds !== 'function') return;
@@ -163,10 +180,31 @@ export default function DetailedMap({ subdomain=null, data=null }) {
             {mapInstance && (
                 <LayerTogglePanel map={mapInstance} />
             )}
+
+            {((longitude !== null) && (latitude !== null)) && (
+                <Marker title="Click to cast vote for this position" longitude={longitude.toFixed(5)} latitude={latitude.toFixed(5)} draggable={false} anchor="bottom" offset={[0, 0]}>
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <a href={`${APP_BASE_URL}/${longitude.toFixed(5)}/${latitude.toFixed(5)}/15?selectturbine=true`}>
+                                <img alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
+                            </a>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Click to vote for turbine
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </Marker>
+            )}
+
         </Map>
 
         {data && (
-        <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 z-50 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none">
+        <div 
+            className="absolute bottom-20 sm:bottom-14 left-1/2 transform -translate-x-1/2 z-50 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none" 
+            style={{ boxShadow: '0 0px 15px rgba(255, 255, 255, 0.9)' }} 
+            >
             {!mapReady && (<span>Loading... </span>)} <span className="font-bold">{data.features[0].properties.boundary}</span>
         </div>
         )}

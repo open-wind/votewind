@@ -28,9 +28,15 @@ export default function Page() {
     return raw;
   }, [searchParams]);
 
+  const turbineAtCentre = useMemo(() => {
+    const raw = searchParams.get('selectturbine');
+    if (!raw) return '';
+    return true;
+  }, [searchParams]);
+
   return (
     <div>
-      <VoteWindMap longitude={params.longitude} latitude={params.latitude} zoom={params.zoom} bounds={bounds} type={type} />
+      <VoteWindMap longitude={params.longitude} latitude={params.latitude} zoom={params.zoom} bounds={bounds} type={type} turbineAtCentre={turbineAtCentre} />
     </div>
   );
 }

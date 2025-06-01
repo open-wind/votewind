@@ -2,6 +2,11 @@
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// Base url of main app
+export const APP_BASE_URL = isDev
+  ? 'http://localhost:3000'
+  : 'https://votewind.org';
+
 // Base url of api server
 export const API_BASE_URL = isDev
   ? 'http://localhost:8000'

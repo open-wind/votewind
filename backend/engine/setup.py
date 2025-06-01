@@ -331,93 +331,93 @@ def main():
 
         LogMessage("Finished importing osm-boundaries SHP into Django")
 
-    # LogMessage("Aggregating boundaries by council name")
+    LogMessage("Aggregating boundaries by council name")
 
-    # # Step 0: Delete previous aggregate entries
-    # Boundary.objects.filter(council_name__startswith='aggregate:').delete()
+    # Step 0: Delete previous aggregate entries
+    Boundary.objects.filter(council_name__startswith='aggregate:').delete()
 
-    # # Step 1: Get distinct council names
-    # council_names = (
-    #     Boundary.objects
-    #     .exclude(council_name__isnull=True)
-    #     .exclude(council_name__exact='')
-    #     .order_by('council_name')
-    #     .values_list('council_name', flat=True)
-    #     .distinct('council_name')
-    # )
+    # Step 1: Get distinct council names
+    council_names = (
+        Boundary.objects
+        .exclude(council_name__isnull=True)
+        .exclude(council_name__exact='')
+        .order_by('council_name')
+        .values_list('council_name', flat=True)
+        .distinct('council_name')
+    )
 
-    # # Step 2: For each council_name, union geometries and create aggregate object
-    # for name in council_names:
-    #     LogMessage("Creating unionized geometries for: " + name)
-    #     pieces = Boundary.objects.filter(council_name=name)
-    #     union_geom = None
+    # Step 2: For each council_name, union geometries and create aggregate object
+    for name in council_names:
+        LogMessage("Creating unionized geometries for: " + name)
+        pieces = Boundary.objects.filter(council_name=name)
+        union_geom = None
 
-    #     for p in pieces:
-    #         if union_geom is None:
-    #             union_geom = p.geometry
-    #         else:
-    #             union_geom = union_geom.union(p.geometry)
+        for p in pieces:
+            if union_geom is None:
+                union_geom = p.geometry
+            else:
+                union_geom = union_geom.union(p.geometry)
 
-    #     if union_geom:
-    #         # Ensure it's a MultiPolygon
-    #         if isinstance(union_geom, Polygon):
-    #             union_geom = MultiPolygon(union_geom)
+        if union_geom:
+            # Ensure it's a MultiPolygon
+            if isinstance(union_geom, Polygon):
+                union_geom = MultiPolygon(union_geom)
 
-    #         Boundary.objects.create(
-    #             name=name,
-    #             council_name=f"aggregate:{name}",
-    #             geometry=union_geom,
-    #             slug=slugify(name)
-    #         )
+            Boundary.objects.create(
+                name=name,
+                council_name=f"aggregate:{name}",
+                geometry=union_geom,
+                slug=slugify(name)
+            )
 
 
-    # LogMessage("Importing overall clipping geometry")
+    LogMessage("Importing overall clipping geometry")
 
-    # POSTGRES_DB         = os.environ.get("SQL_DATABASE", "user")
-    # POSTGRES_USER       = os.environ.get("SQL_USER", "user")
-    # POSTGRES_PASSWORD   = os.environ.get("SQL_PASSWORD", "user")
-    # POSTGRES_HOST       = os.environ.get("SQL_HOST", "user")
+    POSTGRES_DB         = os.environ.get("SQL_DATABASE", "user")
+    POSTGRES_USER       = os.environ.get("SQL_USER", "user")
+    POSTGRES_PASSWORD   = os.environ.get("SQL_PASSWORD", "user")
+    POSTGRES_HOST       = os.environ.get("SQL_HOST", "user")
 
-    # runSubprocess([ "ogr2ogr", \
-    #                 "-f", "PostgreSQL", \
-    #                 'PG:host=' + POSTGRES_HOST + ' user=' + POSTGRES_USER + ' password=' + POSTGRES_PASSWORD + ' dbname=' + POSTGRES_DB, \
-    #                 OVERALL_CLIPPING, \
-    #                 "-nln", "engine_clipregion", \
-    #                 "-nlt", "MULTIPOLYGON", \
-    #                 "-lco", "FID=id", \
-    #                 "-lco", "GEOMETRY_NAME=geometry", \
-    #                 "-overwrite", \
-    #                 "--config", "OGR_PG_ENABLE_METADATA", "NO", \
-    #                 "--config", "PG_USE_COPY", "YES" ])
+    runSubprocess([ "ogr2ogr", \
+                    "-f", "PostgreSQL", \
+                    'PG:host=' + POSTGRES_HOST + ' user=' + POSTGRES_USER + ' password=' + POSTGRES_PASSWORD + ' dbname=' + POSTGRES_DB, \
+                    OVERALL_CLIPPING, \
+                    "-nln", "engine_clipregion", \
+                    "-nlt", "MULTIPOLYGON", \
+                    "-lco", "FID=id", \
+                    "-lco", "GEOMETRY_NAME=geometry", \
+                    "-overwrite", \
+                    "--config", "OGR_PG_ENABLE_METADATA", "NO", \
+                    "--config", "PG_USE_COPY", "YES" ])
 
-    # LogMessage("Clipping all boundaries")
+    LogMessage("Clipping all boundaries")
 
-    # clip_geom = ClipRegion.objects.first().geometry
-    # for boundary in Boundary.objects.all():
-    #     LogMessage("Clipping: " + boundary.name)
-    #     intersection = boundary.geometry.intersection(clip_geom)
-    #     if intersection.empty:
-    #         continue
-    #     if intersection.geom_type == 'Polygon':
-    #         boundary.geometry = MultiPolygon(intersection)
-    #     elif intersection.geom_type == 'MultiPolygon':
-    #         boundary.geometry = intersection
-    #     elif intersection.geom_type == 'GeometryCollection':
-    #         # Extract all polygons and multipolygons from the collection
-    #         polygons = []
-    #         for geom in intersection:
-    #             if geom.geom_type == 'Polygon':
-    #                 polygons.append(geom)
-    #             elif geom.geom_type == 'MultiPolygon':
-    #                 polygons.extend(geom)
+    clip_geom = ClipRegion.objects.first().geometry
+    for boundary in Boundary.objects.all():
+        LogMessage("Clipping: " + boundary.name)
+        intersection = boundary.geometry.intersection(clip_geom)
+        if intersection.empty:
+            continue
+        if intersection.geom_type == 'Polygon':
+            boundary.geometry = MultiPolygon(intersection)
+        elif intersection.geom_type == 'MultiPolygon':
+            boundary.geometry = intersection
+        elif intersection.geom_type == 'GeometryCollection':
+            # Extract all polygons and multipolygons from the collection
+            polygons = []
+            for geom in intersection:
+                if geom.geom_type == 'Polygon':
+                    polygons.append(geom)
+                elif geom.geom_type == 'MultiPolygon':
+                    polygons.extend(geom)
 
-    #         if polygons:
-    #             boundary.geometry = MultiPolygon(polygons)
-    #         else:
-    #             continue
-    #     else:
-    #         continue
-    #     boundary.save()
+            if polygons:
+                boundary.geometry = MultiPolygon(polygons)
+            else:
+                continue
+        else:
+            continue
+        boundary.save()
 
     LogMessage("Creating overlays GeoJSON")
 

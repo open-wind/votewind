@@ -3,15 +3,21 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io'; // Close icon
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
-export default function SlugList({ containingSlugs = [] }) {
+export default function SlugList({ containingSlugs = [], longitude=null, latitude=null }) {
   const [open, setOpen] = useState(false);
   const firstSlug = containingSlugs?.[0] || 'Unknown area';
+
+  const createURL = (areaname, areaslug) => {
+    return (
+      <a className="font-bold text-blue-600 text-sm hover:underline" target="_new" href={`http://${areaslug}.votewind.org:3000?longitude=${longitude.toFixed(5)}&latitude=${latitude.toFixed(5)}`}>{areaname}</a>
+    )
+  }
 
   return (
     <div className="relative inline-block text-left z-50">
 
       <span className="text-sm font-medium text-gray-700 truncate max-w-[12rem]">
-        Constraint map: <a className="font-bold text-blue-600" target="_new" href={`http://${firstSlug.slug}.votewind.org:3000`}>{firstSlug.name}</a>
+        Detailed constraints map: {createURL(firstSlug.name, firstSlug.slug)}
       </span>
 
       <TooltipProvider>
@@ -25,7 +31,7 @@ export default function SlugList({ containingSlugs = [] }) {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-              Show available constraint maps
+              All available constraint maps for position
           </TooltipContent>
           </Tooltip>
       </TooltipProvider>
@@ -50,13 +56,7 @@ export default function SlugList({ containingSlugs = [] }) {
 
               {containingSlugs.map((item, index) => (
                 <li key={index}>
-                  <a
-                    target="_new"
-                    href={`http://${item.slug}.votewind.org:3000`}
-                    className="text-blue-600 text-sm hover:underline"
-                  >
-                    {item.name}
-                  </a>
+                  {createURL(item.name, item.slug)}
                 </li>
               ))}
           </ul>
