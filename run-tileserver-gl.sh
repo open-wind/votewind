@@ -5,4 +5,8 @@ export PKG_CONFIG_PATH=/opt/lib/pkgconfig:$PKG_CONFIG_PATH
 export EXTERNAL_IP=$(curl ipinfo.io/ip)
 export PUBLIC_URL=https://tiles.votewind.org
 
-xvfb-run --server-args="-screen 0 1024x768x24" tileserver-gl -p 8080 --public_url ${PUBLIC_URL} --config build-cli/tileserver/config.json
+# For basic testing
+#xvfb-run --server-args="-screen 0 1024x768x24" tileserver-gl -p 8080 --public_url ${PUBLIC_URL}
+
+# For live
+xvfb-run --server-args="-screen 0 1024x768x24" tileserver-gl -p 8080 --public_url ${PUBLIC_URL} --config /usr/src/votewind/tileserver/config.json
