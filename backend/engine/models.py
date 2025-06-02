@@ -105,6 +105,8 @@ class Boundary(models.Model):
     """
 
     name = models.CharField(max_length = 200, blank=True, null=True)
+    name_en = models.CharField(max_length = 200, blank=True, null=True)
+    name_orig = models.CharField(max_length = 200, blank=True, null=True)
     slug = models.SlugField(max_length = 100, blank=True)
     council_name = models.CharField(max_length = 200, blank=True, null=True)
     type = models.CharField(max_length = 100, blank=True, null=True)
@@ -122,6 +124,7 @@ class Boundary(models.Model):
         ordering = ('name',) 
         indexes = [
             models.Index(fields=['name',]),
+            models.Index(fields=['name_en',]),
             models.Index(fields=['slug',]),
             models.Index(fields=['council_name',]),
             models.Index(fields=['level',]),
@@ -245,6 +248,8 @@ class Place(models.Model):
     """
 
     name = models.CharField(max_length=200, default='', blank=True)
+    name_en = models.CharField(max_length = 200, blank=True, null=True)
+    name_orig = models.CharField(max_length = 200, blank=True, null=True)
     county = models.CharField(max_length=200, default='', blank=True)
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
     boundary = models.ForeignKey(Boundary, on_delete=models.SET_NULL, related_name='boundary', default='', null=True)
@@ -258,6 +263,7 @@ class Place(models.Model):
         ordering = ('name', 'county', ) 
         indexes = [
             models.Index(fields=['name',]),
+            models.Index(fields=['name_en',]),
             models.Index(fields=['county',]),
             GistIndex(fields=['geometry']),
         ]

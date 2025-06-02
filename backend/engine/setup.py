@@ -27,6 +27,7 @@ if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "votewind.settings")
     django.setup()
 
+from django.db import connection
 from django.contrib.gis.db.models.functions import Area
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.utils import LayerMapping
@@ -225,11 +226,11 @@ def getContainingCounty(point):
     Get name of largest county containing point
     """
 
-    county = Boundary.objects.annotate(area=Area('geometry')).filter(type='nonadministrative').filter(geometry__intersects=point).order_by('-area').first()
+    county = Boundary.objects.filter(type='nonadministrative').filter(geometry__intersects=point).order_by('-area').first()
     if county is None: 
-        county = Boundary.objects.annotate(area=Area('geometry')).filter(type='administrative').filter(level='6').filter(geometry__intersects=point).order_by('-area').first()
+        county = Boundary.objects.filter(type='administrative').filter(level='6').filter(geometry__intersects=point).order_by('-area').first()
         if county is None:
-            county = Boundary.objects.annotate(area=Area('geometry')).filter(type='administrative').filter(level='5').filter(geometry__intersects=point).order_by('-area').first()
+            county = Boundary.objects.filter(type='administrative').filter(level='5').filter(geometry__intersects=point).order_by('-area').first()
             if county is None:
                 return ''
 
@@ -300,7 +301,7 @@ def main():
                         temp_gpkg + '.gpkg', \
                         '-nln', 'osm_boundaries', \
                         '-lco', 'ENCODING=UTF-8', \
-                        "-sql", "SELECT name, council_name council, admin_level level, boundary type, geom geometry FROM 'osm-boundaries' WHERE GeometryType(geom) IN ('POLYGON', 'MULTIPOLYGON')", \
+                        "-sql", "SELECT * FROM 'osm-boundaries' WHERE GeometryType(geom) IN ('POLYGON', 'MULTIPOLYGON')", \
                         "-nlt", "MULTIPOLYGON" ])
 
     if isfile(temp_gpkg): os.remove(temp_gpkg + '.gpkg')
@@ -309,10 +310,11 @@ def main():
     if boundaries.count() == 0:
         LogMessage("Importing osm-boundaries SHP into Django")
         boundary_mapping = {
-            'name:en': 'name',
-            'council_name': 'council',
-            'type': 'type',
-            'level': 'level',
+            'name': 'name',
+            'name_en': 'name_en',
+            'council_name': 'council_na',
+            'type': 'boundary',
+            'level': 'admin_leve',
             'geometry': 'geometry',
         }
 
@@ -329,47 +331,53 @@ def main():
         Boundary.objects.filter(type='historic').update(type="nonadministrative")
         Boundary.objects.filter(type='ceremonial').update(type="nonadministrative")
 
+        LogMessage("Setting name = name_en where name_en is non-null and differs from name")
+
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE engine_boundary SET name = name_en, name_orig = name WHERE (name_en IS NOT NULL) AND (name <> name_en)")
+
         LogMessage("Finished importing osm-boundaries SHP into Django")
+
 
     LogMessage("Aggregating boundaries by council name")
 
-    # Step 0: Delete previous aggregate entries
-    Boundary.objects.filter(council_name__startswith='aggregate:').delete()
+    clip_boundaries = False
+    aggregated_boundaries = Boundary.objects.filter(council_name__startswith='aggregate:')
+    if aggregated_boundaries.count() == 0:
+        clip_boundaries = True
+        # Step 1: Get distinct council names
+        council_names = (
+            Boundary.objects
+            .exclude(council_name__isnull=True)
+            .exclude(council_name__exact='')
+            .order_by('council_name')
+            .values_list('council_name', flat=True)
+            .distinct('council_name')
+        )
 
-    # Step 1: Get distinct council names
-    council_names = (
-        Boundary.objects
-        .exclude(council_name__isnull=True)
-        .exclude(council_name__exact='')
-        .order_by('council_name')
-        .values_list('council_name', flat=True)
-        .distinct('council_name')
-    )
+        # Step 2: For each council_name, union geometries and create aggregate object
+        for name in council_names:
+            LogMessage("Creating unionized geometries for: " + name)
+            pieces = Boundary.objects.filter(council_name=name)
+            union_geom = None
 
-    # Step 2: For each council_name, union geometries and create aggregate object
-    for name in council_names:
-        LogMessage("Creating unionized geometries for: " + name)
-        pieces = Boundary.objects.filter(council_name=name)
-        union_geom = None
+            for p in pieces:
+                if union_geom is None:
+                    union_geom = p.geometry
+                else:
+                    union_geom = union_geom.union(p.geometry)
 
-        for p in pieces:
-            if union_geom is None:
-                union_geom = p.geometry
-            else:
-                union_geom = union_geom.union(p.geometry)
+            if union_geom:
+                # Ensure it's a MultiPolygon
+                if isinstance(union_geom, Polygon):
+                    union_geom = MultiPolygon(union_geom)
 
-        if union_geom:
-            # Ensure it's a MultiPolygon
-            if isinstance(union_geom, Polygon):
-                union_geom = MultiPolygon(union_geom)
-
-            Boundary.objects.create(
-                name=name,
-                council_name=f"aggregate:{name}",
-                geometry=union_geom,
-                slug=slugify(name)
-            )
-
+                Boundary.objects.create(
+                    name=name,
+                    council_name=f"aggregate:{name}",
+                    geometry=union_geom,
+                    slug=slugify(name)
+                )
 
     LogMessage("Importing overall clipping geometry")
 
@@ -378,104 +386,109 @@ def main():
     POSTGRES_PASSWORD   = os.environ.get("SQL_PASSWORD", "user")
     POSTGRES_HOST       = os.environ.get("SQL_HOST", "user")
 
-    runSubprocess([ "ogr2ogr", \
-                    "-f", "PostgreSQL", \
-                    'PG:host=' + POSTGRES_HOST + ' user=' + POSTGRES_USER + ' password=' + POSTGRES_PASSWORD + ' dbname=' + POSTGRES_DB, \
-                    OVERALL_CLIPPING, \
-                    "-nln", "engine_clipregion", \
-                    "-nlt", "MULTIPOLYGON", \
-                    "-lco", "FID=id", \
-                    "-lco", "GEOMETRY_NAME=geometry", \
-                    "-overwrite", \
-                    "--config", "OGR_PG_ENABLE_METADATA", "NO", \
-                    "--config", "PG_USE_COPY", "YES" ])
+    clipregions = ClipRegion.objects.all()
+    if clipregions.count() == 0:
+        clip_boundaries = True
+        runSubprocess([ "ogr2ogr", \
+                        "-f", "PostgreSQL", \
+                        'PG:host=' + POSTGRES_HOST + ' user=' + POSTGRES_USER + ' password=' + POSTGRES_PASSWORD + ' dbname=' + POSTGRES_DB, \
+                        OVERALL_CLIPPING, \
+                        "-nln", "engine_clipregion", \
+                        "-nlt", "MULTIPOLYGON", \
+                        "-lco", "FID=id", \
+                        "-lco", "GEOMETRY_NAME=geometry", \
+                        "-overwrite", \
+                        "--config", "OGR_PG_ENABLE_METADATA", "NO", \
+                        "--config", "PG_USE_COPY", "YES" ])
 
-    LogMessage("Clipping all boundaries")
+    if clip_boundaries:
+        LogMessage("Clipping all boundaries")
 
-    clip_geom = ClipRegion.objects.first().geometry
-    for boundary in Boundary.objects.all():
-        LogMessage("Clipping: " + boundary.name)
-        intersection = boundary.geometry.intersection(clip_geom)
-        if intersection.empty:
-            continue
-        if intersection.geom_type == 'Polygon':
-            boundary.geometry = MultiPolygon(intersection)
-        elif intersection.geom_type == 'MultiPolygon':
-            boundary.geometry = intersection
-        elif intersection.geom_type == 'GeometryCollection':
-            # Extract all polygons and multipolygons from the collection
-            polygons = []
-            for geom in intersection:
-                if geom.geom_type == 'Polygon':
-                    polygons.append(geom)
-                elif geom.geom_type == 'MultiPolygon':
-                    polygons.extend(geom)
+        clip_geom = ClipRegion.objects.first().geometry
+        for boundary in Boundary.objects.all():
+            LogMessage("Clipping: " + boundary.name)
+            intersection = boundary.geometry.intersection(clip_geom)
+            if intersection.empty:
+                continue
+            if intersection.geom_type == 'Polygon':
+                boundary.geometry = MultiPolygon(intersection)
+            elif intersection.geom_type == 'MultiPolygon':
+                boundary.geometry = intersection
+            elif intersection.geom_type == 'GeometryCollection':
+                # Extract all polygons and multipolygons from the collection
+                polygons = []
+                for geom in intersection:
+                    if geom.geom_type == 'Polygon':
+                        polygons.append(geom)
+                    elif geom.geom_type == 'MultiPolygon':
+                        polygons.extend(geom)
 
-            if polygons:
-                boundary.geometry = MultiPolygon(polygons)
+                if polygons:
+                    boundary.geometry = MultiPolygon(polygons)
+                else:
+                    continue
             else:
                 continue
-        else:
-            continue
-        boundary.save()
+            boundary.save()
 
-    LogMessage("Creating overlays GeoJSON")
+    if not isfile(OSM_BOUNDARIES_OVERLAYS):
+        LogMessage("Creating overlays GeoJSON")
 
-    uk_bbox = Polygon.from_bbox((-10.0, 48.9, 3.0, 61.8))
-    europe_extended = Polygon.from_bbox((-45, 39, 38, 65))
-    world = Polygon.from_bbox((-180.0, -90.0, 180.0, 90.0))
-    features = []
-    slug_set = set()
-    for boundary in Boundary.objects.all().order_by('-type', 'level'):
-        region = boundary.geometry
-        slug = boundary.slug
+        uk_bbox = Polygon.from_bbox((-10.0, 48.9, 3.0, 61.8))
+        europe_extended = Polygon.from_bbox((-45, 39, 38, 65))
+        world = Polygon.from_bbox((-180.0, -90.0, 180.0, 90.0))
+        features = []
+        slug_set = set()
+        for boundary in Boundary.objects.all().order_by('-type', 'level'):
+            region = boundary.geometry
+            slug = boundary.slug
 
-        # Only allow one feature with specific slug
-        if (slug == '') or (slug in slug_set): continue
+            # Only allow one feature with specific slug
+            if (slug == '') or (slug in slug_set): continue
 
-        slug_set.add(slug)
+            slug_set.add(slug)
 
-        LogMessage("Creating overlay for: " + str(boundary.name) + ' slug: ' + boundary.slug)
+            LogMessage("Creating overlay for: " + str(boundary.name) + ' slug: ' + boundary.slug)
 
-        try:
-            donut = uk_bbox.difference(region)
+            try:
+                donut = uk_bbox.difference(region)
 
-            if not donut.valid:
-                donut = donut.buffer(0)
+                if not donut.valid:
+                    donut = donut.buffer(0)
 
-            # donut = donut.simplify(0.0001, preserve_topology=True)
-            if not donut.valid:
-                LogError(f"Invalid geometry in {slug}")
-                exit()
-                continue
+                # donut = donut.simplify(0.0001, preserve_topology=True)
+                if not donut.valid:
+                    LogError(f"Invalid geometry in {slug}")
+                    exit()
+                    continue
 
-            if donut.empty or donut.geom_type not in ['Polygon', 'MultiPolygon']:
-                continue
+                if donut.empty or donut.geom_type not in ['Polygon', 'MultiPolygon']:
+                    continue
 
-            if donut.geom_type == 'Polygon':
-                donut = MultiPolygon(donut)
+                if donut.geom_type == 'Polygon':
+                    donut = MultiPolygon(donut)
 
-            feature = {
-                "type": "Feature",
-                "properties": {
-                    "slug": slug,
-                    "name": boundary.name
-                },
-                "geometry": json.loads(donut.geojson)
-            }
+                feature = {
+                    "type": "Feature",
+                    "properties": {
+                        "slug": slug,
+                        "name": boundary.name
+                    },
+                    "geometry": json.loads(donut.geojson)
+                }
 
-            features.append(feature)
+                features.append(feature)
 
-        except Exception as e:
-            LogError(self.style.ERROR(f"✗ Failed {slug}: {e}"))
+            except Exception as e:
+                LogError(self.style.ERROR(f"✗ Failed {slug}: {e}"))
 
-    geojson = {
-        "type": "FeatureCollection",
-        "features": features
-    }
+        geojson = {
+            "type": "FeatureCollection",
+            "features": features
+        }
 
-    with open(OSM_BOUNDARIES_OVERLAYS, 'w') as f:
-        json.dump(geojson, f)
+        with open(OSM_BOUNDARIES_OVERLAYS, 'w') as f:
+            json.dump(geojson, f)
 
     if not isfile(osm_places):
         LogMessage("Running osm-export-tool on: " + OSM_EXPORT_PLACES + '.yml')
@@ -488,7 +501,7 @@ def main():
                         temp_gpkg + '.gpkg', \
                         '-nln', 'osm_places', \
                         '-lco', 'ENCODING=UTF-8', \
-                        "-sql", "SELECT name, geom geometry FROM 'osm-places' WHERE GeometryType(geom) IN ('POINT')", \
+                        "-sql", "SELECT * FROM 'osm-places' WHERE GeometryType(geom) IN ('POINT')", \
                         "-nlt", "POINT" ])
         
     if isfile(temp_gpkg): os.remove(temp_gpkg + '.gpkg')
@@ -501,13 +514,20 @@ def main():
         layer = ds[0]
 
         for feature in layer:
-            name = feature.get("name:en")
+            name = feature.get("name")
+            name_orig = None
+            name_en = feature.get("name_en")
+            if (name_en is not None) and (name_en != name): 
+                name_orig = name
+                name = name_en
             county = getContainingCounty(feature.geom.geos)
             if county == '':
                 LogMessage("Missing county for: " + name)
             if (name is not None) and (county != ''):
                 Place.objects.create(
-                    name=feature.get("name:en"),
+                    name=name,
+                    name_en=name_en,
+                    name_orig=name_orig,
                     county = county,
                     geometry=feature.geom.geos
                 )
@@ -523,7 +543,7 @@ def main():
         for place in places:
             if count % 1000 == 0: LogMessage("Processing place: " + str(count) + "/" + str(len(places)))
             if (place.name is None) or (place.name == ''): continue
-            boundary = Boundary.objects.annotate(area=Area('geometry')).filter(geometry__intersects=place.geometry).order_by('area').first()
+            boundary = Boundary.objects.filter(geometry__intersects=place.geometry).order_by('area').first()
             if boundary is not None:
                 place.boundary = boundary
                 place.save()
@@ -537,7 +557,6 @@ def main():
         with ZipFile(zip_file, 'r') as zip_ref: zip_ref.extract(POSTCODES_SINGLEFILE, path=POSTCODES_DOWNLOAD_FOLDER)
         os.remove(zip_file)
         shutil.move(POSTCODES_DOWNLOAD_FOLDER + POSTCODES_SINGLEFILE, POSTCODES_DOWNLOAD_FOLDER + basename(POSTCODES_SINGLEFILE))
-
 
     # Only import postcodes if postcode table is empty
     postcodes_incomplete = []
