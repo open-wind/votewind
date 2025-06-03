@@ -260,7 +260,7 @@ def main():
 
         inputs = runSubprocess(["tippecanoe", \
                                 "-o", overlays_mbtiles, \
-                                "osm-boundaries-overlays.geojson", \
+                                "engine/osm-boundaries-overlays.geojson", \
                                 "-Z4", "-z11", \
                                 "--generate-ids", \
                                 "--force", \
