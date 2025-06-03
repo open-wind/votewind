@@ -640,8 +640,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" className="inline-flex ml-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                        <Video onClick={() => setShowCesiumViewer(true)} className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
+                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex ml-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                        <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">

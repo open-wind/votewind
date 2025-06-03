@@ -304,8 +304,8 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" className="inline-flex ml-4 -translate-y-[2px] relative items-center justify-center sm:bottom-0 h-8 w-8 sm:h-10 sm:w-10 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                        <Video onClick={() => setShowCesiumViewer(true)} className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
+                                    <button onClick={() => setShowCesiumViewer(true)} type="button" className="inline-flex ml-4 -translate-y-[2px] relative items-center justify-center sm:bottom-0 h-8 w-8 sm:h-10 sm:w-10 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                        <Video className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
