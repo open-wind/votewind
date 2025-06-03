@@ -11,6 +11,14 @@
 /tileserver/fonts
 /tileserver/openmaptiles-fonts/
 
+INSTALLCOMPLETE
+/backend/static/
+/backend/temp.gpkg
+/backend/test.gpkg
+/backend/test.yml
+log.txt
+/static-frontend/
+
 /backend/engine/osm-boundaries-overlays.geojson
 /backend/osm-boundaries-overlays.mbtiles
 /backend/osm-boundaries-overlays.mbtiles-journal
