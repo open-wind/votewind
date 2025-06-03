@@ -333,8 +333,15 @@ def main():
 
         LogMessage("Setting name = name_en where name_en is non-null and differs from name")
 
+        # Reset slug in case we change name -> name_en
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE engine_boundary SET name = name_en, name_orig = name WHERE (name_en IS NOT NULL) AND (name <> name_en)")
+            cursor.execute("UPDATE engine_boundary SET name = name_en, name_orig = name, slug = '' WHERE (name_en IS NOT NULL) AND (name <> name_en)")
+
+        LogMessage("Updating slugs for all changed boundaries")
+
+        boundaries = Boundary.objects.filter(slug='')
+        for boundary in boundaries:
+            boundary.save()
 
         LogMessage("Finished importing osm-boundaries SHP into Django")
 

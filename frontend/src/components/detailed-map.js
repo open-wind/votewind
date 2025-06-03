@@ -69,7 +69,6 @@ export default function DetailedMap({ subdomain=null, data=null }) {
     }, [mapInstance]);
 
     const onLoad = () => {
-        console.log(data);
         const map = mapRef.current?.getMap();
         if (map) {
             setMapInstance(map);
