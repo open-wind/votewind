@@ -9,7 +9,7 @@ export default function SlugList({ containingSlugs = [], longitude=null, latitud
 
   const createURL = (areaname, areaslug) => {
     return (
-      <a className="font-bold text-blue-600 text-sm hover:underline" target="_new" href={`http://${areaslug}.votewind.org:3000?longitude=${longitude.toFixed(5)}&latitude=${latitude.toFixed(5)}`}>{areaname}</a>
+      <a className="font-bold text-blue-600 text-sm hover:underline" target="_new" href={`https://${areaslug}.votewind.org?longitude=${longitude.toFixed(5)}&latitude=${latitude.toFixed(5)}`}>{areaname}</a>
     )
   }
 

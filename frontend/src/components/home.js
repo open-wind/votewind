@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import AutocompleteInput from '@/components/autocomplete-input';
 import PartnerLogos from '@/components/partner-logos';
 
+const assetPrefix = process.env.ASSET_PREFIX || '';
+
 export default function Home() {
   const [query, setQuery] = useState('');
   const [uselocation, setUselocation] = useState(true);
@@ -25,7 +27,8 @@ export default function Home() {
   return (
   <div className="mx-auto mt-0">
 
-    <div className="w-full h-screen bg-[url('/images/sunrise-3579931_1920.jpg')] bg-cover bg-center" >
+    <div className="w-full h-screen bg-cover bg-center"
+          style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
 
       <div className="fixed top-1/3 -translate-y-1/2 left-0 text-center w-full items-center">
 

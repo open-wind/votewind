@@ -10,6 +10,9 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const assetPrefix = '/static-frontend';
+// const assetPrefix = '';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack(config) {
@@ -35,8 +38,15 @@ const nextConfig = {
     return config;
   },
   env: {
-    CESIUM_BASE_URL: '/cesium-assets',
+    CESIUM_BASE_URL: `${assetPrefix}/cesium-assets`,
+    ASSET_PREFIX: assetPrefix,
   },
+
+  trailingSlash: true,
+
+  output: 'export',
+  assetPrefix: assetPrefix,
+
 };
 
 export default nextConfig;

@@ -17,11 +17,10 @@ import SocialShareButtons from "@/components/social-share-buttons";
 import NumberedAction from './numbered-action';
 import ScrollHint from '@/components/scrollhint'
 import CesiumModal from './cesium-modal';
-
-
 import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
-
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export default function VoteCastMap({ longitude=null, latitude=null, type='', emailused='' }) {
     const router = useRouter();
@@ -192,8 +191,9 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     }
 
     return (
-    <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-[url('/images/sunrise-3579931_1920.jpg')] bg-cover bg-center">
-        
+    <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-cover bg-center"
+        style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
+
         <ScrollHint targetRef={panelRef} />
 
         <section className="flex flex-col items-center px-3">
@@ -204,7 +204,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     {/* Content: Icon + Text */}
                     <div className="w-full max-w-[800px] mx-auto rounded-2xl mb-2 bg-white/70 p-4 sm:p-6 text-sm sm:text-medium">
                         <img
-                            src="/icons/check-mark.svg"
+                            src={`${assetPrefix}/icons/check-mark.svg`}
                             alt="Vote"
                             className="float-left w-20 h-20 sm:w-[150px] sm:h-[150px] mr-2 sm:mr-6 mb-0"
                         />
@@ -288,7 +288,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 <AttributionControl compact position="bottom-right" />
 
                                 <Marker longitude={initialViewState.longitude} latitude={initialViewState.latitude} draggable={false} anchor="bottom" offset={[0, 0]}>
-                                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
+                                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                                 </Marker>
                             </Map>
 

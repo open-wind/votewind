@@ -22,6 +22,8 @@ import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
+const assetPrefix = process.env.ASSET_PREFIX || '';
+
 export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false, turbineAtCentre=false }) {
     const router = useRouter();
     const mapRef = useRef();
@@ -58,7 +60,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setIsBouncing(true);
         setTimeout(() => setIsBouncing(false), 500); // match animation duration
     };
-
+    
     const incorporateBaseDomain = (baseurl, json) => {
 
         let newjson = JSON.parse(JSON.stringify(json));
@@ -216,7 +218,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             const image_id = images_to_load[i];
             if (!map.hasImage(image_id)) {
                 const img = new window.Image();
-                img.src = `/icons/${image_id}.png`;
+                img.src = `${assetPrefix}/icons/${image_id}.png`;
                 img.onload = () => map.addImage(image_id, img, { sdf: image_id.endsWith('-sdf')});
 
             }
@@ -608,7 +610,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <div className="relative inline-block">
 
                             <img
-                                src="/icons/check-mark.svg"
+                                src={`${assetPrefix}/icons/check-mark.svg`}
                                 alt="Vote"
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
@@ -708,7 +710,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </Button>
 
                         <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
-                        <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                        <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
                         Cast vote!
                         </Button>
                     </div>
@@ -740,7 +742,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <div className="flex-shrink-0 w-20 h-20 sm:w-40 sm:h-40 ml-5 sm:mr-10">
                             <div className="relative inline-block">
                             <img
-                                src="/icons/multiple-users-silhouette.svg"
+                                src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
                                 alt="Vote"
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
@@ -847,7 +849,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md flex items-center justify-center">
                         <img
                             alt="Wind turbine"
-                            src="/icons/windturbine_black.png"
+                            src={`${assetPrefix}/icons/windturbine_black.png`}
                             width="20"
                             height="20"
                             className="block"
@@ -913,7 +915,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 {(turbineAdded && displayTurbine) ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
-                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
+                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                 </Marker>
                 ) : null}
 

@@ -11,6 +11,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import LayerTogglePanel from './map-layer-panel';
 import { APP_BASE_URL } from '@/lib/config';
 
+const assetPrefix = process.env.ASSET_PREFIX || '';
+
 export default function DetailedMap({ subdomain=null, data=null }) {
     const mapRef = useRef();
     const isMobile = useIsMobile();
@@ -187,7 +189,7 @@ export default function DetailedMap({ subdomain=null, data=null }) {
                         <Tooltip>
                         <TooltipTrigger asChild>
                             <a href={`${APP_BASE_URL}/${longitude.toFixed(5)}/${latitude.toFixed(5)}/15?selectturbine=true`}>
-                                <img alt="Wind turbine" width="80" height="80" src="/icons/windturbine_blue.png" />
+                                <img alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                             </a>
                         </TooltipTrigger>
                         <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">

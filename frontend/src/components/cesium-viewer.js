@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { 
+  buildModuleUrl,
   Viewer, 
   Ion, 
   createWorldTerrainAsync,
@@ -30,6 +31,7 @@ if (typeof window !== 'undefined') {
 
 const NIGHTTIME_ENDS = 21.5;
 const MORNING_STARTS = 4.5;
+const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export default function CesiumViewer({longitude, latitude}) {
   const containerRef = useRef(null);
@@ -167,7 +169,7 @@ export default function CesiumViewer({longitude, latitude}) {
 
       try {
         const res = await fetch(API_BASE_URL + "/api/cesium-jit", {
-          method: "GET",
+          method: "POST",
         });
 
         if (!res.ok) {
@@ -253,7 +255,12 @@ export default function CesiumViewer({longitude, latitude}) {
       viewer.scene.fog.density = 0.0015;
 
       // viewer.scene.globe.dynamicAtmosphereLighting = true;
-      viewer.clock.currentTime = JulianDate.fromDate(new Date("2025-05-30T14:00:00Z"));
+
+      const now = new Date();    
+      const hour = Math.floor(hourFloat);
+      const minutes = Math.round((hourFloat % 1) * 60);
+      now.setUTCHours(hour, minutes, 0, 0);
+      viewer.clock.currentTime = JulianDate.fromDate(now);
 
       const positions = [Cartographic.fromDegrees(longitude, latitude)];
       const updatedPositions = await sampleTerrainMostDetailed(viewer.terrainProvider, positions);
@@ -301,7 +308,7 @@ export default function CesiumViewer({longitude, latitude}) {
         position: basePosition,
         orientation: Transforms.headingPitchRollQuaternion(basePosition, hpr),
         model: {
-          uri: '/3d/windturbine_tower.gltf',
+          uri: `${assetPrefix}/3d/windturbine_tower.gltf`,
           scale: 29.28,
           shadows: ShadowMode.ENABLED,
         }
@@ -313,7 +320,7 @@ export default function CesiumViewer({longitude, latitude}) {
         orientation: Transforms.headingPitchRollQuaternion(bladePosition, hpr),
         // modelMatrix: finalMatrix,
         model: {
-          uri: '/3d/windturbine_blades.gltf',
+          uri: `${assetPrefix}/3d/windturbine_blades.gltf`,
           scale: 38.48,
           shadows: ShadowMode.CAST_ONLY,
           color: Color.DARKGRAY.withAlpha(1), // or use RGB for finer control

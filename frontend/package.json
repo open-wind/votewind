@@ -1,10 +1,13 @@
 {
-  "name": "backend_test",
+  "name": "votewind-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "deploy": "./deploy.sh",
+    "export": "next export",
+    "serve": "npx serve out -s",
     "start": "next start",
     "lint": "next lint"
   },
