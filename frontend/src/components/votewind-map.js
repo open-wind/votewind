@@ -206,6 +206,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const map = mapRef.current?.getMap();
         if (!map) return;
 
+        map.touchZoomRotate.disableRotation();
+
         // Load any images that are too fiddly to incorporate into default images
         const images_to_load = [    'check-mark-circle-dropshadow',
                                     'check-mark-circle-desaturated-dropshadow', 

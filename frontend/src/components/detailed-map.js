@@ -71,6 +71,9 @@ export default function DetailedMap({ subdomain=null, data=null }) {
     const onLoad = () => {
         const map = mapRef.current?.getMap();
         if (map) {
+
+            map.touchZoomRotate.disableRotation();
+
             setMapInstance(map);
 
             if (!map.getSource('mask')) {
