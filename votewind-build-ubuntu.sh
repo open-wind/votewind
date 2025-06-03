@@ -165,6 +165,8 @@ sudo NEEDRESTART_MODE=a apt install libpango1.0-dev libjpeg-dev libgif-dev librs
 sudo NEEDRESTART_MODE=a apt install libcurl4-openssl-dev libpixman-1-dev libpixman-1-0 ccache cmake ninja-build pkg-config xvfb -y | tee -a /usr/src/votewind/log.txt
 sudo NEEDRESTART_MODE=a apt install libc++-dev libc++abi-dev libpng-dev -y | tee -a /usr/src/votewind/log.txt
 sudo NEEDRESTART_MODE=a apt install libgl1-mesa-dev libgl1-mesa-dri libjpeg-dev -y | tee -a /usr/src/votewind/log.txt
+sudo NEEDRESTART_MODE=a apt install php-curl php-gd php-mbstring php-xml php-xmlrpc php-soap php-intl php-zip php libapache2-mod-php -y | tee -a /usr/src/votewind/log.txt
+
 
 sudo apt update -y | tee -a /usr/src/votewind/log.txt
 

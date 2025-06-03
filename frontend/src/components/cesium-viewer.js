@@ -262,6 +262,10 @@ export default function CesiumViewer({longitude, latitude}) {
       now.setUTCHours(hour, minutes, 0, 0);
       viewer.clock.currentTime = JulianDate.fromDate(now);
 
+      await viewer.terrainProvider.readyPromise;
+      await viewer.scene.globe.readyPromise;
+      await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1s for LOD refinement
+
       const positions = [Cartographic.fromDegrees(longitude, latitude)];
       const updatedPositions = await sampleTerrainMostDetailed(viewer.terrainProvider, positions);
       const terrainHeight = updatedPositions[0].height - 5;

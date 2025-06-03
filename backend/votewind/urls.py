@@ -15,9 +15,32 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
+from django.http import HttpResponse
+
 from engine import views
 
+REACT_INDEX_PATH = '/usr/src/votewind/static-frontend/index.html'
+REACT_INDEX_CONTENT = None
+
+def serve_react_index(request):
+    """
+    Serves up main REACT app
+    """
+
+    global REACT_INDEX_PATH, REACT_INDEX_CONTENT
+
+    if REACT_INDEX_CONTENT is None:
+
+        try:
+            with open(REACT_INDEX_PATH, encoding='utf-8') as f:
+                REACT_INDEX_CONTENT = f.read()
+        except FileNotFoundError:
+            return HttpResponse("index.html not found", status=404)
+
+    return HttpResponse(REACT_INDEX_CONTENT)
+    
 urlpatterns = [
+    re_path(r'^(?!admin|api|votes|organisation).*$', serve_react_index),
     path('admin/', admin.site.urls),
     path('api/boundary', views.BoundaryGet, name='boundary'),
     path('api/locationsearch', views.LocationSearch, name='locationsearch'),

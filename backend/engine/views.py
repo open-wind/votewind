@@ -333,9 +333,11 @@ def GetWindSpeed(request):
         return HttpResponseForbidden("POST variables missing")
 
     position = Point(longitude, latitude, srid=4326)
-    windspeed = WindSpeed.objects.filter(geometry__contains=position).first()
+    windspeed_obj = WindSpeed.objects.filter(geometry__contains=position).first()
+    windspeed = None
+    if windspeed_obj: windspeed = round(windspeed_obj.windspeed, 2)
 
-    return JsonResponse({'windspeed': round(windspeed.windspeed, 2)})
+    return JsonResponse({'windspeed': windspeed})
 
 @csrf_exempt
 def SubmitVote(request):

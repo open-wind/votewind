@@ -4,6 +4,7 @@
 /backend/osm-boundaries-overlays.mbtiles
 /backend/osm-boundaries-overlays.mbtiles-journal
 /backend/engine/windspeeds-noabl--uk.geojson
+/frontend/out
 /frontend/node_modules
 *.log
 /backend/engine/migrations

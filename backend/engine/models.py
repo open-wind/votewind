@@ -96,7 +96,10 @@ class PostcodeAdmin(LeafletGeoAdmin):
 SLUG_LOOKUP = {
     'Alba / Scotland': 'scotland', \
 	'Cymru / Wales': 'wales', \
-	'Northern Ireland / Tuaisceart Éireann': 'northernireland' \
+	'Northern Ireland / Tuaisceart Éireann': 'northernireland', \
+    'Scotland': 'scotland', \
+	'Wales': 'wales', \
+	'Northern Ireland': 'northernireland' \
 }
 
 class Boundary(models.Model):
