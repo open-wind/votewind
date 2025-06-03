@@ -220,6 +220,7 @@ def main():
 
     bbox_entireworld = "-180,-85,180,85"
     bbox_unitedkingdom_padded = "-49.262695,38.548165,39.990234,64.848937"
+    bbox_northerneurope = "-37.409477,39.218822,31.804390,65.083342"
 
     makeFolder(TILESERVER_FOLDER)
     makeFolder(TILESERVER_DATA_FOLDER)
@@ -238,7 +239,7 @@ def main():
         inputs = runSubprocess(["tilemaker", \
                                 "--input", osm_download, \
                                 "--output", basemap_mbtiles, \
-                                "--bbox", bbox_entireworld, \
+                                "--bbox", bbox_northerneurope, \
                                 "--process", TILEMAKER_COASTLINE_PROCESS, \
                                 "--config", TILEMAKER_COASTLINE_CONFIG ])
 

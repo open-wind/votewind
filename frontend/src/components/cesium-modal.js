@@ -27,7 +27,7 @@ export default function CesiumModal({ longitude, latitude, isOpen, onClose }) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 z-50 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
+          className="absolute top-2 right-2 z-10 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
         >
           ✕
         </button>

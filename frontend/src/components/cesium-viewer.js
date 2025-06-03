@@ -402,7 +402,7 @@ export default function CesiumViewer({longitude, latitude}) {
         </div>
 
         {!isViewerReady && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white">
+          <div className="absolute inset-0 z-0 flex items-center justify-center bg-white">
             <div className="text-gray-600 text-lg font-medium animate-pulse">
               Loading 3D visualisation…
             </div>

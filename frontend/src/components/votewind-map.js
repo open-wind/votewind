@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import maplibregl from 'maplibre-gl';
@@ -18,7 +18,7 @@ import CesiumModal from './cesium-modal';
 import AutocompleteInput from './autocomplete-input';
 import SlugList from './sluglist';
 
-import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
+import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_MAXBOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -233,6 +233,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const latitude = view.latitude.toFixed(5);
         const zoom = view.zoom.toFixed(2)
         var url = `/${longitude}/${latitude}/${zoom}`;
+        if (turbineAdded) url += '?selectturbine=true';
         window.history.replaceState(null, '', url)
     }, 300);
 
@@ -896,7 +897,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 dragRotate={false}
                 touchRotate={false}
                 pitchWithRotate={false}
-                touchZoomRotate={false}
+                touchZoomRotate={true}
                 initialViewState={initialViewState}
                 onLoad={onLoad}
                 onMoveEnd={onMoveEnd}
@@ -910,6 +911,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     'organisations-default' ]}
                 attributionControl={false}
                 onMouseMove={onMouseMove}
+                maxBounds={MAP_MAXBOUNDS}
                 >
                 <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>
 

@@ -37,6 +37,13 @@ export const MAP_DEFAULT_BOUNDS =
   'right': 3.5121541807384062
 }
 
+// Absolute maxbounds (Northern Europe) to enforce
+export const MAP_MAXBOUNDS = 
+[
+    [-37.409477, 39.218822],
+    [31.804390, 65.083342]
+]
+
 // Default map zoom to use - if not place-specific
 export const MAP_DEFAULT_ZOOM = 5;
 
