@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 const isProd = process.env.NODE_ENV === 'production';
 
 const assetPrefix = isProd ? '/static-frontend' : '';
+// const assetPrefix = '';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

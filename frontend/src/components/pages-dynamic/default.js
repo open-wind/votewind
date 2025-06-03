@@ -43,14 +43,10 @@ export default function Default() {
     return null;
   };
 
-  return (
-    isReady && (
-      subdomain !== null ? (
-        <DetailedMap subdomain={subdomain} data={data} />
-      ) : (
-        <Home/>
-      )
-    )
-  );
+  if (!isReady) return null;
+
+  return subdomain !== null
+  ? <DetailedMap subdomain={subdomain} data={data} />
+  : <Home />;
 
 }

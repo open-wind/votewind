@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Default from '@/components/pages-dynamic/default';
 import LongitudeLatitudeZoomPage from '@/components/pages-dynamic/longitude-latitude-zoom';
@@ -11,9 +12,30 @@ import NotFound from '@/components/not-found';
 
 export default function ClientRouter() {
   const pathname = usePathname();
-  const pathSegments = decodeURIComponent(pathname).split('/').filter(Boolean);
-  
-  const isDefault = (pathSegments.length === 0);
+  const [pathSegments, setPathSegments] = useState(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Wait until client-side hydration completes
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || typeof pathname !== 'string') return;
+
+    try {
+      const decoded = decodeURIComponent(pathname);
+      const segments = decoded.split('/').filter(Boolean);
+      setPathSegments(segments);
+    } catch {
+      setPathSegments([]);
+    }
+  }, [hydrated, pathname]);
+
+  // Wait until hydrated AND segments are ready
+  if (!hydrated || pathSegments === null) return null;
+
+  const isDefault = pathSegments.length === 0;
   const isMapRoute = (pathSegments.length === 3) && pathSegments.every(seg => !isNaN(Number(seg)));
   const is3D = (pathSegments.length === 3) && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && (pathSegments[2] === '3d');
   const isVote = (pathSegments.length === 3) && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && (pathSegments[2] === 'vote');
@@ -27,6 +49,6 @@ export default function ClientRouter() {
   if (isOverviewMap) return <VoteWindMap hideInfo={true} type="overview"/>;
   if (isConfirmationError) return <ConfirmationError />;
 
-  // Fallback for unmatched routes
   return <NotFound />;
+
 }
