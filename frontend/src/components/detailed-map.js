@@ -78,7 +78,7 @@ export default function DetailedMap({ subdomain=null, data=null }) {
                 // Add your main vector tile overlay
                 map.addSource('osm-boundaries-overlays', {
                     type: 'vector',
-                    url: 'http://localhost:8080/data/osm-boundaries-overlays.json'
+                    url: 'https://tiles.votewind.org/data/osm-boundaries-overlays.json'
                 });
 
                 // Add your polygon overlay
@@ -171,7 +171,7 @@ export default function DetailedMap({ subdomain=null, data=null }) {
             dragRotate={false}
             touchRotate={false}
             pitchWithRotate={false}
-            touchZoomRotate={false}
+            touchZoomRotate={true}
             mapStyle="https://tiles.wewantwind.org/styles/openwind/style.json"
             onLoad={onLoad}
             style={{ width: '100%', height: '100%' }}

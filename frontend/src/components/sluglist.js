@@ -9,15 +9,15 @@ export default function SlugList({ containingSlugs = [], longitude=null, latitud
 
   const createURL = (areaname, areaslug) => {
     return (
-      <a className="font-bold text-blue-600 text-sm hover:underline" target="_new" href={`https://${areaslug}.votewind.org?longitude=${longitude.toFixed(5)}&latitude=${latitude.toFixed(5)}`}>{areaname}</a>
+      <a className="font-bold text-blue-600 hover:underline" target="_new" href={`https://${areaslug}.votewind.org?longitude=${longitude.toFixed(5)}&latitude=${latitude.toFixed(5)}`}>{areaname}</a>
     )
   }
 
   return (
     <div className="relative inline-block text-left z-50">
 
-      <span className="text-sm font-medium text-gray-700 truncate max-w-[12rem]">
-        Detailed constraints map: {createURL(firstSlug.name, firstSlug.slug)}
+      <span className="text-xs font-medium text-gray-700 truncate sm:max-w-[12rem]">
+        <b>Constraints map:</b> {createURL(firstSlug.name, firstSlug.slug)}
       </span>
 
       <TooltipProvider>

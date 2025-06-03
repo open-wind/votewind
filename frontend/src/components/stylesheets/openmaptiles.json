@@ -28,7 +28,7 @@
     }
   },
   "glyphs":"/fonts/{fontstack}/{range}.pbf",
-  "sprite": "/styles/openwind/sprite",
+  "sprite": "/styles/openmaptiles/sprite",
   "layers": [
     {
       "id": "background",

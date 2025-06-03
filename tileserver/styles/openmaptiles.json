@@ -12,14 +12,14 @@
     "sources": {
         "openmaptiles": {
             "type": "vector",
-            "url": "http://localhost:8080/data/openmaptiles.json"
+            "url": "https://tiles.votewind.org/data/openmaptiles.json"
         },
         "attribution": {
             "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>",
             "type": "vector"
         }
     },
-    "glyphs": "http://localhost:8080/fonts/{fontstack}/{range}.pbf",
+    "glyphs": "https://tiles.votewind.org/fonts/{fontstack}/{range}.pbf",
     "sprite": "sprites",
     "layers": [
         {

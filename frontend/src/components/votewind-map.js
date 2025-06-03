@@ -658,50 +658,63 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
                             </p>
 
-                            <p className="text-xs text-gray-500 sm:mb-4">
+                            <p className="text-xs text-gray-700">
                             <b>Planning constraints: </b>Footpaths (120m turbine)</p> 
-                            {containingSlugs && (
-                            <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
-                            )}
 
                             <div className="mt-1 hidden sm:block">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email confirmation:
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    placeholder="Optional: Enter email address to confirm vote"
-                                    autoCorrect="off"
-                                    autoCapitalize="none"
-                                    autoComplete="off"
-                                    spellCheck="false"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                />
-                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+
+                                {containingSlugs && (
+                                <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                                )}
+
+                                <div className="mt-3">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Email confirmation:
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        placeholder="Optional: Enter email address to confirm vote"
+                                        autoCorrect="off"
+                                        autoCapitalize="none"
+                                        autoComplete="off"
+                                        spellCheck="false"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                    <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                                </div>
+
                             </div>
 
                         </div>
                     </div>
 
-                    <div className="mt-1 sm:hidden">
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Optional: Enter email to confirm vote"
-                            autoCorrect="off"
-                            autoCapitalize="none"
-                            autoComplete="off"
-                            spellCheck="false"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+
+                    <div className="mt-0 sm:hidden">
+
+                        {containingSlugs && (
+                        <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                        )}
+
+                        <div className="mt-3">
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Optional: Enter email to confirm vote"
+                                autoCorrect="off"
+                                autoCapitalize="none"
+                                autoComplete="off"
+                                spellCheck="false"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                        </div>
                     </div>
 
                     {/* Buttons: Side-by-side, full width combined */}
@@ -779,8 +792,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40">
-            <div className="bg-gray-100 rounded-md shadow p-1 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+            <div className="absolute left-2 sm:left-4 top-[40%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+                <div className="bg-gray-100 rounded-md shadow p-1 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
                 <Popover>
                     <PopoverTrigger asChild>

@@ -32,9 +32,9 @@ log.txt
 /backend/engine/postcodes
 /backend/engine/log.txt
 /backend/venv
-frontend/.next
-backend/engine/__pycache__
-backend/votewind/__pycache__
+/frontend/.next
+/backend/engine/__pycache__
+/backend/votewind/__pycache__
 
 # dependencies
 /node_modules

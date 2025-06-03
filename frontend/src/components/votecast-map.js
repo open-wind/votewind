@@ -275,7 +275,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 doubleClickZoom={true}
                                 boxZoom={false}
                                 keyboard={false}
-                                touchZoomRotate={false}
+                                touchZoomRotate={true}
                                 interactive={false}
                                 touchRotate={false}
                                 pitchWithRotate={false}

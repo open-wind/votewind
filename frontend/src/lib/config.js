@@ -19,7 +19,7 @@ export const API_BASE_URL = isDev
 
 // Base url of tile server
 // export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.openwind.energy";
-export const TILESERVER_BASEURL = isDev ? "https://tiles.openwind.energy" : "https://tiles.openwind.energy";
+export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org/";
 
 // Default map centre to use
 export const MAP_DEFAULT_CENTRE = 
@@ -54,7 +54,7 @@ export const MAP_PLACE_ZOOM = 12;
 export const VOTEWIND_COOKIE = 'votewind-voting-cookie';
 
 // url of map style
-export const VOTEWIND_MAPSTYLE = 'https://tiles.wewantwind.org/styles/openmaptiles/style.json';
+export const VOTEWIND_MAPSTYLE = 'https://tiles.votewind.org/styles/openmaptiles/style.json';
 
 // Email explanation beneath all email input boxes
 export const EMAIL_EXPLANATION = '<b>Votes confirmed by email are highlighted on VoteWind.org map</b>. <span className="font-light">We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.</span>';
