@@ -1,0 +1,45 @@
+{
+    "options": {
+        "paths": {
+            "root": "",
+            "fonts": "fonts",
+            "sprites": "sprites",
+            "styles": "styles",
+            "mbtiles": "data"
+        }
+    },
+    "styles": {
+        "osm-boundaries-overlays": {
+            "style": "osm-boundaries-overlays.json",
+            "tilejson": {
+                "type": "overlay",
+                "bounds": [
+                    -13.687591699999997,
+                    49.863296299999995,
+                    1.7632198999999955,
+                    60.86077150000001
+                ]
+            }
+        },
+        "openmaptiles": {
+            "style": "openmaptiles.json",
+            "tilejson": {
+                "type": "overlay",
+                "bounds": [
+                    -13.687591699999997,
+                    49.863296299999995,
+                    1.7632198999999955,
+                    60.86077150000001
+                ]
+            }
+        }
+    },
+    "data": {
+        "osm-boundaries-overlays": {
+            "mbtiles": "osm-boundaries-overlays.mbtiles"
+        },
+        "openmaptiles": {
+            "mbtiles": "united-kingdom-latest.mbtiles"
+        }
+    }
+}

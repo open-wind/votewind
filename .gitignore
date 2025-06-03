@@ -1,5 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+*.mbtiles
+*.pbf
+/backend/coastline/*
+/backend/landcover/*
+/backend/engine/tileserver/data/
+/backend/engine/tileserver/fonts/
+
 /backend/engine/osm-boundaries-overlays.geojson
 /backend/osm-boundaries-overlays.mbtiles
 /backend/osm-boundaries-overlays.mbtiles-journal

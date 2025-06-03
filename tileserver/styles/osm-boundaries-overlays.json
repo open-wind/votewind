@@ -1,0 +1,26 @@
+{
+    "version": 8,
+    "id": "osm-boundaries-overlays",
+    "name": "OSM Boundaries Overlays",
+    "sources": {
+        "osm-boundaries-overlays": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "http://localhost:8080/data/osm-boundaries-overlays.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        }
+    },
+    "glyphs": "http://localhost:8080/fonts/{fontstack}/{range}.pbf",
+    "layers": [
+        {
+            "id": "osm-boundaries-overlays",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "type": "fill",
+            "paint": {
+                "fill-opacity": 0.8,
+                "fill-color": "darkgrey"
+            }
+        }
+    ]
+}
