@@ -16,7 +16,7 @@ import { LocateFixed } from 'lucide-react';
 import { X } from "lucide-react";
 import { API_BASE_URL, MAP_PLACE_ZOOM } from '@/lib/config';
 
-const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuery, useLocate=null, placeholder=null, submitOnSuggestionSelect=false, className='', centralInput=false }, ref) {
+const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuery, locating, setLocating, useLocate=null, placeholder=null, submitOnSuggestionSelect=false, className='', centralInput=false }, ref) {
   const inputRef = useRef(null);
   const router = useRouter();
   const [results, setResults] = useState([]);
@@ -26,7 +26,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   const [error, setError] = useState("");
   const timeoutRef = useRef(null);
   const showDropdownRef = useRef(showDropdown);
-  
+
   if (placeholder === null) placeholder = "Enter postcode or location...";
 
   useImperativeHandle(
@@ -141,16 +141,27 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setQuery("Your location");
-        navigateToPosition({latitude: latitude, longitude: longitude, type: 'gps'})
-      },
-      () => {
-        setError("Unable to retrieve your location.");
-      }
-    );
+    setLocating(true);
+
+    const isDev = process.env.NODE_ENV === "development";
+
+    const runPositioning = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocating(false);
+          const { latitude, longitude } = position.coords;
+          setQuery("Your location");
+          navigateToPosition({latitude: latitude, longitude: longitude, type: 'gps'})
+        },
+        () => {
+          setLocating(false);
+          setError("Unable to retrieve your location.");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    isDev ? setTimeout(runPositioning, 5000) : runPositioning();
   };
 
   if ((useLocate !== null) && (useLocate)) useLocate = handleUseMyLocation;
@@ -199,6 +210,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
         onValueChange={setQuery}
         showMagnifier={(useLocate === null)}
         onLocate={useLocate}
+        locating={locating}
         onKeyDown={(e) => {
           setError("");
           if (e.key === 'Escape')     setShowDropdown(false);

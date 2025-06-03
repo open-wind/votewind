@@ -52,6 +52,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showSearch, setShowSearch] = useState(false);
     const [error, setError] = useState('');
     const [popupInfo, setPopupInfo] = useState(null);
+    const [locating, setLocating] = useState(false);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -845,9 +846,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 ) : null}
             </div>
             </div>
-
+  
             {!turbineAdded && showInfo && (organisation === null) && (
-            <div className="absolute bottom-5 inset-x-0 flex justify-center px-4 z-30">
+            <div className="absolute bottom-24 sm:bottom-4 inset-x-0 flex justify-center px-4 z-30">
                 <div
                     className="
                     inline-flex items-center
@@ -872,12 +873,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             {/* Location search autosuggestion input box */}
             <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40">
-                <div className="relative w-full sm:w-[40%] mx-auto">
+                <div className="relative w-full sm:w-md max-w-md mx-auto">
                     <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60">
                         <AutocompleteInput
                             ref={inputRef}
-                            query={query}
-                            setQuery={setQuery}
+                            query={query} setQuery={setQuery}
+                            locating={locating} setLocating={setLocating} 
                             useLocate={true}
                             centralInput={true}
                             submitOnSuggestionSelect={true}
