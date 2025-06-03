@@ -10,8 +10,9 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const assetPrefix = '/static-frontend';
-// const assetPrefix = '';
+const isProd = process.env.NODE_ENV === 'production';
+
+const assetPrefix = isProd ? '/static-frontend' : '';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -43,10 +44,9 @@ const nextConfig = {
   },
 
   trailingSlash: true,
-
-  output: 'export',
   assetPrefix: assetPrefix,
 
+  ...(isProd && { output: 'export' }),
 };
 
 export default nextConfig;
