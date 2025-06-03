@@ -7,6 +7,10 @@
 /backend/engine/tileserver/data/
 /backend/engine/tileserver/fonts/
 
+/tileserver/data/
+/tileserver/fonts
+/tileserver/openmaptiles-fonts/
+
 /backend/engine/osm-boundaries-overlays.geojson
 /backend/osm-boundaries-overlays.mbtiles
 /backend/osm-boundaries-overlays.mbtiles-journal
