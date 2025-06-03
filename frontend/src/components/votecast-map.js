@@ -250,20 +250,20 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
 
 
-                        <div id="map" className="w-full h-full" >
+                        <div id="map" className="w-full h-full relative" >
 
-                        <div className="absolute left-8 sm:left-8 top-8 z-40">
-                        <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
+                            <div className="absolute left-2 top-2 z-40">
+                                <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
 
-                            <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
-                            ➕
-                            </button>
-                            <button type="button" onClick={mapZoomOut} className="w-6 h-6 bg-white rounded">
-                            ➖
-                            </button>
+                                    <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
+                                    ➕
+                                    </button>
+                                    <button type="button" onClick={mapZoomOut} className="w-6 h-6 bg-white rounded">
+                                    ➖
+                                    </button>
 
-                        </div>
-                        </div>
+                                </div>
+                            </div>
 
                             {/* Main map */}
                             <Map

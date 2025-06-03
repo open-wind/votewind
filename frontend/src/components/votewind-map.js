@@ -797,41 +797,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <div className="absolute left-2 sm:left-4 top-[40%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-md shadow p-1 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <button
-                        type="button"
-                        aria-label="Search"
-                        onClick={() => inputRef.current?.setFocus()}
-                        className="w-8 h-8 sm:w-10 sm:h-10
-                                    bg-white rounded-md
-                                    flex items-center justify-center
-                                    focus:outline-none focus:ring-2 focus:ring-offset-1
-                                    focus:ring-blue-500"
-                        >
-                        <Search className="w-4 h-4" strokeWidth={4} color="#555555"/>
-                        </button>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-                        side="right"
-                        sideOffset={12}
-                        alignOffset={-4}
-                        align="start"
-                       className="w-70 p-0 bg-white font-sm rounded-md shadow-lg z-50 focus:outline-none focus:ring-0"
-                    >
-                        <AutocompleteInput
-                        ref={inputRef}
-                        query={query}
-                        setQuery={setQuery}
-                        useLocate={true}
-                        submitOnSuggestionSelect={true}
-                        className="w-full"
-                        placeholder="Postcode or location"
-                        />
-                    </PopoverContent>
-                </Popover>
-
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
@@ -904,6 +869,23 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 </div>
             </div>
             )}
+
+            {/* Location search autosuggestion input box */}
+            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40">
+                <div className="relative w-full sm:w-[40%] mx-auto">
+                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60">
+                        <AutocompleteInput
+                            ref={inputRef}
+                            query={query}
+                            setQuery={setQuery}
+                            useLocate={true}
+                            centralInput={true}
+                            submitOnSuggestionSelect={true}
+                            placeholder="Postcode or location"
+                        />
+                    </div>
+                </div>
+            </div>
 
             {/* Main map */}
             <Map

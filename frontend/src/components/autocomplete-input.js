@@ -3,6 +3,8 @@
 import { forwardRef, useImperativeHandle, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 const querystring = require('querystring');
+import clsx from 'clsx';
+
 import {
   Command,
   CommandInput,
@@ -14,7 +16,7 @@ import { LocateFixed } from 'lucide-react';
 import { X } from "lucide-react";
 import { API_BASE_URL, MAP_PLACE_ZOOM } from '@/lib/config';
 
-const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuery, useLocate=null, placeholder=null, submitOnSuggestionSelect=false }, ref) {
+const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuery, useLocate=null, placeholder=null, submitOnSuggestionSelect=false, className='', centralInput=false }, ref) {
   const inputRef = useRef(null);
   const router = useRouter();
   const [results, setResults] = useState([]);
@@ -176,13 +178,22 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   }
 
   return (
-  <Command shouldFilter={false} className="w-full rounded-md border shadow-md p-0 mb-0">
+  <Command shouldFilter={false} 
+  
+    className={clsx(
+    "w-full p-0 shadow-none",
+    !centralInput && "border rounded-md bg-white",
+    centralInput && "border-none rounded-none bg-transparent",
+    className // let parent pass background, shadow, padding, etc.
+  )}
+  
+  >
     <div className="relative w-full">
 
       {/* Actual user input field */}
       <CommandInput
         ref={inputRef}
-        className="w-full pl-1 pr-6 text-lg placeholder:text-center"
+        className={`w-full bg-transparent ${ centralInput ? 'h-8' : 'h-11'} px-4 py-0 text-lg placeholder:text-center border-none outline-none shadow-none rounded-none`}
         placeholder={placeholder}
         value={query}
         onValueChange={setQuery}
@@ -232,7 +243,10 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
 
     {/* Input autosuggestions dropdown */}
     {showDropdown && results.length > 0 && (
-      <CommandList className="absolute top-full left-0 w-full mt-[-1px] bg-white shadow z-50 max-h-40 overflow-y-auto">
+
+  <div className="absolute top-full left-0 right-0 mt-1 z-50">
+    <CommandList className="bg-white shadow rounded-md max-h-40 overflow-y-auto">
+
         {results.map((item) => (
           <CommandItem
             key={item}
@@ -244,6 +258,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
           </CommandItem>
         ))}
       </CommandList>
+      </div>
     )}
   </Command>
   );
