@@ -61,9 +61,9 @@ export const EMAIL_EXPLANATION = '<b>Votes confirmed by email are highlighted on
 
 // List of technical planning constraints layers to be used
 export const LAYERS_TECHNICAL_CONSTRAINTS =   [
-                                              'latest--other-technical-constraints--090',
+                                              'latest--other-technical-constraints--100',
                                               'latest--other-technical-constraints--150',
-                                              'latest--other-technical-constraints--250'
+                                              'latest--other-technical-constraints--200'
                                               ];
 
 // List of non-technical planning constraints layers to be used
@@ -77,11 +77,12 @@ export const LAYERS_NONTECHNICAL_CONSTRAINTS =    [
                                         ];
 
 // Full list of all technical and non-technical planning constraints layers to be used
-export const LAYERS_ALLCONSTRAINTS = [...LAYERS_TECHNICAL_CONSTRAINTS, ...LAYERS_NONTECHNICAL_CONSTRAINTS];
+export const LAYERS_ALLCONSTRAINTS = [...LAYERS_NONTECHNICAL_CONSTRAINTS, ...LAYERS_TECHNICAL_CONSTRAINTS];
 
 // Color for all planning constraints layers
 export const LAYERS_COLOR = 'blue';
 
 // Default opacity for all planning constraints layers 
 // Note that with technical constraints layers, opacity is programmatically reduced by a factor as they all overlap at minimum buffer sizes
-export const LAYERS_OPACITY = 0.065;
+// export const LAYERS_OPACITY = 0.065;
+export const LAYERS_OPACITY = 0.05;

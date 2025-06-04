@@ -3,9 +3,9 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io'; // Close icon
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
-export default function SlugList({ containingSlugs = [], longitude=null, latitude=null }) {
+export default function PlanningConstraints({ containingAreas = [], content=null, longitude=null, latitude=null }) {
   const [open, setOpen] = useState(false);
-  const firstSlug = containingSlugs?.[0] || 'Unknown area';
+  const firstSlug = containingAreas?.[0] || 'Unknown area';
 
   const createURL = (areaname, areaslug) => {
     return (
@@ -14,31 +14,28 @@ export default function SlugList({ containingSlugs = [], longitude=null, latitud
   }
 
   return (
-    <div className="relative inline-block text-left z-50">
+    <div className="relative inline-block text-left mt-1 z-50">
 
-      <span className="text-xs font-medium text-gray-700 truncate sm:max-w-[12rem]">
-        <b>Constraints map:</b> {createURL(firstSlug.name, firstSlug.slug)}
-      </span>
+      <p className="text-xs whitespace-normal font-medium text-gray-700 truncate">
 
       <TooltipProvider>
           <Tooltip>
           <TooltipTrigger asChild>
-            <button type="button"
-              onClick={() => setOpen(!open)}
-              className="p-1 pl-2 rounded-full hover:bg-gray-200"
-            >
-              <FaInfoCircle className="w-4 h-4 text-blue-600" />
-            </button>
+              <a href="#" onClick={() => setOpen(true)} className="text-blue-700"><b>Planning constraints</b></a>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-              All available constraint maps for position
+              View planning constraints maps for areas containing this position
           </TooltipContent>
           </Tooltip>
       </TooltipProvider>
 
+      :&nbsp;{content}
+
+      </p>
+  
       {open && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30">
-          <div className="relative bg-white w-[90%] max-w-md p-4 rounded-lg shadow-lg">
+          <div className="relative bg-white w-[90%] max-w-md p-4 rounded-lg text-sm sm:text-md shadow-lg">
 
             {/* Close button */}
             <button
@@ -49,12 +46,12 @@ export default function SlugList({ containingSlugs = [], longitude=null, latitud
               <IoMdClose className="w-5 h-5" />
             </button>
 
-          <div className="font-semibold text-gray-800 mb-1">Detailed constraint maps available</div>
+          <div className="font-semibold text-gray-800 mb-1">Detailed constraint maps available:</div>
 
-          {containingSlugs.length > 0 ? (
+          {containingAreas.length > 0 ? (
           <ul className="list-disc list-inside space-y-0 max-h-64 overflow-y-auto">
 
-              {containingSlugs.map((item, index) => (
+              {containingAreas.map((item, index) => (
                 <li key={index}>
                   {createURL(item.name, item.slug)}
                 </li>

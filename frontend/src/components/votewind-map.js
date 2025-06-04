@@ -17,9 +17,11 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
 import AutocompleteInput from './autocomplete-input';
-import SlugList from './sluglist';
+import PlanningConstraints from './planningconstraints';
 import PercentageSlider from "@/components/percentage-slider";
-
+import SessionInstructionPopup from '@/components/session-instruction-popup';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { point as turfPoint } from '@turf/helpers';
 import { 
     EMAIL_EXPLANATION, 
     MAP_DEFAULT_CENTRE, 
@@ -51,10 +53,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [mapLoaded, setMapLoaded] = useState(false);
     const [showInfo, setShowInfo] = useState(!hideInfo);
     const [showCesiumViewer, setShowCesiumViewer] = useState(false);
-    const [turbineAdded, setTurbineAdded] = useState(turbineAtCentre);
+    const [turbineAdded, setTurbineAdded] = useState(false);
     const [displayTurbine, setDisplayTurbine] = useState(true);
-    const [turbinePosition, setTurbinePosition] = useState({'longitude': turbineAtCentre ? parseFloat(longitude): null, 'latitude': turbineAtCentre ? parseFloat(latitude): null});
-    const [containingSlugs, setContainingSlugs] = useState(null);
+    const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
+    const [containingAreas, setContainingAreas] = useState(null);
     const [votesCast, setVotesCast] = useState(null);
     const [votesText, setVotesText] = useState('');
     const [organisation, setOrganisation] = useState(null);
@@ -69,6 +71,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [locating, setLocating] = useState(false);
     const [layersVisible, setLayersVisible] = useState(true);
     const [layersOpacityValue, setLayersOpacityValue] = useState(LAYERS_OPACITY);
+    // const [layersOpacityValue, setLayersOpacityValue] = useState(1);
+
+    const [layersClicked, setLayersClicked] = useState([]);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -76,7 +81,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const layersHide = (map) => {
         for (const id of LAYERS_ALLCONSTRAINTS) {
             if (map.getLayer(id)) {
-                map.setLayoutProperty(id, 'visibility', 'none');
+                map.setPaintProperty(id, 'fill-opacity', 0);
             }
         }
     }
@@ -84,7 +89,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const layersShow = (map) => {
         for (const id of LAYERS_ALLCONSTRAINTS) {
             if (map.getLayer(id)) {
-                map.setLayoutProperty(id, 'visibility', 'visible');
+                // const layer_opacity = id.includes('other-technical-constraints') ? (layersOpacityValue / 10) : layersOpacityValue; 
+                map.setPaintProperty(id, 'fill-opacity', layersOpacityValue);
             }
         }
     }
@@ -152,7 +158,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     "source-layer": "latest--other-technical-constraints",
                     paint: {
                         'fill-color': LAYERS_COLOR,
-                        'fill-opacity': (LAYERS_OPACITY / 10),
+                        'fill-opacity': (LAYERS_OPACITY),
                         'fill-outline-color': '#FFFFFF00'
                     },
                     "layout": {
@@ -280,10 +286,27 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 return;
             }
 
-            setContainingSlugs(data.results);
+            setContainingAreas(data.results);
         }
 
         retrieveContainingBoundaries();
+
+        // Get planning constraints for turbine using a combination of queryRenderedFeatures
+        // and turfjs booleanPointInPolygon (for better accuracy)
+
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+
+        const screenPoint = map.project({'lng': turbinePosition.longitude, 'lat': turbinePosition.latitude});
+        const features = map.queryRenderedFeatures(screenPoint, { layers: LAYERS_ALLCONSTRAINTS });
+        const clickedPoint = turfPoint([turbinePosition.longitude, turbinePosition.latitude]);
+        const filtered = features.filter((feature) => booleanPointInPolygon(clickedPoint, feature));
+        var clicked_features = [];
+        for (const clicked_feature of filtered) {
+            clicked_features.push(formatLayerName(clicked_feature.layer.id));
+        }
+        setLayersClicked(clicked_features.reverse());
+
 
     }, [turbinePosition])
 
@@ -327,6 +350,15 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const onLoad = () => {
         const map = mapRef.current?.getMap();
         if (!map) return;
+
+        if (turbineAtCentre && (longitude !== null) && (latitude !== null)) {
+            // Wait for map to go idle before setting turbine position as this relies 
+            // on queryRenderedFeatures to get planning constraints for turbine position
+            map.once('idle', () => {
+                setTurbinePosition({'longitude': parseFloat(longitude), 'latitude': parseFloat(latitude)});
+                setTurbineAdded(true);
+            });
+        }
 
         map.touchZoomRotate.disableRotation();
 
@@ -430,6 +462,22 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return vote_text
     }
 
+    const formatLayerName = (layer_id) => {
+        var layer_name = layer_id
+                            .replace('latest--', '')
+                            .replaceAll('-', ' ')
+                            .replace(' 0', ' ')
+                            .replace('other technical constraints  ', 'other technical constraints (')
+                            .replace(/\b\w/g, l => l.toUpperCase())
+                            .replace(' And ', ' and ')
+                            .replace('Other Technical Constraints', 'Safety buffer');
+
+
+        if (layer_name.includes('Safety buffer')) layer_name += 'm turbine)'
+        return layer_name;
+    }
+
+
     const onClick = (event) => {
         var acceptableposition = true;
         deselectActiveItems();
@@ -505,7 +553,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (!turbinePosition) return;
         isRecentering.current = true;
-        map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        if (map.getZoom() < MAP_PLACE_ZOOM) {
+            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        } else {
+            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        }
     }
 
     const mapCentreOnOrganisation = () => {
@@ -513,7 +565,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (organisation === null) return;
         isRecentering.current = true;
-        map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+
+        if (map.getZoom() < MAP_PLACE_ZOOM) {
+            map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+        } else {
+            map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+        }
     }
 
     const mapZoomIn = (e) => {
@@ -628,6 +685,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     return (
     <main className="flex justify-center items-center w-screen h-screen">
+
+        <SessionInstructionPopup />
 
         {processing && (
         <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
@@ -782,14 +841,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
                             </p>
 
-                            <p className="text-xs text-gray-700">
-                            <b>Planning constraints: </b>Footpaths (120m turbine)</p> 
+                            {containingAreas && (
+                            <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
+                            ? <i>No planning constraints found</i>
+                            : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                            )}
 
                             <div className="mt-1 hidden sm:block">
-
-                                {containingSlugs && (
-                                <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
-                                )}
 
                                 <div className="mt-3">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -819,10 +877,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     <div className="mt-0 sm:hidden">
 
-                        {containingSlugs && (
-                        <SlugList containingSlugs={containingSlugs} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
-                        )}
-
                         <div className="mt-3">
                             <input
                                 type="email"
@@ -835,9 +889,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 spellCheck="false"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full sm:w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
-                            <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                            <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                         </div>
                     </div>
 
@@ -1039,7 +1093,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             Change opacity of planning constraints layers
                         </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>                    
+                    </TooltipProvider>
                     : null}
 
                 </div>
@@ -1063,7 +1117,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     'votes-unconfirmed', 'votes-confirmed', 
                     'votes-unconfirmed-single', 'votes-confirmed-single', 
                     'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
-                    'organisations-default' ]}
+                    'organisations-default',
+                    ...LAYERS_ALLCONSTRAINTS ]}
                 attributionControl={true}
                 onMouseMove={onMouseMove}
                 maxBounds={MAP_MAXBOUNDS}
