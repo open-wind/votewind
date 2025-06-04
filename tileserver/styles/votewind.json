@@ -1,7 +1,7 @@
 {
     "version": 8,
-    "name": "Open Wind Energy",
-    "id": "openwindenergy",
+    "name": "Vote Wind",
+    "id": "votewind",
     "center": [
         0,
         0
@@ -12,26 +12,146 @@
     "sources": {
         "openmaptiles": {
             "type": "vector",
-            "url": "http://localhost:8080/data/openmaptiles.json"
+            "url": "https://tiles.votewind.org/data/openmaptiles.json"
         },
         "attribution": {
             "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a> Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>",
             "type": "vector"
         },
-        "latest--windconstraints--100-41": {
+        "latest--aviation-and-exclusion-areas": {
             "type": "vector",
             "buffer": 512,
-            "url": "http://localhost:8080/data/latest--windconstraints--100-41.json",
+            "url": "https://tiles.votewind.org/data/latest--aviation-and-exclusion-areas.json",
             "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
         },
-        "latest--windconstraints--250-95": {
+        "latest--ecology-and-wildlife": {
             "type": "vector",
             "buffer": 512,
-            "url": "http://localhost:8080/data/latest--windconstraints--250-95.json",
+            "url": "https://tiles.votewind.org/data/latest--ecology-and-wildlife.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--heritage-impacts": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--heritage-impacts.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--inadequate-wind-speeds": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--inadequate-wind-speeds.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--landscape-and-visual-impacts": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--landscape-and-visual-impacts.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--residential-buildings": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--residential-buildings.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--090": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--090.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--100": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--100.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--125": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--125.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--150": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--150.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--175": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--175.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--200": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--200.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--225": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--225.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--other-technical-constraints--250": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--other-technical-constraints--250.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--090": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--090.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--100": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--100.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--125": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--125.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--150": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--150.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--175": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--175.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--200": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--200.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--225": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--225.json",
+            "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
+        },
+        "latest--windconstraints--250": {
+            "type": "vector",
+            "buffer": 512,
+            "url": "https://tiles.votewind.org/data/latest--windconstraints--250.json",
             "attribution": "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
         }
     },
-    "glyphs": "http://localhost:8080/fonts/{fontstack}/{range}.pbf",
+    "glyphs": "https://tiles.votewind.org/fonts/{fontstack}/{range}.pbf",
     "sprite": "sprites",
     "layers": [
         {
@@ -12375,35 +12495,6 @@
                     "iso_a2"
                 ]
             ]
-        },
-        {
-            "id": "latest--windconstraints--100-41",
-            "source": "latest--windconstraints--100-41",
-            "source-layer": "latest--windconstraints",
-            "type": "fill",
-            "paint": {
-                "fill-opacity": 0.8,
-                "fill-color": "green",
-                "fill-outline-color": "#FFFFFF00"
-            },
-            "layout": {
-                "visibility": "none"
-            }
-        },
-        {
-            "id": "latest--windconstraints--250-95",
-            "source": "latest--windconstraints--250-95",
-            "source-layer": "latest--windconstraints",
-            "type": "fill",
-            "paint": {
-                "fill-opacity": 0.8,
-                "fill-color": "orange",
-                "fill-outline-color": "#FFFFFF00"
-            },
-            "layout": {
-                "visibility": "none"
-            }
         }
-
     ]
 }

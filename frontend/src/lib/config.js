@@ -58,3 +58,30 @@ export const VOTEWIND_MAPSTYLE = 'https://tiles.votewind.org/styles/openmaptiles
 
 // Email explanation beneath all email input boxes
 export const EMAIL_EXPLANATION = '<b>Votes confirmed by email are highlighted on VoteWind.org map</b>. <span className="font-light">We will never publish your email address and will only use your email to contact you about relevant community wind events / resources.</span>';
+
+// List of technical planning constraints layers to be used
+export const LAYERS_TECHNICAL_CONSTRAINTS =   [
+                                              'latest--other-technical-constraints--090',
+                                              'latest--other-technical-constraints--150',
+                                              'latest--other-technical-constraints--250'
+                                              ];
+
+// List of non-technical planning constraints layers to be used
+export const LAYERS_NONTECHNICAL_CONSTRAINTS =    [
+                                        'latest--aviation-and-exclusion-areas',
+                                        'latest--ecology-and-wildlife',
+                                        'latest--heritage-impacts',
+                                        'latest--inadequate-wind-speeds',
+                                        'latest--landscape-and-visual-impacts',
+                                        'latest--residential-buildings'
+                                        ];
+
+// Full list of all technical and non-technical planning constraints layers to be used
+export const LAYERS_ALLCONSTRAINTS = [...LAYERS_TECHNICAL_CONSTRAINTS, ...LAYERS_NONTECHNICAL_CONSTRAINTS];
+
+// Color for all planning constraints layers
+export const LAYERS_COLOR = 'blue';
+
+// Default opacity for all planning constraints layers 
+// Note that with technical constraints layers, opacity is programmatically reduced by a factor as they all overlap at minimum buffer sizes
+export const LAYERS_OPACITY = 0.065;

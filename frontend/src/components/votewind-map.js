@@ -11,14 +11,28 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover"
 import Image from "next/image";
 import { Search, Video } from 'lucide-react'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
 import AutocompleteInput from './autocomplete-input';
 import SlugList from './sluglist';
+import PercentageSlider from "@/components/percentage-slider";
 
-import { TILESERVER_BASEURL, EMAIL_EXPLANATION, MAP_DEFAULT_CENTRE, MAP_DEFAULT_BOUNDS, MAP_MAXBOUNDS, MAP_DEFAULT_ZOOM, API_BASE_URL } from '@/lib/config';
+import { 
+    EMAIL_EXPLANATION, 
+    MAP_DEFAULT_CENTRE, 
+    MAP_DEFAULT_BOUNDS, 
+    MAP_MAXBOUNDS, 
+    MAP_DEFAULT_ZOOM, 
+    MAP_PLACE_ZOOM, 
+    API_BASE_URL, 
+    TILESERVER_BASEURL,
+    LAYERS_ALLCONSTRAINTS, 
+    LAYERS_COLOR, 
+    LAYERS_OPACITY 
+} from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -53,9 +67,52 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [error, setError] = useState('');
     const [popupInfo, setPopupInfo] = useState(null);
     const [locating, setLocating] = useState(false);
+    const [layersVisible, setLayersVisible] = useState(true);
+    const [layersOpacityValue, setLayersOpacityValue] = useState(LAYERS_OPACITY);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    
+    const layersHide = (map) => {
+        for (const id of LAYERS_ALLCONSTRAINTS) {
+            if (map.getLayer(id)) {
+                map.setLayoutProperty(id, 'visibility', 'none');
+            }
+        }
+    }
+
+    const layersShow = (map) => {
+        for (const id of LAYERS_ALLCONSTRAINTS) {
+            if (map.getLayer(id)) {
+                map.setLayoutProperty(id, 'visibility', 'visible');
+            }
+        }
+    }
+
+    const layersOpacity = (map, opacity) => {
+        for (const id of LAYERS_ALLCONSTRAINTS) {
+            const layer = map.getLayer(id);
+            if (!layer) continue;
+
+            const type = layer.type;
+
+            if (type === 'fill') {
+                const layer_opacity = id.includes('other-technical-constraints') ? (opacity / 1) : opacity; 
+                map.setPaintProperty(id, 'fill-opacity', layer_opacity);
+            } 
+            
+        }
+    }
+
+    const opacity2slider = (opacity) => {
+        const factor = Math.pow(opacity, 1 / 3);
+        return factor * 100;
+    }
+
+    const slider2opacity = (slider) => {
+        const factor = slider / 100;
+        return Math.pow(factor, 3); // 2.0 = gentle curve, 3.0 = steeper
+    }
 
     const triggerBounce = () => {
         setIsBouncing(true);
@@ -75,8 +132,52 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         }  
 
-        // Add constraint layers
-        // ************* TODO **************
+        // Add planning constraints sources and stylesheets
+        for (const layer_id of LAYERS_ALLCONSTRAINTS) {
+            newjson['sources'][layer_id] = {
+                'type': 'vector',
+                'buffer': 512,
+                'url': TILESERVER_BASEURL + '/data/' + layer_id + '.json',
+                'attribution': 'Source data copyright of multiple organisations. For all data sources, see <a href="https://data.openwind.energy" target="_blank">data.openwind.energy</a>'
+            }
+
+            const isTechnicalConstraint = layer_id.includes('other-technical-constraints'); 
+
+            let constraint_layer_style = null;
+            if (isTechnicalConstraint) {
+                constraint_layer_style = {
+                    id: layer_id,
+                    type: 'fill',
+                    source: layer_id,
+                    "source-layer": "latest--other-technical-constraints",
+                    paint: {
+                        'fill-color': LAYERS_COLOR,
+                        'fill-opacity': (LAYERS_OPACITY / 10),
+                        'fill-outline-color': '#FFFFFF00'
+                    },
+                    "layout": {
+                        "visibility": "visible"
+                    }
+                }
+            } else {
+                constraint_layer_style = {
+                    id: layer_id,
+                    type: 'fill',
+                    source: layer_id,
+                    "source-layer": layer_id,
+                    paint: {
+                        'fill-color': LAYERS_COLOR,
+                        'fill-opacity': LAYERS_OPACITY,
+                        'fill-outline-color': '#00000000'
+                    },
+                    "layout": {
+                        "visibility": "visible"
+                    }
+                }
+            }
+
+            if (constraint_layer_style) newjson['layers'].push(constraint_layer_style);
+        }
 
         // Add voting stylesheet
         var votes_style = require('./stylesheets/votes.json');
@@ -85,6 +186,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         // Add organisations stylesheet
         var organisations_style = require('./stylesheets/organisations.json');
         for (let i = 0; i < organisations_style.length; i++) newjson['layers'].push(organisations_style[i]);
+
 
         newjson['glyphs'] = baseurl + newjson['glyphs'];
         newjson['sprite'] = baseurl + newjson['sprite'];
@@ -126,6 +228,25 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             setPopupInfo(null);
         }
     }
+
+    const toggleLayersVisibility = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+
+        if (layersVisible) layersHide(map);
+        else layersShow(map);
+        setLayersVisible(!layersVisible);
+    }
+
+    const onOpacitySliderChange = (slider) => {
+        setLayersOpacityValue(slider2opacity(slider));
+    }
+
+    useEffect(() => {
+        const map = mapRef.current?.getMap?.();
+        if ((!map) || (!layersOpacityValue)) return;
+        layersOpacity(map, layersOpacityValue);
+    }, [layersOpacityValue]);
 
     useEffect(() => {
         if (!showConsentBanner) return;
@@ -384,7 +505,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (!turbinePosition) return;
         isRecentering.current = true;
-        map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
     }
 
     const mapCentreOnOrganisation = () => {
@@ -392,7 +513,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (organisation === null) return;
         isRecentering.current = true;
-        map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+        map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
     }
 
     const mapZoomIn = (e) => {
@@ -795,13 +916,33 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[40%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
-                <div className="bg-gray-100 rounded-md shadow p-1 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+            <div className="absolute left-2 sm:left-4 top-[35%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+                <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md active:bg-white focus:outline-none focus:ring-0">
+                        <button
+                        onClick={toggleLayersVisibility}
+                        className="w-8 h-8 sm:w-10 sm:h-10 p-1 bg-white rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center"
+                        >
+                            {layersVisible ? (
+                                <EyeIcon className="w-5 h-5 text-gray-600" />
+                            ) : (
+                                <EyeSlashIcon className="w-5 h-5 text-gray-400" />
+                            )}
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {layersVisible ? <div>Hide planning constraints</div> : <div>Show planning constraints</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 hover:bg-gray-100 transition shadow">
                         ➕
                         </button>
                     </TooltipTrigger>
@@ -814,7 +955,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md">
+                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full hover:bg-gray-100 transition shadow">
                         ➖
                         </button>
                     </TooltipTrigger>
@@ -828,13 +969,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
-                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-md flex items-center justify-center">
+                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
                         <img
                             alt="Wind turbine"
                             src={`${assetPrefix}/icons/windturbine_black.png`}
-                            width="20"
-                            height="20"
-                            className="block"
+                            className="block w-5 h-6"
                         />
                         </button>
                     </TooltipTrigger>
@@ -848,7 +987,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             </div>
   
             {!turbineAdded && showInfo && (organisation === null) && (
-            <div className="absolute bottom-24 sm:bottom-4 inset-x-0 flex justify-center px-4 z-30">
+            <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
                 <div
                     className="
                     inline-flex items-center
@@ -885,6 +1024,24 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             placeholder="Postcode or location"
                         />
                     </div>
+
+                    {layersVisible ? 
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
+                                <div className="bg-white/70 rounded-full px-4 py-2">
+                                    <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
+                                </div>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" sideOffset={10} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Change opacity of planning constraints layers
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>                    
+                    : null}
+
                 </div>
             </div>
 
@@ -907,11 +1064,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     'votes-unconfirmed-single', 'votes-confirmed-single', 
                     'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
                     'organisations-default' ]}
-                attributionControl={false}
+                attributionControl={true}
                 onMouseMove={onMouseMove}
                 maxBounds={MAP_MAXBOUNDS}
                 >
-                <AttributionControl compact position="top-right" style={{ top: '50px', right: isMobile ? 4 : 20}}/>
 
                 {(turbineAdded && displayTurbine) ? (
                 <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>

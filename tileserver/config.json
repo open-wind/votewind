@@ -32,6 +32,18 @@
                     60.86077150000001
                 ]
             }
+        },
+        "votewind": {
+            "style": "votewind.json",
+            "tilejson": {
+                "type": "overlay",
+                "bounds": [
+                    -13.687591699999997,
+                    49.863296299999995,
+                    1.7632198999999955,
+                    60.86077150000001
+                ]
+            }
         }
     },
     "data": {
@@ -40,6 +52,73 @@
         },
         "openmaptiles": {
             "mbtiles": "united-kingdom-latest.mbtiles"
+        },
+        "latest--aviation-and-exclusion-areas": {
+            "mbtiles": "latest--aviation-and-exclusion-areas.mbtiles"
+        },
+        "latest--ecology-and-wildlife": {
+            "mbtiles": "latest--ecology-and-wildlife.mbtiles"
+        },
+        "latest--heritage-impacts": {
+            "mbtiles": "latest--heritage-impacts.mbtiles"
+        },
+        "latest--inadequate-wind-speeds": {
+            "mbtiles": "latest--inadequate-wind-speeds.mbtiles"
+        },
+        "latest--landscape-and-visual-impacts": {
+            "mbtiles": "latest--landscape-and-visual-impacts.mbtiles"
+        },
+        "latest--residential-buildings": {
+            "mbtiles": "latest--residential-buildings.mbtiles"
+        },
+        "latest--other-technical-constraints--090": {
+            "mbtiles": "latest--other-technical-constraints--090.mbtiles"
+        },
+        "latest--other-technical-constraints--100": {
+            "mbtiles": "latest--other-technical-constraints--100.mbtiles"
+        },
+        "latest--other-technical-constraints--125": {
+            "mbtiles": "latest--other-technical-constraints--125.mbtiles"
+        },
+        "latest--other-technical-constraints--150": {
+            "mbtiles": "latest--other-technical-constraints--150.mbtiles"
+        },
+        "latest--other-technical-constraints--175": {
+            "mbtiles": "latest--other-technical-constraints--175.mbtiles"
+        },
+        "latest--other-technical-constraints--200": {
+            "mbtiles": "latest--other-technical-constraints--200.mbtiles"
+        },
+        "latest--other-technical-constraints--225": {
+            "mbtiles": "latest--other-technical-constraints--225.mbtiles"
+        },
+        "latest--other-technical-constraints--250": {
+            "mbtiles": "latest--other-technical-constraints--250.mbtiles"
+        },
+        "latest--windconstraints--090": {
+            "mbtiles": "latest--windconstraints--090.mbtiles"
+        },
+        "latest--windconstraints--100": {
+            "mbtiles": "latest--windconstraints--100.mbtiles"
+        },
+        "latest--windconstraints--125": {
+            "mbtiles": "latest--windconstraints--125.mbtiles"
+        },
+        "latest--windconstraints--150": {
+            "mbtiles": "latest--windconstraints--150.mbtiles"
+        },
+        "latest--windconstraints--175": {
+            "mbtiles": "latest--windconstraints--175.mbtiles"
+        },
+        "latest--windconstraints--200": {
+            "mbtiles": "latest--windconstraints--200.mbtiles"
+        },
+        "latest--windconstraints--225": {
+            "mbtiles": "latest--windconstraints--225.mbtiles"
+        },
+        "latest--windconstraints--250": {
+            "mbtiles": "latest--windconstraints--250.mbtiles"
         }
+
     }
 }
