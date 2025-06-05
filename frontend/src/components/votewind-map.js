@@ -697,27 +697,27 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         {alertMessage && (
         <>
-            {/* Backdrop (prevents background interaction) */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+        {/* Backdrop (prevents background interaction) */}
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
 
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
-                <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
-                <div className="mb-3">
-                    <strong className="font-bold block">Invalid email</strong>
-                </div>
-                <div className="mb-3 text-sm">
-                    {alertMessage}
-                </div>
-                <div className="flex justify-center">
-                    <button
-                    onClick={() => setAlertMessage('')}
-                    className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                    >
-                    Close
-                    </button>
-                </div>
-                </div>
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
+            <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
+            <div className="mb-3">
+                <strong className="font-bold block">Invalid email</strong>
             </div>
+            <div className="mb-3 text-sm">
+                {alertMessage}
+            </div>
+            <div className="flex justify-center">
+                <button
+                onClick={() => setAlertMessage('')}
+                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
+                Close
+                </button>
+            </div>
+            </div>
+        </div>
         </>
         )}
 
@@ -970,7 +970,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[35%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+            <div className="absolute left-2 sm:left-4 top-[30%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
                 <TooltipProvider>
@@ -1065,9 +1065,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             )}
 
             {/* Location search autosuggestion input box */}
-            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40">
+            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
                 <div className="relative w-full sm:w-md max-w-md mx-auto">
-                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60">
+                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
                         <AutocompleteInput
                             ref={inputRef}
                             query={query} setQuery={setQuery}
@@ -1084,7 +1084,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
-                                <div className="bg-white/70 rounded-full px-4 py-2">
+                                <div className="bg-white/70 rounded-full px-4 py-2 pointer-events-auto">
                                     <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
                                 </div>
                             </div>
@@ -1122,6 +1122,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 attributionControl={true}
                 onMouseMove={onMouseMove}
                 maxBounds={MAP_MAXBOUNDS}
+                crossOrigin="anonymous"
+                transformRequest={(url, resourceType) => {
+                    if (resourceType === 'Tile') {
+                    return {
+                        url,
+                        credentials: 'omit', // Ensures browser caching works cross-origin
+                    };
+                    }
+                    return { url };
+                }}
                 >
 
                 {(turbineAdded && displayTurbine) ? (

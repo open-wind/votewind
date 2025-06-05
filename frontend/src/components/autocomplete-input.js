@@ -150,7 +150,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
         (position) => {
           setLocating(false);
           const { latitude, longitude } = position.coords;
-          setQuery("Your location");
+          setQuery("");
           navigateToPosition({latitude: latitude, longitude: longitude, type: 'gps'})
         },
         () => {

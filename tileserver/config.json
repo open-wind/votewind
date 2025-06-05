@@ -6,7 +6,8 @@
             "sprites": "sprites",
             "styles": "styles",
             "mbtiles": "data"
-        }
+        },
+        "cacheControl": "public, max-age=3600"
     },
     "styles": {
         "osm-boundaries-overlays": {
