@@ -72,6 +72,7 @@
         "latest--residential-buildings": {
             "mbtiles": "latest--residential-buildings.mbtiles"
         },
+
         "latest--other-technical-constraints--090": {
             "mbtiles": "latest--other-technical-constraints--090.mbtiles"
         },
@@ -96,6 +97,159 @@
         "latest--other-technical-constraints--250": {
             "mbtiles": "latest--other-technical-constraints--250.mbtiles"
         },
+
+            "latest--inland-waters--090": {
+                "mbtiles": "latest--inland-waters--090.mbtiles"
+            },
+            "latest--pipelines--090": {
+                "mbtiles": "latest--pipelines--090.mbtiles"
+            },
+            "latest--power-lines--090": {
+                "mbtiles": "latest--power-lines--090.mbtiles"
+            },
+            "latest--public-footpaths--090": {
+                "mbtiles": "latest--public-footpaths--090.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--090": {
+                "mbtiles": "latest--public-roads-a-b-motorways--090.mbtiles"
+            },
+            "latest--railway-lines--090": {
+                "mbtiles": "latest--railway-lines--090.mbtiles"
+            },
+
+            "latest--inland-waters--100": {
+                "mbtiles": "latest--inland-waters--100.mbtiles"
+            },
+            "latest--pipelines--100": {
+                "mbtiles": "latest--pipelines--100.mbtiles"
+            },
+            "latest--power-lines--100": {
+                "mbtiles": "latest--power-lines--100.mbtiles"
+            },
+            "latest--public-footpaths--100": {
+                "mbtiles": "latest--public-footpaths--100.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--100": {
+                "mbtiles": "latest--public-roads-a-b-motorways--100.mbtiles"
+            },
+            "latest--railway-lines--100": {
+                "mbtiles": "latest--railway-lines--100.mbtiles"
+            },
+
+            "latest--inland-waters--125": {
+                "mbtiles": "latest--inland-waters--125.mbtiles"
+            },
+            "latest--pipelines--125": {
+                "mbtiles": "latest--pipelines--125.mbtiles"
+            },
+            "latest--power-lines--125": {
+                "mbtiles": "latest--power-lines--125.mbtiles"
+            },
+            "latest--public-footpaths--125": {
+                "mbtiles": "latest--public-footpaths--125.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--125": {
+                "mbtiles": "latest--public-roads-a-b-motorways--125.mbtiles"
+            },
+            "latest--railway-lines--125": {
+                "mbtiles": "latest--railway-lines--125.mbtiles"
+            },
+
+            "latest--inland-waters--150": {
+                "mbtiles": "latest--inland-waters--150.mbtiles"
+            },
+            "latest--pipelines--150": {
+                "mbtiles": "latest--pipelines--150.mbtiles"
+            },
+            "latest--power-lines--150": {
+                "mbtiles": "latest--power-lines--150.mbtiles"
+            },
+            "latest--public-footpaths--150": {
+                "mbtiles": "latest--public-footpaths--150.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--150": {
+                "mbtiles": "latest--public-roads-a-b-motorways--150.mbtiles"
+            },
+            "latest--railway-lines--150": {
+                "mbtiles": "latest--railway-lines--150.mbtiles"
+            },
+            
+            "latest--inland-waters--175": {
+                "mbtiles": "latest--inland-waters--175.mbtiles"
+            },
+            "latest--pipelines--175": {
+                "mbtiles": "latest--pipelines--175.mbtiles"
+            },
+            "latest--power-lines--175": {
+                "mbtiles": "latest--power-lines--175.mbtiles"
+            },
+            "latest--public-footpaths--175": {
+                "mbtiles": "latest--public-footpaths--175.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--175": {
+                "mbtiles": "latest--public-roads-a-b-motorways--175.mbtiles"
+            },
+            "latest--railway-lines--175": {
+                "mbtiles": "latest--railway-lines--175.mbtiles"
+            },
+
+            "latest--inland-waters--200": {
+                "mbtiles": "latest--inland-waters--200.mbtiles"
+            },
+            "latest--pipelines--200": {
+                "mbtiles": "latest--pipelines--200.mbtiles"
+            },
+            "latest--power-lines--200": {
+                "mbtiles": "latest--power-lines--200.mbtiles"
+            },
+            "latest--public-footpaths--200": {
+                "mbtiles": "latest--public-footpaths--200.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--200": {
+                "mbtiles": "latest--public-roads-a-b-motorways--200.mbtiles"
+            },
+            "latest--railway-lines--200": {
+                "mbtiles": "latest--railway-lines--200.mbtiles"
+            },
+
+            "latest--inland-waters--225": {
+                "mbtiles": "latest--inland-waters--225.mbtiles"
+            },
+            "latest--pipelines--225": {
+                "mbtiles": "latest--pipelines--225.mbtiles"
+            },
+            "latest--power-lines--225": {
+                "mbtiles": "latest--power-lines--225.mbtiles"
+            },
+            "latest--public-footpaths--225": {
+                "mbtiles": "latest--public-footpaths--225.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--225": {
+                "mbtiles": "latest--public-roads-a-b-motorways--225.mbtiles"
+            },
+            "latest--railway-lines--225": {
+                "mbtiles": "latest--railway-lines--225.mbtiles"
+            },
+
+            "latest--inland-waters--250": {
+                "mbtiles": "latest--inland-waters--250.mbtiles"
+            },
+            "latest--pipelines--250": {
+                "mbtiles": "latest--pipelines--250.mbtiles"
+            },
+            "latest--power-lines--250": {
+                "mbtiles": "latest--power-lines--250.mbtiles"
+            },
+            "latest--public-footpaths--250": {
+                "mbtiles": "latest--public-footpaths--250.mbtiles"
+            },
+            "latest--public-roads-a-b-motorways--250": {
+                "mbtiles": "latest--public-roads-a-b-motorways--250.mbtiles"
+            },
+            "latest--railway-lines--250": {
+                "mbtiles": "latest--railway-lines--250.mbtiles"
+            },
+
         "latest--windconstraints--090": {
             "mbtiles": "latest--windconstraints--090.mbtiles"
         },
