@@ -21,7 +21,7 @@ export default function CesiumModal({ longitude, latitude, isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center">
       <div className="relative w-full h-full sm:w-[80vw] sm:h-[80vh] bg-white rounded-lg shadow-4xl overflow-hidden">
 
         {/* Close Button */}
