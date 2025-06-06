@@ -66,7 +66,7 @@ export default function Leaderboard({}) {
                   alt="Vote"
                   className="w-20 h-20 sm:w-[150px] sm:h-[150px] mr-2 sm:mr-6"
                 />
-                <h1 className="text-4xl sm:text-8xl font-extrabold sm:font-medium text-left">Leaderboard</h1>
+                <h1 className="text-4xl sm:text-7xl font-light sm:font-thin text-left">Leaderboard</h1>
               </div>
 
               <div className="space-y-2 mt-5">
