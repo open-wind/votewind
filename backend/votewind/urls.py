@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/setcookie', views.SetCookie, name='setcookie'),
     path('api/hascookie', views.HasValidCookie, name='hasvalidcookie'),
     path('api/vote', views.SubmitVote, name='vote'),
+    path('api/leaderboard', views.Leaderboard, name='leaderboard'),
     path('api/windspeed', views.GetWindSpeed, name='windspeed'),
     path('api/containingboundaries', views.ContainingBoundaries, name='containingboundaries'),
     path('api/cesium-jit', views.CesiumJIT, name='cesiumjit'),

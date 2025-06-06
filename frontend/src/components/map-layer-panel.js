@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Settings } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/components/functions/helpers"
+import { TurbineHeightModal } from '@/components/turbineheight-modal';
+import { TURBINE_HEIGHTTOTIP_DEFAULT, LAYERS_HEIGHTTOTIP_SPECIFIC, TILESERVER_BASEURL } from '@/lib/config';
 
 export default function LayerTogglePanel({ map }) {
   const [layerGroups, setLayerGroups] = useState([]);
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
+  const [selectedHeight, setSelectedHeight] = useState(TURBINE_HEIGHTTOTIP_DEFAULT);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const desiredColorOrder = [
     'darkgrey',
@@ -17,6 +22,54 @@ export default function LayerTogglePanel({ map }) {
     'red',
     'darkorange'
   ];
+
+  const replaceVectorSourceUrl = (map, layerId, newUrl) => {
+    const sourceId = layerId;
+
+    // Ensure map style is loaded
+    const layers = map.getStyle()?.layers;
+    if (!layers) {
+      console.warn('Map style not ready');
+      return;
+    }
+
+    // Find index and layer definition
+    const index = layers.findIndex(l => l.id === layerId);
+    if (index === -1) {
+      console.warn(`Layer '${layerId}' not found`);
+      return;
+    }
+
+    const oldLayer = layers[index];
+    const beforeLayerId = layers[index + 1]?.id;
+
+    // Remove existing layer and source
+    if (map.getLayer(layerId)) map.removeLayer(layerId);
+    if (map.getSource(sourceId)) map.removeSource(sourceId);
+
+    // Add updated source
+    map.addSource(sourceId, {
+      type: 'vector',
+      url: newUrl
+    });
+
+    // Add the layer back with its old configuration
+    map.addLayer({
+      ...oldLayer,
+      source: sourceId
+    }, beforeLayerId);
+  }
+
+  useEffect(() => {
+    // Change layer url to use specific turbine height-to-tip vector source
+
+    if (!map) return;
+    for (const layer_id of LAYERS_HEIGHTTOTIP_SPECIFIC) {
+      const new_url = TILESERVER_BASEURL + '/data/' + layer_id + '--' + String(selectedHeight).padStart(3, '0') + '.json';
+      replaceVectorSourceUrl(map, layer_id, new_url);
+    }
+
+  }, [selectedHeight]);
 
   useEffect(() => {
     if (!map) return;
@@ -75,9 +128,9 @@ export default function LayerTogglePanel({ map }) {
   };
 
   return (
-    <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/90 rounded-lg shadow-md p-2 sm:p-3 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
+  <>
+  <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/100 rounded-lg shadow-md p-2 sm:p-3 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
    
-
       <div onClick={() => setIsOpen(prev => !prev)} className="flex items-center justify-between mb-0 cursor-pointer">
         <h4 className="text-sm font-semibold">Wind Constraints</h4>
         <button className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle layer panel">
@@ -87,6 +140,28 @@ export default function LayerTogglePanel({ map }) {
 
       {isOpen && (
       <>
+      <div className="flex items-center space-x-2 mt-4">
+        <span>Turbine Height to Tip: <strong>{selectedHeight ? `${selectedHeight}m` : "None"}</strong></span>
+
+          <TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Change turbine height"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                Change turbine height-to-tip
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+
+      </div>
+
       {layerGroups.map(group => (
         <div key={group.color}>
           {group.layers.map((layer, idx) => {
@@ -113,7 +188,7 @@ export default function LayerTogglePanel({ map }) {
                   className="inline-block pl-3 w-3 h-3 rounded-full ml-auto"
                   style={{
                     backgroundColor: layer.color,
-                    opacity: group.layers.length > 1 && idx !== 0 ? 0.6 : 1,
+                    opacity: group.layers.length > 1 && idx !== 0 ? 0.3 : 0.6,
                   }}
                   />
               </label>
@@ -124,5 +199,15 @@ export default function LayerTogglePanel({ map }) {
       </>
       )}
     </div>
+
+    <TurbineHeightModal
+      open={modalOpen}
+      onClose={() => setModalOpen(false)}
+      selected={selectedHeight}
+      onSelect={setSelectedHeight}
+    />
+
+    </>
+
   );
 }

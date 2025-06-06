@@ -21,7 +21,7 @@ export default function PlanningConstraints({ containingAreas = [], content=null
       <TooltipProvider>
           <Tooltip>
           <TooltipTrigger asChild>
-              <a href="#" onClick={() => setOpen(true)} className="text-blue-700"><b>Planning constraints</b></a>
+              <a href="#" onClick={() => setOpen(true)} className="text-blue-700"><b>Possible planning constraint issues</b></a>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
               View planning constraints maps for areas containing this position

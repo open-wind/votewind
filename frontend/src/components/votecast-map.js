@@ -4,14 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 const querystring = require('querystring');
 import Image from "next/image";
-import * as React from 'react';
-import toast, { Toaster } from 'react-hot-toast';
-import { motion, AnimatePresence } from "framer-motion";
 import maplibregl from 'maplibre-gl';
 import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
 import { Video } from 'lucide-react'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import SocialShareButtons from "@/components/social-share-buttons";
 import NumberedAction from './numbered-action';
@@ -316,7 +313,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                             </h1>
 
                             <h2 className="text-2xl font-light leading-snug">{turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E</h2>
-                            <p className="mt-1 text-sm text-gray-600">Planning constraints</p>
+                            {/* <p className="mt-1 text-sm text-gray-600">Planning constraints</p> */}
                         </div>
 
                         {(type === null) && (

@@ -8,7 +8,7 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 export default function PartnerLogos () {
 
     return (
-     <div className="fixed bottom-0 w-full bg-white py-0 sm:py-2 h-[110px] sm:h-[130px] pointer-events-none" >
+     <div className="z-50 fixed bottom-0 w-full bg-white py-0 sm:py-2 h-[110px] sm:h-[130px] pointer-events-none" >
 
         <Slider
           width="200px"

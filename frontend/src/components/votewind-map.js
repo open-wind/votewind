@@ -8,7 +8,6 @@ import debounce from 'lodash.debounce';
 import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover"
 import Image from "next/image";
 import { Search, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
@@ -970,7 +969,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[30%] sm:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+            <div className="absolute left-2 sm:left-4 top-[30%] xl:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
                 <TooltipProvider>

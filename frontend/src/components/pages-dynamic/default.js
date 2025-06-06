@@ -31,7 +31,7 @@ export default function Default() {
         setIsReady(true);
         // console.error;
       }
-        );
+    );
   }, []);
 
   const getSubdomain = () => {

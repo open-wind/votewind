@@ -54,25 +54,114 @@
         "openmaptiles": {
             "mbtiles": "united-kingdom-latest.mbtiles"
         },
+        "latest--windconstraints--090": {
+            "mbtiles": "latest--windconstraints--090.mbtiles"
+        },
+        "latest--windconstraints--100": {
+            "mbtiles": "latest--windconstraints--100.mbtiles"
+        },
+        "latest--windconstraints--125": {
+            "mbtiles": "latest--windconstraints--125.mbtiles"
+        },
+        "latest--windconstraints--150": {
+            "mbtiles": "latest--windconstraints--150.mbtiles"
+        },
+        "latest--windconstraints--175": {
+            "mbtiles": "latest--windconstraints--175.mbtiles"
+        },
+        "latest--windconstraints--200": {
+            "mbtiles": "latest--windconstraints--200.mbtiles"
+        },
+        "latest--windconstraints--225": {
+            "mbtiles": "latest--windconstraints--225.mbtiles"
+        },
+        "latest--windconstraints--250": {
+            "mbtiles": "latest--windconstraints--250.mbtiles"
+        },
         "latest--aviation-and-exclusion-areas": {
             "mbtiles": "latest--aviation-and-exclusion-areas.mbtiles"
         },
+            "latest--airspace": {
+                "mbtiles": "latest--airspace.mbtiles"
+            },
+           "latest--civilian-airports": {
+                "mbtiles": "latest--civilian-airports.mbtiles"
+            },
+            "latest--danger-areas": {
+                "mbtiles": "latest--danger-areas.mbtiles"
+            },
+            "latest--mod-training-areas": {
+                "mbtiles": "latest--mod-training-areas.mbtiles"
+            }, 
         "latest--ecology-and-wildlife": {
             "mbtiles": "latest--ecology-and-wildlife.mbtiles"
+        },
+            "latest--ancient-woodlands": {
+                "mbtiles": "latest--ancient-woodlands.mbtiles"
+            },
+            "latest--hedgerows": {
+                "mbtiles": "latest--hedgerows.mbtiles"
+            },
+            "latest--local-nature-reserves": {
+                "mbtiles": "latest--local-nature-reserves.mbtiles"
+            },
+            "latest--national-nature-reserves": {
+                "mbtiles": "latest--national-nature-reserves.mbtiles"
+            },
+            "latest--osm-nature-reserves": {
+                "mbtiles": "latest--osm-nature-reserves.mbtiles"
+            },
+            "latest--ramsar-sites": {
+                "mbtiles": "latest--ramsar-sites.mbtiles"
+            },
+            "latest--sites-of-special-scientific-interest": {
+                "mbtiles": "latest--sites-of-special-scientific-interest.mbtiles"
+            },
+            "latest--special-areas-of-conservation": {
+                "mbtiles": "latest--special-areas-of-conservation.mbtiles"
+            },
+            "latest--special-protection-areas": {
+                "mbtiles": "latest--special-protection-areas.mbtiles"
+            },
+            "latest--wild-land-areas": {
+                "mbtiles": "latest--wild-land-areas.mbtiles"
+            },
+        "latest--inadequate-wind-speeds": {
+            "mbtiles": "latest--inadequate-wind-speeds.mbtiles"
         },
         "latest--heritage-impacts": {
             "mbtiles": "latest--heritage-impacts.mbtiles"
         },
-        "latest--inadequate-wind-speeds": {
-            "mbtiles": "latest--inadequate-wind-speeds.mbtiles"
-        },
+            "latest--conservation-areas": {
+                "mbtiles": "latest--conservation-areas.mbtiles"
+            },
+            "latest--listed-buildings": {
+                "mbtiles": "latest--listed-buildings.mbtiles"
+            },
+            "latest--registered-historic-battlefields": {
+                "mbtiles": "latest--registered-historic-battlefields.mbtiles"
+            },
+            "latest--registered-parks-and-gardens": {
+                "mbtiles": "latest--registered-parks-and-gardens.mbtiles"
+            },
+            "latest--scheduled-ancient-monuments": {
+                "mbtiles": "latest--scheduled-ancient-monuments.mbtiles"
+            },
+            "latest--world-heritage-sites": {
+                "mbtiles": "latest--world-heritage-sites.mbtiles"
+            },
         "latest--landscape-and-visual-impacts": {
             "mbtiles": "latest--landscape-and-visual-impacts.mbtiles"
         },
-        "latest--residential-buildings": {
-            "mbtiles": "latest--residential-buildings.mbtiles"
-        },
-
+            "latest--areas-of-outstanding-natural-beauty": {
+                "mbtiles": "latest--areas-of-outstanding-natural-beauty.mbtiles"
+            },
+            "latest--heritage-coasts": {
+                "mbtiles": "latest--heritage-coasts.mbtiles"
+            },
+            "latest--national-parks": {
+                "mbtiles": "latest--national-parks.mbtiles"
+            },
         "latest--other-technical-constraints--090": {
             "mbtiles": "latest--other-technical-constraints--090.mbtiles"
         },
@@ -97,6 +186,9 @@
         "latest--other-technical-constraints--250": {
             "mbtiles": "latest--other-technical-constraints--250.mbtiles"
         },
+            "latest--bridleways": {
+                "mbtiles": "latest--bridleways.mbtiles"
+            },
 
             "latest--inland-waters--090": {
                 "mbtiles": "latest--inland-waters--090.mbtiles"
@@ -249,31 +341,8 @@
             "latest--railway-lines--250": {
                 "mbtiles": "latest--railway-lines--250.mbtiles"
             },
-
-        "latest--windconstraints--090": {
-            "mbtiles": "latest--windconstraints--090.mbtiles"
-        },
-        "latest--windconstraints--100": {
-            "mbtiles": "latest--windconstraints--100.mbtiles"
-        },
-        "latest--windconstraints--125": {
-            "mbtiles": "latest--windconstraints--125.mbtiles"
-        },
-        "latest--windconstraints--150": {
-            "mbtiles": "latest--windconstraints--150.mbtiles"
-        },
-        "latest--windconstraints--175": {
-            "mbtiles": "latest--windconstraints--175.mbtiles"
-        },
-        "latest--windconstraints--200": {
-            "mbtiles": "latest--windconstraints--200.mbtiles"
-        },
-        "latest--windconstraints--225": {
-            "mbtiles": "latest--windconstraints--225.mbtiles"
-        },
-        "latest--windconstraints--250": {
-            "mbtiles": "latest--windconstraints--250.mbtiles"
+        "latest--residential-buildings": {
+            "mbtiles": "latest--residential-buildings.mbtiles"
         }
-
     }
 }

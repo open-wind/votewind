@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right {
+    z-index: 0!important;
+}
+
 [cmdk-input-wrapper] {
   border-bottom: none !important;
 }

@@ -18,8 +18,8 @@ export const API_BASE_URL = isDev
 //   : 'http://localhost:8000';
 
 // Base url of tile server
-// export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.openwind.energy";
-export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org/";
+// export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
+export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
 
 // Default map centre to use
 export const MAP_DEFAULT_CENTRE = 
@@ -53,7 +53,7 @@ export const MAP_PLACE_ZOOM = 12;
 // Name of cookie that will be set
 export const VOTEWIND_COOKIE = 'votewind-voting-cookie';
 
-// url of map style
+// url of map style used as default when showing votes
 export const VOTEWIND_MAPSTYLE = 'https://tiles.votewind.org/styles/openmaptiles/style.json';
 
 // Email explanation beneath all email input boxes
@@ -68,16 +68,28 @@ export const LAYERS_TECHNICAL_CONSTRAINTS =   [
 
 // List of non-technical planning constraints layers to be used
 export const LAYERS_NONTECHNICAL_CONSTRAINTS =    [
-                                        'latest--aviation-and-exclusion-areas',
-                                        'latest--ecology-and-wildlife',
-                                        'latest--heritage-impacts',
-                                        'latest--inadequate-wind-speeds',
-                                        'latest--landscape-and-visual-impacts',
-                                        'latest--residential-buildings'
-                                        ];
+                                                  'latest--aviation-and-exclusion-areas',
+                                                  'latest--ecology-and-wildlife',
+                                                  'latest--heritage-impacts',
+                                                  'latest--inadequate-wind-speeds',
+                                                  'latest--landscape-and-visual-impacts',
+                                                  'latest--residential-buildings'
+                                                  ];
 
 // Full list of all technical and non-technical planning constraints layers to be used
 export const LAYERS_ALLCONSTRAINTS = [...LAYERS_NONTECHNICAL_CONSTRAINTS, ...LAYERS_TECHNICAL_CONSTRAINTS];
+
+// List of turbine-height-to-tip-specific layers
+export const LAYERS_HEIGHTTOTIP_SPECIFIC =  [
+                                            'latest--windconstraints',
+                                            'latest--other-technical-constraints',
+                                            'latest--inland-waters',
+                                            'latest--pipelines',
+                                            'latest--power-lines',
+                                            'latest--public-footpaths',
+                                            'latest--public-roads-a-b-motorways',
+                                            'latest--railway-lines'
+                                            ];
 
 // Color for all planning constraints layers
 export const LAYERS_COLOR = 'blue';
@@ -86,3 +98,6 @@ export const LAYERS_COLOR = 'blue';
 // Note that with technical constraints layers, opacity is programmatically reduced by a factor as they all overlap at minimum buffer sizes
 // export const LAYERS_OPACITY = 0.065;
 export const LAYERS_OPACITY = 0.05;
+
+// Default turbine height-to-tip used when displaying detailed planning constraints
+export const TURBINE_HEIGHTTOTIP_DEFAULT = 100;

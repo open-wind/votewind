@@ -463,6 +463,47 @@ def Votes(request):
     return OutputJson(geojson)
 
 @csrf_exempt
+def Leaderboard(request):
+    """
+    Get voting leaderboard data
+    """
+
+    top_votes = (
+        Vote.objects
+        .filter(live=True)
+        .values('geometry')
+        .annotate(
+            total_votes=Count('id'),
+            confirmed_true=Count('id', filter=Q(confirmed=True)),
+            confirmed_false=Count('id', filter=Q(confirmed=False)),
+        )
+        .order_by('-total_votes', '-confirmed_true')[:10]
+    )
+
+    features = []
+
+    for v in top_votes:
+        geom = v['geometry']
+        if isinstance(geom, str):
+            geom = GEOSGeometry(geom) 
+        features.append({
+            "type": "Feature",
+            "geometry": json.loads(geom.geojson),
+            "properties": {
+                "numvotes": v['total_votes'],
+                "confirmed": v['confirmed_true'],
+                "unconfirmed": v['confirmed_false'],
+            }
+        })
+
+    geojson = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+
+    return JsonResponse(geojson)
+
+@csrf_exempt
 def CesiumJIT(request):
     """
     Retrieves CesiumJS token

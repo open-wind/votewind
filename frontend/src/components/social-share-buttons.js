@@ -14,7 +14,7 @@ import {
 } from 'react-icons/si'
 import { FiShare, FiCopy } from 'react-icons/fi'
 
-export default function SocialShareButtons({ title = '', showstrap=true}) {
+export default function SocialShareButtons({ title = '', showstrap=true, suppliedurl=null}) {
   const pathname = usePathname()
   const [copied, setCopied] = useState(false)
   const [nativeShare, setNativeShare] = useState(false)
@@ -24,6 +24,7 @@ export default function SocialShareButtons({ title = '', showstrap=true}) {
   }, [])
 
   const url = useMemo(() => {
+    if (suppliedurl !== null) return suppliedurl;
     if (typeof window === 'undefined') return ''
     return window.location.origin + pathname
   }, [pathname])

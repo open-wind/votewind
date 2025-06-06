@@ -31,10 +31,10 @@ export default function Home() {
     <div className="w-full h-screen bg-cover bg-center"
           style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
 
-      <div className="fixed top-1/3 -translate-y-1/2 left-0 text-center w-full items-center">
+      <div className="fixed top-1/3 -translate-y-1/2 left-0 mt-10 text-center w-full items-center">
 
-        <header className="relative w-full sm:mt-0 text-center py-3">
-            <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
+        <header className="relative w-full sm:mt-0 text-center py-0">
+            <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-8 md:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
             <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
             </h1>
         </header>
@@ -44,14 +44,14 @@ export default function Home() {
             Vote for where you'd like a community wind turbine.
           </p>
 
-          <p className="font-light text-zinc-600 pl-5 pr-5 mb-5 text-medium sm:text-xl text-center leading-tight">
+          <p className="font-light text-zinc-600 pl-5 pr-5 mb-12 text-medium sm:text-xl text-center leading-tight">
             Community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change...
           </p>
         </div>
 
       </div>
 
-      <div className="fixed top-2/3 -translate-y-1/2 w-full pl-5 pr-5 pt-10 flex justify-center z-50">
+      <div className="fixed top-2/3 -translate-y-1/2 w-full pl-5 pr-5 mt-5 sm:mt-0 md:mt-5 pt-0 flex justify-center z-50">
         <div className="relative w-full max-w-[400px]">
 
           <AutocompleteInput ref={inputRef} query={query} setQuery={setQuery} locating={locating} setLocating={setLocating} useLocate={false} />
