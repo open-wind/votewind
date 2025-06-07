@@ -58,6 +58,11 @@ class ExportUniqueEmailCsvMixin:
 class ClipRegion(models.Model):
     geometry = models.MultiPolygonField()
 
+    class Meta:
+        indexes = [
+            GistIndex(fields=['geometry']),
+        ]
+
     def __str__(self):
         return f"ClipRegion {self.pk}"  # or any identifier you'd like
     

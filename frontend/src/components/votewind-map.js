@@ -906,8 +906,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     {/* Content: Icon + Text */}
                     <div className="flex mt-0 sm:mt-0">
-                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-40">
-                            <div className="relative inline-block">
+                        <div className="flex-shrink-0 w-25 h-25 sm:w-60 sm:h-40">
+                            <div className="mt-9 ml-5 sm:mt-0 sm:ml-0 relative inline-block">
 
                             <img
                                 src={`${assetPrefix}/icons/check-mark.svg`}
@@ -917,14 +917,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                             {(windspeed < 5) 
                             ? 
-                            <div className="absolute top-2 left-0 w-20 h-20 border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
-                                <Wind className="w-8 h-8 mb-1 -translate-y-0.5" />
-                                <div className="text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                            <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
+                                <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
                             </div>
                             : 
-                            <div className="absolute top-2 left-0 w-20 h-20 border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
-                                <Wind className="w-8 h-8 mb-1 -translate-y-0.5" />
-                                <div className="text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                            <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
+                                <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
                             </div>
                             }
 
@@ -953,7 +953,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex ml-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex ml-2 sm:ml-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
                                         <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
                                     </button>
                                 </TooltipTrigger>
@@ -965,13 +965,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </h2>
 
                             {/* Coordinates */}
-                            <p className="text-xs text-gray-700 mt-2 sm:mt-4">
-                                <b className="hidden sm:inline">Position: </b>
-                            <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
-                            {substation && (
-                            <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#"><b><span className="inline sm:hidden">Substation</span><span className="sm:inline hidden">Nearest substation</span></b>: {substation.distance_km} km</a>
-                            )}
-                            </p>
+                            <div className="flex flex-wrap gap-1 mt-2 sm:mt-4">
+                                <p className="text-xs text-gray-700 ">
+                                    <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#"><b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
+                                </p>
+                                <p className="text-xs text-gray-700 whitespace-nowrap">
+                                {substation && (
+                                <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#"><b>Nearest substation</b>: {substation.distance_km} km</a>
+                                )}
+                                </p>
+                            </div>
 
                             {layersClicked && (
                                 <>
