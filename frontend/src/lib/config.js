@@ -18,8 +18,8 @@ export const API_BASE_URL = isDev
 //   : 'http://localhost:8000';
 
 // Base url of tile server
-// export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
-export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
+export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
+// export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
 
 // Default map centre to use
 export const MAP_DEFAULT_CENTRE = 
@@ -56,6 +56,9 @@ export const MAP_DEFAULT_ZOOM = 5;
 
 // Default map zoom to use - if place-specific
 export const MAP_PLACE_ZOOM = 12;
+
+// Map zoom to use when focusing on substations
+export const MAP_SUBSTATION_ZOOM = 13;
 
 // Min zoom for showing planning constraints
 export const MAP_MINZOOM_CONSTRAINTS = 8;

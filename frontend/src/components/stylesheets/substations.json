@@ -1,0 +1,60 @@
+[
+  {
+    "id": "osm-substations-shadow",
+    "type": "circle",
+    "source": "osm-substations-wind",
+    "source-layer": "osm-substations-wind",
+    "layout": {
+      "visibility": "visible"
+    },
+    "paint": {
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        9, 1.75,
+        12, 3.5,
+        14, 14
+      ],
+      "circle-color": "rgba(0, 0, 0, 0.5)",
+      "circle-translate": [2, 2],
+      "circle-blur": 1,
+      "circle-opacity": 1
+    },
+    "minzoom": 11,
+    "maxzoom": 24,
+    "circle-sort-key": 0
+  },
+  {
+    "id": "osm-substations-circle",
+    "type": "circle",
+    "source": "osm-substations-wind",
+    "source-layer": "osm-substations-wind",
+    "layout": {
+      "visibility": "visible"
+    },
+    "paint": {
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        9, 1,
+        12, 2,
+        14, 8
+      ],
+      "circle-color": "red",
+      "circle-stroke-width": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        9, 0.25,
+        12, 2
+      ],
+      "circle-stroke-color": "#FFFFFF",
+      "circle-opacity": 1
+    },
+    "minzoom": 11,
+    "maxzoom": 24,
+    "circle-sort-key": 1
+  }
+]

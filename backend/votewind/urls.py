@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/vote', views.SubmitVote, name='vote'),
     path('api/leaderboard', views.Leaderboard, name='leaderboard'),
     path('api/windspeed', views.GetWindSpeed, name='windspeed'),
+    path('api/substation', views.GetSubstation, name='substation'),
     path('api/containingboundaries', views.ContainingBoundaries, name='containingboundaries'),
     path('api/cesium-jit', views.CesiumJIT, name='cesiumjit'),
     path('votes/', views.Votes, name='votes'),

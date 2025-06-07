@@ -18,7 +18,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Postcode, Place, Boundary, UserID, Vote, Organisation, WindSpeed
+from .models import Postcode, Place, Boundary, UserID, Vote, Organisation, WindSpeed, Substation
 
 # Number of results to return in a text query on postcodes/places
 NUMBER_RESULTS_RETURNED = 26
@@ -338,6 +338,43 @@ def GetWindSpeed(request):
     if windspeed_obj: windspeed = round(windspeed_obj.windspeed, 2)
 
     return JsonResponse({'windspeed': windspeed})
+
+@csrf_exempt
+def GetSubstation(request):
+    """
+    Gets nearest substation for specific longitude/latitude
+    """
+
+    try:
+        data = json.loads(request.body)
+        longitude = float(data['position']['longitude'])
+        latitude = float(data['position']['latitude'])
+    except (KeyError, ValueError, KeyError):
+        return HttpResponseForbidden("POST variables missing")
+
+    position = Point(longitude, latitude, srid=4326)
+    nearest_substation = (
+        Substation.objects
+        .annotate(distance=Distance('geometry', position))
+        .order_by('distance')
+        .first()
+    )
+    geometry = nearest_substation.geometry
+    if geometry.geom_type != 'Point': geometry = geometry.centroid
+
+    results = {
+        "name": nearest_substation.name,
+        "operator": nearest_substation.operator,
+        "voltage": nearest_substation.voltage,
+        "substation": nearest_substation.substation,
+        "power": nearest_substation.power,
+        "distance_km": round(nearest_substation.distance.km, 2),
+        "position": {
+            "latitude": geometry.y,
+            "longitude": geometry.x
+        }
+    }
+    return JsonResponse({'success': True, 'results': results})
 
 @csrf_exempt
 def SubmitVote(request):

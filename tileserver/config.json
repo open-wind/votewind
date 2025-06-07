@@ -51,6 +51,9 @@
         "osm-boundaries-overlays": {
             "mbtiles": "osm-boundaries-overlays.mbtiles"
         },
+        "osm-substations-wind": {
+            "mbtiles": "osm-substations-wind.mbtiles"
+        },
         "openmaptiles": {
             "mbtiles": "united-kingdom-latest.mbtiles"
         },

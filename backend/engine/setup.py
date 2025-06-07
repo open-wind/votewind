@@ -11,6 +11,7 @@ import urllib.request
 import shutil
 import pyproj
 import unicodedata
+import re
 from decimal import Decimal
 from datetime import datetime
 from dotenv import load_dotenv
@@ -39,7 +40,8 @@ from engine.models import \
     Place, \
     Boundary, \
     ClipRegion, \
-    WindSpeed
+    WindSpeed, \
+    Substation
 
 WORKING_FOLDER = str(Path(__file__).absolute().parent) + '/'
 LOG_SINGLE_PASS                     = WORKING_FOLDER + 'log.txt'
@@ -50,8 +52,10 @@ OSM_MAIN_DOWNLOAD                   = 'https://download.geofabrik.de/europe/unit
 OSM_EXPORTS                         = WORKING_FOLDER + 'osm-exports/'
 OSM_EXPORT_CONFIG_BOUNDARIES        = 'osm-boundaries'
 OSM_EXPORT_CONFIG_PLACES            = 'osm-places'
+OSM_EXPORT_CONFIG_SUBSTATIONS       = 'osm-substations'
 OSM_EXPORT_BOUNDARIES               = OSM_EXPORTS + OSM_EXPORT_CONFIG_BOUNDARIES
 OSM_EXPORT_PLACES                   = OSM_EXPORTS + OSM_EXPORT_CONFIG_PLACES
+OSM_EXPORT_SUBSTATIONS              = OSM_EXPORTS + OSM_EXPORT_CONFIG_SUBSTATIONS
 POSTCODES_DOWNLOAD_FOLDER           = WORKING_FOLDER + 'postcodes/'
 POSTCODES_URL                       = 'https://www.arcgis.com/sharing/rest/content/items/6fb8941d58e54d949f521c92dfb92f2a/data'
 POSTCODES_SINGLEFILE                = 'Data/ONSPD_FEB_2025_UK.csv'
@@ -70,6 +74,32 @@ def decimal_default(obj):
     if isinstance(obj, Decimal):
         return float(obj)
     raise TypeError
+
+def parse_voltage(voltage_str):
+    """
+    Parses a range of text-based voltages, eg. 33,000, 33kV, 33kv, into same standardised float value
+    """
+
+    if not voltage_str:
+        return None
+
+    # Clean string: remove spaces, commas, make lowercase
+    v = str(voltage_str).replace(',', '').replace(' ', '').lower()
+
+    # Match e.g. '33kv', '33k', '33000', etc.
+    match = re.match(r'(\d+(\.\d+)?)(k?v)?', v)
+
+    if not match:
+        return None
+
+    value = float(match.group(1))
+    unit = match.group(3)
+
+    # If it's in kilovolts, convert to volts
+    if unit and 'k' in unit:
+        return value * 1000
+
+    return value
 
 def initLogging():
     """
@@ -270,7 +300,7 @@ def main():
     """
 
     global WORKING_FOLDER, OSM_DOWNLOADS_FOLDER, OSM_MAIN_DOWNLOAD, POSTCODES_SINGLEFILE, POSTCODES_DOWNLOAD_FOLDER, POSTCODES_URL
-    global OVERALL_CLIPPING, OSM_EXPORT_CONFIG_BOUNDARIES, OSM_EXPORT_CONFIG_PLACES, OSM_EXPORT_BOUNDARIES, OSM_EXPORT_PLACES, OSM_BOUNDARIES_OVERLAYS
+    global OVERALL_CLIPPING, OSM_EXPORT_CONFIG_BOUNDARIES, OSM_EXPORT_CONFIG_PLACES, OSM_EXPORT_CONFIG_SUBSTATIONS, OSM_EXPORT_BOUNDARIES, OSM_EXPORT_PLACES, OSM_BOUNDARIES_OVERLAYS
 
     makeFolder(OSM_DOWNLOADS_FOLDER)
     makeFolder(OSM_EXPORTS)
@@ -279,6 +309,8 @@ def main():
     osm_download            = OSM_DOWNLOADS_FOLDER + basename(OSM_MAIN_DOWNLOAD)
     osm_boundaries          = OSM_EXPORT_BOUNDARIES + '.shp'
     osm_places              = OSM_EXPORT_PLACES + '.shp'
+    osm_substations         = OSM_EXPORT_SUBSTATIONS + '.geojson'
+    osm_substations_wind    = OSM_EXPORT_SUBSTATIONS + '-wind.geojson'
 
     # For testing - delete all existing objects
     # Postcode.objects.all().delete()
@@ -290,6 +322,60 @@ def main():
         attemptDownloadUntilSuccess(OSM_MAIN_DOWNLOAD, osm_download)
 
     temp_gpkg = 'temp'
+
+    if not isfile(osm_substations):
+        LogMessage("Running osm-export-tool on: " + OSM_EXPORT_CONFIG_SUBSTATIONS + '.yml')
+        runSubprocess(['osm-export-tool', OSM_DOWNLOADS_FOLDER + basename(OSM_MAIN_DOWNLOAD), temp_gpkg, "-m", WORKING_FOLDER + OSM_EXPORT_CONFIG_SUBSTATIONS + '.yml'])
+
+        LogMessage("Converting osm-substations to SHP")
+        runSubprocess([ 'ogr2ogr', \
+                        "-f", "GeoJSON", \
+                        osm_substations, \
+                        temp_gpkg + '.gpkg', \
+                        '-nln', 'osm_substations', \
+                        "-sql", "SELECT * FROM 'osm-substations'" ])
+
+    substations = Substation.objects.all()
+    if substations.count() == 0:
+        clip_region = ClipRegion.objects.first()  # Assuming only one row
+        onshore_geom = clip_region.geometry
+        count, output_features = 0, []
+        with open(osm_substations, 'rb') as f:
+            parser = ijson.items(f, 'features.item')  # Streams each feature one at a time
+            for feature in parser:
+                name = feature['properties'].get('name')
+                operator = feature['properties'].get('operator')
+                voltage = parse_voltage(feature['properties'].get('voltage'))
+                substation = feature['properties'].get('substation')
+                power = feature['properties'].get('power')    
+                geometry = GEOSGeometry(json.dumps(feature['geometry'], default=decimal_default), srid=4326)
+                is_onshore = onshore_geom.contains(geometry.centroid if geometry.geom_type != 'Point' else geometry)
+                if not is_onshore: continue 
+                Substation.objects.create(name=name, operator=operator, voltage=voltage, substation=substation, power=power, geometry=geometry)
+                if geometry.geom_type != 'Point': geometry = geometry.centroid  # Convert polygon/line to point
+                feature['geometry'] = json.loads(geometry.geojson)
+                feature["tippecanoe"] = {
+                    "minzoom": 4,
+                    "maxzoom": 15
+                }
+                output_features.append(feature)
+
+                count += 1
+                if count % 1000 == 0: LogMessage("Importing substation " + str(count))
+
+        LogMessage("Number of substation items imported: " + str(count))
+
+        LogMessage("Export substation point positions to: " + osm_substations_wind)
+        with open(osm_substations_wind, 'w') as output_geojson:
+            geojson = {
+                "type": "FeatureCollection",
+                "features": output_features
+            }
+
+            output_geojson.write(json.dumps(geojson, indent=2, default=decimal_default))
+
+    if isfile(temp_gpkg): os.remove(temp_gpkg + '.gpkg')
+
     if not isfile(osm_boundaries):
         LogMessage("Running osm-export-tool on: " + OSM_EXPORT_BOUNDARIES + '.yml')
         runSubprocess(['osm-export-tool', OSM_DOWNLOADS_FOLDER + basename(OSM_MAIN_DOWNLOAD), temp_gpkg, "-m", WORKING_FOLDER + OSM_EXPORT_CONFIG_BOUNDARIES + '.yml'])
@@ -345,12 +431,12 @@ def main():
 
         LogMessage("Finished importing osm-boundaries SHP into Django")
 
-
-    LogMessage("Aggregating boundaries by council name")
-
     clip_boundaries = False
     aggregated_boundaries = Boundary.objects.filter(council_name__startswith='aggregate:')
     if aggregated_boundaries.count() == 0:
+
+        LogMessage("Aggregating boundaries by council name")
+
         clip_boundaries = True
         # Step 1: Get distinct council names
         council_names = (
@@ -386,8 +472,6 @@ def main():
                     slug=slugify(name)
                 )
 
-    LogMessage("Importing overall clipping geometry")
-
     POSTGRES_DB         = os.environ.get("SQL_DATABASE", "user")
     POSTGRES_USER       = os.environ.get("SQL_USER", "user")
     POSTGRES_PASSWORD   = os.environ.get("SQL_PASSWORD", "user")
@@ -395,6 +479,8 @@ def main():
 
     clipregions = ClipRegion.objects.all()
     if clipregions.count() == 0:
+        LogMessage("Importing overall clipping geometry")
+
         clip_boundaries = True
         runSubprocess([ "ogr2ogr", \
                         "-f", "PostgreSQL", \
@@ -544,7 +630,7 @@ def main():
     places = Place.objects.all()
     if places[0].boundary == '':
 
-        LogMessage("Attaching places to similarly named boundaries, eg. Brighton [place] -> Brighton & Hove [boundary]")
+        LogMessage("Attaching places to smallest containing boundaries, eg. Brighton [place] -> Brighton & Hove [boundary]")
 
         count = 0
         for place in places:

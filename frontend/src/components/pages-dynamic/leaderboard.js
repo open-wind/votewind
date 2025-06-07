@@ -38,7 +38,6 @@ export default function Leaderboard({}) {
       .then((data) => {
         setData(data);
         setIsReady(true);
-        console.log(data);
       })
       .catch((error) => {
         setIsReady(true);

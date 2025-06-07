@@ -269,4 +269,26 @@ def main():
                                 "--no-feature-limit", \
                                 "--no-tile-size-limit" ])
 
+    substations_mbtiles = join(TILESERVER_DATA_FOLDER, 'osm-substations-wind.mbtiles')
+
+    if not isfile(substations_mbtiles):
+
+        LogMessage("Creating osm-substations.mbtiles...")
+
+        inputs = runSubprocess(["tippecanoe", \
+                                "-o", substations_mbtiles, \
+                                "engine/osm-exports/osm-substations-wind.geojson", \
+                                "-Z4", "-z15", \
+                                "--minimum-zoom=4", \
+                                "--maximum-zoom=15", \
+                                "--generate-ids", \
+                                "--force", \
+                                "-n", "osm-substations-wind", \
+                                "-l", "osm-substations-wind", \
+                                "--no-feature-limit", \
+                                "--no-tile-size-limit", \
+                                "--preserve-input-order", \
+                                "--force-feature-limit", \
+                                "--no-line-simplification" ])
+
 main()

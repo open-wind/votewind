@@ -28,6 +28,7 @@ import {
     MAP_MAXBOUNDS, 
     MAP_DEFAULT_ZOOM, 
     MAP_PLACE_ZOOM, 
+    MAP_SUBSTATION_ZOOM,
     MAP_MINZOOM_CONSTRAINTS,
     API_BASE_URL, 
     TILESERVER_BASEURL,
@@ -74,11 +75,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [layersOpacityValue, setLayersOpacityValue] = useState(LAYERS_OPACITY);
     const [layersClicked, setLayersClicked] = useState(null);
     const [markerDragging, setMarkerDragging] = useState(false);
+    const [substation, setSubstation] = useState(null);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-    
+    const popupLayers = ['osm-substations-circle', 'votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
+
+    // **********************************************************************
+    // Functions relating to showing/hiding planning constraint layers
+    // **********************************************************************
+
     const layersHide = (map) => {
+        // We set 'fill-opacity' = 0 so we can still query planning constraints even if not visible
         for (const id of LAYERS_ALLCONSTRAINTS) {
             if (map.getLayer(id)) {
                 map.setPaintProperty(id, 'fill-opacity', 0);
@@ -89,7 +97,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const layersShow = (map) => {
         for (const id of LAYERS_ALLCONSTRAINTS) {
             if (map.getLayer(id)) {
-                // const layer_opacity = id.includes('other-technical-constraints') ? (layersOpacityValue / 10) : layersOpacityValue; 
                 map.setPaintProperty(id, 'fill-opacity', layersOpacityValue);
             }
         }
@@ -110,6 +117,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
     }
 
+    // **********************************************************************
+    // Functions converting between internal opacity and opacity slider
+    // **********************************************************************
+
     const opacity2slider = (opacity) => {
         const factor = Math.pow(opacity, 1 / 3);
         return factor * 100;
@@ -119,6 +130,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const factor = slider / 100;
         return Math.pow(factor, 3); // 2.0 = gentle curve, 3.0 = steeper
     }
+
+    // **********************************************************************
+    // Function to animate turbine marker
+    // **********************************************************************
 
     const triggerBounce = () => {
         setIsBouncing(true);
@@ -187,6 +202,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (constraint_layer_style) newjson['layers'].push(constraint_layer_style);
         }
 
+        // Add substations stylesheet
+        var substations_style = require('./stylesheets/substations.json');
+        for (let i = 0; i < substations_style.length; i++) newjson['layers'].push(substations_style[i]);
+
         // Add voting stylesheet
         var votes_style = require('./stylesheets/votes.json');
         for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
@@ -195,21 +214,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         var organisations_style = require('./stylesheets/organisations.json');
         for (let i = 0; i < organisations_style.length; i++) newjson['layers'].push(organisations_style[i]);
 
-
         newjson['glyphs'] = baseurl + newjson['glyphs'];
         newjson['sprite'] = baseurl + newjson['sprite'];
-        
+
         return newjson;
     }
 
-    const retrieveMapStyle = () => {
-        var defaultStyle = require('./stylesheets/openmaptiles.json');
-        var newStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
-        return newStyle;
+    const capitalizeFirst = (str) => {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
-
-    const mapStyle = retrieveMapStyle();
-    const popupLayers = ['votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
 
     const onMouseMove = (e) => {
         if (markerDragging) return;
@@ -228,6 +242,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (feature.layer.id.startsWith('organisations-')) {
                 heading = 'Community Energy Organisation';
                 content = feature.properties.name;
+            }
+            if (feature.layer.id.startsWith('osm-substations-')) {
+                heading = 'Substation';
+                content = [];
+                const possible_elements = ['name', 'substation', 'voltage', 'operator']
+                for (const element of possible_elements) {
+                    if (feature.properties[element] !== undefined) {
+                        var content_item = capitalizeFirst(feature.properties[element].replaceAll("_", " "));
+                        if (element === 'voltage') content_item += ' volts';
+                        content.push(content_item);
+                    }
+                }
             }
 
             setPopupInfo({
@@ -280,25 +306,53 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         // Reset planning constraint layers as these will be set onIdle
         setLayersClicked(null);
 
-        const retrieveContainingBoundaries = async () => {
-            const res = await fetch(API_BASE_URL + '/api/containingboundaries', {
+        const retrieveTurbinePositionData = async () => {
+            const res_boundaries = await fetch(API_BASE_URL + '/api/containingboundaries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({position: turbinePosition})
             });
 
-            const data = await res.json();
-            if (!data.success) {
+            const data_boundaries = await res_boundaries.json();
+            if (!data_boundaries.success) {
                 setError("Unable to retrieve containing boundaries");
                 return;
             }
 
-            setContainingAreas(data.results);
+            setContainingAreas(data_boundaries.results);
+
+            const res_substation = await fetch(API_BASE_URL + '/api/substation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({position: turbinePosition})
+            });
+
+            const data_substation = await res_substation.json();
+            if (!data_substation.success) {
+                setError("Unable to retrieve substation data");
+                return;
+            }
+
+            setSubstation(data_substation.results);
         }
 
-        retrieveContainingBoundaries();
+        retrieveTurbinePositionData();
 
     }, [turbinePosition])
+
+    const isPointOnScreen = (map, lng, lat) => {
+        const screenPos = map.project([lng, lat]);
+
+        // Get the canvas container’s actual screen position
+        const rect = map.getContainer().getBoundingClientRect();
+
+        return (
+            screenPos.x >= 0 &&
+            screenPos.y >= 0 &&
+            screenPos.x <= rect.width &&
+            screenPos.y <= rect.height
+        );
+    }
 
     const onIdle = (e) => {
         // Planning constraint layers may not be accessible at low zooms so wait until 'idle' 
@@ -312,6 +366,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         
         // Don't derive planning constraints if zoom is too low
         if (map.getZoom() < MAP_MINZOOM_CONSTRAINTS) return;
+        
+        // Don't derive planning constraints if turbine position off screen
+        if (!isPointOnScreen(map, turbinePosition.longitude, turbinePosition.latitude)) return;
 
         const screenPoint = map.project({'lng': turbinePosition.longitude, 'lat': turbinePosition.latitude});
         const features = map.queryRenderedFeatures(screenPoint, { layers: LAYERS_ALLCONSTRAINTS });
@@ -394,6 +451,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         }
 
+        const defaultStyle = require('./stylesheets/openmaptiles.json');
+        const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
         map.setStyle(mapStyle);
         setMapLoaded(true);
     }
@@ -576,6 +635,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     const closePanel = () => {
         resetSettings();
+    }
+
+    const mapCentreOnSubstation = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return;
+        if (!substation) return;
+        isRecentering.current = true;
+        if (map.getZoom() < MAP_SUBSTATION_ZOOM) {
+            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, zoom: MAP_SUBSTATION_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        } else {
+            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+        }
     }
 
     const mapCentreOnTurbine = () => {
@@ -867,8 +938,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                             {/* Coordinates */}
                             <p className="text-xs text-gray-700 mt-2 sm:mt-4">
-                                <b>Position: </b>
-                            {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
+                                <b className="hidden sm:inline">Position: </b>
+                            <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
+                            {substation && (
+                            <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#"><b><span className="inline sm:hidden">Substation</span><span className="sm:inline hidden">Nearest substation</span></b>: {substation.distance_km} km</a>
+                            )}
                             </p>
 
                             {layersClicked && (
@@ -1152,6 +1226,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 style={{ width: '100%', height: '100%' }}
                 interactiveLayerIds={[
                     'water', 
+                    'osm-substations-circle',
                     'votes-unconfirmed', 'votes-confirmed', 
                     'votes-unconfirmed-single', 'votes-confirmed-single', 
                     'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
@@ -1191,7 +1266,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 >
                     <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
                         <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
-                        <p className="text-[9pt] pt-0 pb-0">{popupInfo.properties.content}</p>
+                        {(Array.isArray(popupInfo.properties.content)) 
+                        ? 
+                            (popupInfo.properties.content).map((item, index) => (
+                            <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
+                            )
+                        ) 
+                        :   <p className="text-[9pt] pt-0 pb-0">{popupInfo.properties.content}</p>
+                        }
                     </div>
                 </Popup>
                 )}

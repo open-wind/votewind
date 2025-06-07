@@ -423,3 +423,30 @@ class WindSpeedAdmin(LeafletGeoAdmin):
     list_filter = (
         'windspeed',
     )
+
+class Substation(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    operator = models.CharField(max_length=255, null=True, blank=True)
+    voltage = models.FloatField(max_length=50, null=True, blank=True, default=0, db_index=True)
+    substation = models.CharField(max_length=100, null=True, blank=True)
+    power = models.CharField(max_length=100, null=True, blank=True)
+    geometry = models.GeometryField(srid=4326, spatial_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["voltage"]),
+            GistIndex(fields=['geometry']),
+        ]
+        verbose_name = "Substation"
+        verbose_name_plural = "Substations"
+
+    def __str__(self):
+        return f"{self.name or 'Unnamed'} ({self.voltage or 'Unknown voltage'})"
+    
+class SubstationAdmin(LeafletGeoAdmin):
+    list_display = ("name", "operator", "voltage", "substation", "power", "geometry_type")
+    list_filter = ("operator", "voltage", "substation")
+    search_fields = ("name", "operator", "voltage")
+
+    def geometry_type(self, obj):
+        return obj.geometry.geom_type

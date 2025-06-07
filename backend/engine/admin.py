@@ -9,6 +9,7 @@ from .models import \
     Vote, VoteAdmin, \
     Organisation, OrganisationAdmin, \
     WindSpeed, WindSpeedAdmin, \
+    Substation, SubstationAdmin, \
     ClipRegion, ClipRegionAdmin
 from leaflet.admin import LeafletGeoAdmin
 
@@ -19,4 +20,5 @@ admin.site.register(UserID, UserIDAdmin)
 admin.site.register(Vote, VoteAdmin)
 admin.site.register(Organisation, OrganisationAdmin)
 admin.site.register(WindSpeed, WindSpeedAdmin)
+admin.site.register(Substation, SubstationAdmin)
 admin.site.register(ClipRegion, ClipRegionAdmin)
