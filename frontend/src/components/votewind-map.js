@@ -645,6 +645,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setVotesText('');
         setOrganisation(null);
         setLayersClicked(null);
+        setWindspeed(null);
         deselectActiveItems();
     }
 
@@ -915,18 +916,31 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
 
-                            {(windspeed < 5) 
-                            ? 
-                            <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
-                                <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
-                                <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
-                            </div>
-                            : 
-                            <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
-                                <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
-                                <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
-                            </div>
-                            }
+                            {windspeed && (
+                                <>
+                                {(windspeed < 5) 
+                                ? 
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
+                                            <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                            <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                        Wind speed too low for wind turbine
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                : 
+                                <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
+                                    <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                    <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
+                                </div>
+                                }
+                                </>
+                            )}
 
                             {/* Red circle badge */}
                             {(votesCast !== null) && (
