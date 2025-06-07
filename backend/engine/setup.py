@@ -64,7 +64,7 @@ TRANSFORMER_FROM_27700              = None
 TRANSFORMER_SOURCE_4326             = None
 TRANSFORMER_DEST_27700              = None
 TRANSFORMER_TO_27700                = None
-WINDSPEED_URL                       = 'https://openwindenergy.s3.us-east-1.amazonaws.com/windspeeds-noabl--uk.geojson.zip'
+WINDSPEED_URL                       = 'https://wewantwind.org/static/gis/windspeeds.geojson.zip'
 
 # ***********************************************************
 # ***************** General helper functions ****************
@@ -327,7 +327,7 @@ def main():
         LogMessage("Running osm-export-tool on: " + OSM_EXPORT_CONFIG_SUBSTATIONS + '.yml')
         runSubprocess(['osm-export-tool', OSM_DOWNLOADS_FOLDER + basename(OSM_MAIN_DOWNLOAD), temp_gpkg, "-m", WORKING_FOLDER + OSM_EXPORT_CONFIG_SUBSTATIONS + '.yml'])
 
-        LogMessage("Converting osm-substations to SHP")
+        LogMessage("Converting osm-substations to GeoJSON")
         runSubprocess([ 'ogr2ogr', \
                         "-f", "GeoJSON", \
                         osm_substations, \
@@ -692,6 +692,8 @@ def main():
             for feature in parser:
                 windspeed = feature['properties'].get('windspeed')
                 geometry = GEOSGeometry(json.dumps(feature['geometry'], default=decimal_default), srid=4326)
+                if isinstance(geometry, Polygon):
+                    geometry = MultiPolygon(geometry)
                 WindSpeed.objects.create(windspeed=windspeed, geometry=geometry)
                 count += 1
                 if count % 1000 == 0: LogMessage("Importing wind speed " + str(count))

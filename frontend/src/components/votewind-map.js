@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { Search, Video } from 'lucide-react'
+import { Wind, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [layersClicked, setLayersClicked] = useState(null);
     const [markerDragging, setMarkerDragging] = useState(false);
     const [substation, setSubstation] = useState(null);
+    const [windspeed, setWindspeed] = useState(null);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -334,6 +335,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
 
             setSubstation(data_substation.results);
+
+            const res_windspeed = await fetch(API_BASE_URL + '/api/windspeed', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({position: turbinePosition})
+            });
+
+            if (!res_windspeed.ok) {
+                setError("Unable to retrieve windspeed data");
+                return;
+            }
+
+            const data_windspeed = await res_windspeed.json();
+            setWindspeed(data_windspeed.windspeed);
         }
 
         retrieveTurbinePositionData();
@@ -900,13 +915,26 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
 
+                            {(windspeed < 5) 
+                            ? 
+                            <div className="absolute top-2 left-0 w-20 h-20 border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
+                                <Wind className="w-8 h-8 mb-1 -translate-y-0.5" />
+                                <div className="text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                            </div>
+                            : 
+                            <div className="absolute top-2 left-0 w-20 h-20 border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
+                                <Wind className="w-8 h-8 mb-1 -translate-y-0.5" />
+                                <div className="text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                            </div>
+                            }
+
                             {/* Red circle badge */}
                             {(votesCast !== null) && (
 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-red-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
+                                    <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-green-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
                                         {votesCast}
                                     </div>
                                 </TooltipTrigger>
