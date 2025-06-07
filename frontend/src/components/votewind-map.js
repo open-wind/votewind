@@ -19,6 +19,7 @@ import AutocompleteInput from './autocomplete-input';
 import PlanningConstraints from './planningconstraints';
 import PercentageSlider from "@/components/percentage-slider";
 import SessionInstructionPopup from '@/components/session-instruction-popup';
+import PulsingSubstationMarker from '@/components/pulsing-substation';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point as turfPoint } from '@turf/helpers';
 import { 
@@ -803,7 +804,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     return (
     <main className="flex justify-center items-center w-screen h-screen">
 
-        <SessionInstructionPopup />
+        {(!turbineAtCentre) && 
+        (<SessionInstructionPopup />)
+        }
 
         {processing && (
         <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
@@ -1333,6 +1336,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 )}
 
             </Map>
+
+        {mapRef.current?.getMap() && (substation) && (
+        <PulsingSubstationMarker
+            map={mapRef.current?.getMap()}
+            longitude={substation.position.longitude}
+            latitude={substation.position.latitude}
+        />
+        )}
 
         {/* Cesium viewer */}
         {(turbinePosition !== null) && (
