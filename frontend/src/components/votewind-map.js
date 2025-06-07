@@ -647,6 +647,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setOrganisation(null);
         setLayersClicked(null);
         setWindspeed(null);
+        setSubstation(null);
         deselectActiveItems();
     }
 

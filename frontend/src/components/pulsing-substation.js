@@ -42,12 +42,15 @@ export default function PulsingSubstationMarker({ map, longitude, latitude }) {
 
     // Inject keyframes
     const style = document.createElement('style');
+    const animName = `pulse-${Math.random().toString(36).substr(2, 5)}`;
+    ring.style.animation = `${animName} 1.5s infinite ease-in-out`;
+
     style.innerHTML = `
-      @keyframes pulse {
+    @keyframes ${animName} {
         0% { transform: scale(1); opacity: 0.5; }
         50% { transform: scale(1.8); opacity: 0; }
         100% { transform: scale(1); opacity: 0.5; }
-      }
+    }
     `;
     document.head.appendChild(style);
 
