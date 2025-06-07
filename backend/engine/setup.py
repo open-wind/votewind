@@ -339,6 +339,7 @@ def main():
     if substations.count() == 0:
         clip_region = ClipRegion.objects.first()  # Assuming only one row
         onshore_geom = clip_region.geometry
+        onshore_geom_prepared = onshore_geom.prepared
         count, output_features = 0, []
         with open(osm_substations, 'rb') as f:
             parser = ijson.items(f, 'features.item')  # Streams each feature one at a time
@@ -349,7 +350,7 @@ def main():
                 substation = feature['properties'].get('substation')
                 power = feature['properties'].get('power')    
                 geometry = GEOSGeometry(json.dumps(feature['geometry'], default=decimal_default), srid=4326)
-                is_onshore = onshore_geom.contains(geometry.centroid if geometry.geom_type != 'Point' else geometry)
+                is_onshore = onshore_geom_prepared.contains(geometry.centroid if geometry.geom_type != 'Point' else geometry)
                 if not is_onshore: continue 
                 Substation.objects.create(name=name, operator=operator, voltage=voltage, substation=substation, power=power, geometry=geometry)
                 if geometry.geom_type != 'Point': geometry = geometry.centroid  # Convert polygon/line to point

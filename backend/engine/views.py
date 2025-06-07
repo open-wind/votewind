@@ -355,6 +355,7 @@ def GetSubstation(request):
     position = Point(longitude, latitude, srid=4326)
     nearest_substation = (
         Substation.objects
+        .exclude(substation='traction')
         .annotate(distance=Distance('geometry', position))
         .order_by('distance')
         .first()

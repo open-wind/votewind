@@ -23,7 +23,8 @@
     },
     "minzoom": 11,
     "maxzoom": 24,
-    "circle-sort-key": 0
+    "circle-sort-key": 0,
+    "filter": ["!=", ["get", "substation"], "traction"]
   },
   {
     "id": "osm-substations-circle",
@@ -55,6 +56,7 @@
     },
     "minzoom": 11,
     "maxzoom": 24,
-    "circle-sort-key": 1
+    "circle-sort-key": 1,
+    "filter": ["!=", ["get", "substation"], "traction"]
   }
 ]
