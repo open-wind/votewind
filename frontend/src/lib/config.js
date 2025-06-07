@@ -44,11 +44,21 @@ export const MAP_MAXBOUNDS =
     [31.804390, 65.083342]
 ]
 
+// longitude, latitude and zoom to use for 'overview map'
+export const MAP_OVERVIEW_PARAMETERS = {
+  'longitude': -4.25352,
+  'latitude': 56.76272,
+  'zoom': 4.30
+}
+
 // Default map zoom to use - if not place-specific
 export const MAP_DEFAULT_ZOOM = 5;
 
 // Default map zoom to use - if place-specific
 export const MAP_PLACE_ZOOM = 12;
+
+// Min zoom for showing planning constraints
+export const MAP_MINZOOM_CONSTRAINTS = 8;
 
 // Name of cookie that will be set
 export const VOTEWIND_COOKIE = 'votewind-voting-cookie';

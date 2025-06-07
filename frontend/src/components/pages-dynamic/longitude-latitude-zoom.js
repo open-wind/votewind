@@ -33,9 +33,15 @@ export default function LongitudeLatitudeZoomPage({ longitude=null, latitude=nul
     return true;
   }, [searchParams]);
 
+  const style = useMemo(() => {
+    const raw = searchParams.get('style');
+    if (!raw) return null;
+    return raw;
+  }, [searchParams]);
+
   return (
     <div>
-      <VoteWindMap longitude={longitude} latitude={latitude} zoom={zoom} bounds={bounds} type={type} turbineAtCentre={turbineAtCentre} />
+      <VoteWindMap longitude={longitude} latitude={latitude} zoom={zoom} bounds={bounds} type={type} turbineAtCentre={turbineAtCentre} style={style} />
     </div>
   );
 }

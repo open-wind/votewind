@@ -10,6 +10,7 @@ import Leaderboard from '@/components/pages-dynamic/leaderboard';
 import VoteWindMap from '@/components/votewind-map';
 import ConfirmationError from '@/components/pages-dynamic/confirmation-error';
 import NotFound from '@/components/not-found';
+import { MAP_OVERVIEW_PARAMETERS } from '@/lib/config';
 
 export default function ClientRouter() {
   const pathname = usePathname();
@@ -40,7 +41,7 @@ export default function ClientRouter() {
   const isMapRoute = (pathSegments.length === 3) && pathSegments.every(seg => !isNaN(Number(seg)));
   const is3D = (pathSegments.length === 3) && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && (pathSegments[2] === '3d');
   const isVote = (pathSegments.length === 3) && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && (pathSegments[2] === 'vote');
-  const isOverviewMap = (pathSegments.length === 1) && (pathSegments[0] === 'map');
+  const isOverviewMap = (pathSegments.length > 0) && (pathSegments[0] === 'map');
   const isLeaderboard = (pathSegments.length === 1) && (pathSegments[0] === 'leaderboard');
   const isConfirmationError = (pathSegments.length === 1) && (pathSegments[0] === 'confirmationerror');
 
@@ -48,10 +49,13 @@ export default function ClientRouter() {
   if (isMapRoute) return <LongitudeLatitudeZoomPage longitude={pathSegments[0]} latitude={pathSegments[1]} zoom={pathSegments[2]} />;
   if (is3D) return <LongitudeLatitude3DPage longitude={pathSegments[0]} latitude={pathSegments[1]} />;
   if (isVote) return <LongitudeLatitudeVote longitude={pathSegments[0]} latitude={pathSegments[1]} />;
-  if (isOverviewMap) return <VoteWindMap hideInfo={true} type="overview"/>;
   if (isLeaderboard) return <Leaderboard/>;
   if (isConfirmationError) return <ConfirmationError />;
-
+  if (isOverviewMap) {
+    const url = `/${MAP_OVERVIEW_PARAMETERS.longitude}/${MAP_OVERVIEW_PARAMETERS.latitude}/${MAP_OVERVIEW_PARAMETERS.zoom}/?style=overview`;
+    window.history.replaceState(null, '', url)
+  }
+  
   return <NotFound />;
 
 }

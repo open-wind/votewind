@@ -23,7 +23,7 @@ export default function DetailedMap({ subdomain=null, data=null }) {
     const searchParams = useSearchParams();
 
     const padding = {
-        top: 100,
+        top: 300,
         bottom: 100,
         left: isMobile ? 10 : 300,  // For a sidebar
         right: 10

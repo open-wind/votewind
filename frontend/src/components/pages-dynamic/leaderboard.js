@@ -211,7 +211,7 @@ export default function Leaderboard({}) {
                                   )}
                                 </div>
 
-                                <p className="text-sm text-gray-700">
+                                <p className="text-[10px] sm:text-sm text-gray-700">
                                   {feature.properties.confirmed !== 0 && (
                                     <>{feature.properties.confirmed} confirmed vote{(feature.properties.confirmed > 1) && (<>s</>)}</>
                                   )}

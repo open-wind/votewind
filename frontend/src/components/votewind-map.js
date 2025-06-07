@@ -28,6 +28,7 @@ import {
     MAP_MAXBOUNDS, 
     MAP_DEFAULT_ZOOM, 
     MAP_PLACE_ZOOM, 
+    MAP_MINZOOM_CONSTRAINTS,
     API_BASE_URL, 
     TILESERVER_BASEURL,
     LAYERS_ALLCONSTRAINTS, 
@@ -39,7 +40,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
-export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, hideInfo=false, turbineAtCentre=false }) {
+export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, style=null, turbineAtCentre=false }) {
     const router = useRouter();
     const mapRef = useRef();
     const markerRef = useRef();
@@ -50,8 +51,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [initialPosition, setInitialPosition] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude), type: type})
     const [processing, setProcessing] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
-    const [showInfo, setShowInfo] = useState(!hideInfo);
+    const [showInfo, setShowInfo] = useState(!(style === 'overview'));
     const [showCesiumViewer, setShowCesiumViewer] = useState(false);
+    const [showToggleContraints, setShowToggleConstraint] = useState(false);
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
@@ -70,9 +72,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [locating, setLocating] = useState(false);
     const [layersVisible, setLayersVisible] = useState(true);
     const [layersOpacityValue, setLayersOpacityValue] = useState(LAYERS_OPACITY);
-    // const [layersOpacityValue, setLayersOpacityValue] = useState(1);
-
-    const [layersClicked, setLayersClicked] = useState([]);
+    const [layersClicked, setLayersClicked] = useState(null);
+    const [markerDragging, setMarkerDragging] = useState(false);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -155,6 +156,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     type: 'fill',
                     source: layer_id,
                     "source-layer": "latest--other-technical-constraints",
+                    minzoom: MAP_MINZOOM_CONSTRAINTS,
                     paint: {
                         'fill-color': LAYERS_COLOR,
                         'fill-opacity': (LAYERS_OPACITY),
@@ -170,6 +172,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     type: 'fill',
                     source: layer_id,
                     "source-layer": layer_id,
+                    minzoom: MAP_MINZOOM_CONSTRAINTS,
                     paint: {
                         'fill-color': LAYERS_COLOR,
                         'fill-opacity': LAYERS_OPACITY,
@@ -209,6 +212,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const popupLayers = ['votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
 
     const onMouseMove = (e) => {
+        if (markerDragging) return;
+
         const feature = e.features?.[0];
         if (!isMobile && feature && popupLayers.includes(feature.layer.id)) {
             var content = '';
@@ -272,6 +277,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         if(!turbineAdded) return;
 
+        // Reset planning constraint layers as these will be set onIdle
+        setLayersClicked(null);
+
         const retrieveContainingBoundaries = async () => {
             const res = await fetch(API_BASE_URL + '/api/containingboundaries', {
                 method: 'POST',
@@ -290,11 +298,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         retrieveContainingBoundaries();
 
-        // Get planning constraints for turbine using a combination of queryRenderedFeatures
+    }, [turbinePosition])
+
+    const onIdle = (e) => {
+        // Planning constraint layers may not be accessible at low zooms so wait until 'idle' 
+        // and get planning constraints for turbine using a combination of queryRenderedFeatures
         // and turfjs booleanPointInPolygon (for better accuracy)
+
+        if(!turbineAdded) return;
 
         const map = mapRef.current?.getMap?.();
         if (!map) return;
+        
+        // Don't derive planning constraints if zoom is too low
+        if (map.getZoom() < MAP_MINZOOM_CONSTRAINTS) return;
 
         const screenPoint = map.project({'lng': turbinePosition.longitude, 'lat': turbinePosition.latitude});
         const features = map.queryRenderedFeatures(screenPoint, { layers: LAYERS_ALLCONSTRAINTS });
@@ -305,9 +322,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             clicked_features.push(formatLayerName(clicked_feature.layer.id));
         }
         setLayersClicked(clicked_features.reverse());
-
-
-    }, [turbinePosition])
+    }
 
     useEffect(() => {
         const map = mapRef.current?.getMap?.();
@@ -388,8 +403,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const latitude = view.latitude.toFixed(5);
         const zoom = view.zoom.toFixed(2)
         var url = `/${longitude}/${latitude}/${zoom}`;
-        if (turbineAdded) url += '?selectturbine=true';
-        window.history.replaceState(null, '', url)
+        const params = new URLSearchParams();
+        if (turbineAdded) params.set('selectturbine', 'true');
+        if (style) params.set('style', style);
+        const query = params.toString();
+        if (query) url += `?${query}`;
+        window.history.replaceState(null, '', url);
     }, 300);
 
     const onMoveEnd = (e) => {
@@ -400,12 +419,23 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
     }
 
+    const onZoom = (e) => {
+        const currentZoom = e.target.getZoom();
+        const showConstraintsNewState = (currentZoom >= MAP_MINZOOM_CONSTRAINTS);
+        if (showToggleContraints != showConstraintsNewState) setShowToggleConstraint(showConstraintsNewState);
+    }
+
     const toastOnshoreOnly = () => {
         toast.dismiss();
         toast.error('Onshore wind only');
     }
 
+    const onTurbineMarkerDragStart = (event) => {
+        setMarkerDragging(true);
+    }
+
     const onTurbineMarkerDragEnd = (event) => {
+        setMarkerDragging(false);
         var acceptableposition = true;
         const lngLat = event.lngLat;
         const map = mapRef.current?.getMap?.();
@@ -540,6 +570,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setVotesCast(null);
         setVotesText('');
         setOrganisation(null);
+        setLayersClicked(null);
         deselectActiveItems();
     }
 
@@ -840,10 +871,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
                             </p>
 
-                            {containingAreas && (
-                            <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
-                            ? <i>No planning constraints found</i>
-                            : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                            {layersClicked && (
+                                <>
+                                {containingAreas && (
+                                <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
+                                ? <i>No planning constraints found</i>
+                                : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                                )}
+                                </>
                             )}
 
                             <div className="mt-1 hidden sm:block">
@@ -972,6 +1007,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <div className="absolute left-2 sm:left-4 top-[30%] xl:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
+                {showToggleContraints && (
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
@@ -991,6 +1027,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
+                )}
 
                 <TooltipProvider>
                     <Tooltip>
@@ -1078,7 +1115,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         />
                     </div>
 
-                    {layersVisible ? 
+                    {(layersVisible && showToggleContraints) && ( 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
@@ -1093,7 +1130,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    : null}
+                    )}
 
                 </div>
             </div>
@@ -1109,6 +1146,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 initialViewState={initialViewState}
                 onLoad={onLoad}
                 onMoveEnd={onMoveEnd}
+                onIdle={onIdle}
+                onZoom={onZoom}
                 onClick={onClick}
                 style={{ width: '100%', height: '100%' }}
                 interactiveLayerIds={[
@@ -1134,7 +1173,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 >
 
                 {(turbineAdded && displayTurbine) ? (
-                <Marker onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
+                <Marker onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                 </Marker>
                 ) : null}
