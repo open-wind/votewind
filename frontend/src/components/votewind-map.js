@@ -1178,14 +1178,19 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipTrigger asChild>
                         <button
                         onClick={toggleWindspeeds}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) && ("bg-blue-100")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
                         >
                             {showWindspeeds ? (
                                 <Wind className="w-6 h-6" />
                             ) : (
-                                <div className="relative w-6 h-6">
-                                <Wind className="w-6 h-6 text-gray-400" />
-                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-700 rotate-[-45deg] origin-center"></div>
+                                <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
+                                    <Wind className="w-4 h-4 text-gray-400 relative top-[1px]" />
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="w-[150%] h-[4px] bg-white rotate-45"></div>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="w-[150%] h-[1.5px] bg-gray-400 rotate-45"></div>
+                                    </div>
                                 </div>
                             )}
 
