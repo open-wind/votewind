@@ -50,7 +50,8 @@ export default function LayerTogglePanel({ map }) {
     // Add updated source
     map.addSource(sourceId, {
       type: 'vector',
-      url: newUrl
+      url: newUrl,
+      attribution: "Source data copyright of multiple organisations. For all data sources, see <a href=\"https://data.openwind.energy\" target=\"_blank\">data.openwind.energy</a>"
     });
 
     // Add the layer back with its old configuration
@@ -140,7 +141,7 @@ export default function LayerTogglePanel({ map }) {
 
       {isOpen && (
       <>
-      <div className="flex items-center space-x-2 mt-4">
+      <div className="flex items-center space-x-2 mt-4 text-[0.9em] md:text-xs font-condensed">
         <span>Turbine Height to Tip: <strong>{selectedHeight ? `${selectedHeight}m` : "None"}</strong></span>
 
           <TooltipProvider>

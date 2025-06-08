@@ -26,6 +26,11 @@
       "type": "vector",
       "url": "/data/osm-substations-wind.json"
     },
+    "windspeed": {
+      "type": "vector",
+      "url": "/data/windspeed.json",
+      "attribution": "Estimated average wind speeds from NOABL Wind Speed Database © Department for Business, Enterprise & Regulatory Reform 1996"
+    },
     "attribution": {
       "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>",
       "type": "vector"

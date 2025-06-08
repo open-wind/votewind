@@ -13,7 +13,7 @@ import { Wind, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/components/functions/helpers"
+import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
 import AutocompleteInput from './autocomplete-input';
 import PlanningConstraints from './planningconstraints';
@@ -78,6 +78,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [markerDragging, setMarkerDragging] = useState(false);
     const [substation, setSubstation] = useState(null);
     const [windspeed, setWindspeed] = useState(null);
+    const [showWindspeeds, setShowWindspeeds] = useState(false);
+    const [positionWindspeed, setPositionWindspeed] = useState(null);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -204,6 +206,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (constraint_layer_style) newjson['layers'].push(constraint_layer_style);
         }
 
+        // Add windspeed stylesheet
+        var windspeed_style = require('./stylesheets/windspeed.json');
+        for (let i = 0; i < windspeed_style.length; i++) newjson['layers'].push(windspeed_style[i]);
+
         // Add substations stylesheet
         var substations_style = require('./stylesheets/substations.json');
         for (let i = 0; i < substations_style.length; i++) newjson['layers'].push(substations_style[i]);
@@ -264,7 +270,35 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             });
         } else {
             setPopupInfo(null);
+
+            if (!showWindspeeds) return;
+            const map = mapRef.current?.getMap?.();
+            if (map) {
+                const features = map.queryRenderedFeatures(e.point, {layers: ['windspeed']});
+                if (features.length > 0) {
+                    const speed = features[0].properties.DN;
+                    if (markerDragging) {
+                        setPositionWindspeed(null);
+                    } else {
+                        setPositionWindspeed((parseFloat(speed) / 10).toFixed(1));
+                    }
+                } else {
+                    setPositionWindspeed(null);
+                }
+            }
+
         }
+    }
+
+    const toggleWindspeeds = () => {
+        const map = mapRef.current?.getMap();
+        if (!map) return;
+        const new_windspeed_visibility = (!showWindspeeds) ? 'visible' : 'none';
+        if (map.getLayer('windspeed')) {
+            map.setLayoutProperty('windspeed', 'visibility', new_windspeed_visibility);
+        }
+
+        setShowWindspeeds(!showWindspeeds);
     }
 
     const toggleLayersVisibility = () => {
@@ -920,14 +954,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
 
-                            {windspeed && (
+                            {(windspeed !== undefined) && (
                                 <>
                                 {(windspeed < 5) 
                                 ? 
                                 <TooltipProvider>
                                     <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg">
+                                        <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
                                             <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                             <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
                                         </div>
@@ -941,7 +975,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <TooltipProvider>
                                     <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div className="absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-blue-100 text-blue-700 flex flex-col items-center justify-center shadow-lg">
+                                        <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
                                             <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                             <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
                                         </div>
@@ -1139,6 +1173,36 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <div className="absolute left-2 sm:left-4 top-[30%] xl:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleWindspeeds}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) && ("bg-blue-100")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showWindspeeds ? (
+                                <Wind className="w-6 h-6" />
+                            ) : (
+                                <div className="relative w-6 h-6">
+                                <Wind className="w-6 h-6 text-gray-400" />
+                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-700 rotate-[-45deg] origin-center"></div>
+                                </div>
+                            )}
+
+                            {showWindspeeds && positionWindspeed && (
+                            <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
+                                <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
+                            </div>
+                            )}
+
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
                 {showToggleContraints && (
                 <TooltipProvider>
                     <Tooltip>
@@ -1205,7 +1269,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </Tooltip>
                 </TooltipProvider>
                 ) : null}
-            </div>
+                </div>
             </div>
   
             {!turbineAdded && showInfo && (organisation === null) && (

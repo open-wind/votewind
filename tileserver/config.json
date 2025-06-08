@@ -54,6 +54,9 @@
         "osm-substations-wind": {
             "mbtiles": "osm-substations-wind.mbtiles"
         },
+        "windspeed": {
+            "mbtiles": "windspeed.mbtiles"
+        },
         "openmaptiles": {
             "mbtiles": "united-kingdom-latest.mbtiles"
         },
