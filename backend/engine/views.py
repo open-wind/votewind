@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 import requests
+from urllib.parse import urlparse
 from time import sleep
 from osgeo import gdal, osr, ogr
 from turfpy.misc import line_arc
@@ -739,7 +740,12 @@ def CesiumJIT(request):
     """
 
     origin = request.headers.get("Origin")
-    
+    parsed = urlparse(origin)
+    hostname = parsed.hostname
+    scheme = parsed.scheme
+    base_domain = '.'.join(hostname.split('.')[-2:])
+    origin = f"{scheme}://{base_domain}"
+
     if origin not in settings.CESIUM_ALLOWED_ORIGINS:
         return HttpResponseForbidden("Unauthorized origin")
 
