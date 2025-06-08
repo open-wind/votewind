@@ -11,6 +11,8 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import Image from "next/image";
 import { Wind, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
 import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
@@ -80,7 +82,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [windspeed, setWindspeed] = useState(null);
     const [showWindspeeds, setShowWindspeeds] = useState(false);
     const [positionWindspeed, setPositionWindspeed] = useState(null);
-
+    const [showViewshed, setShowViewshed] = useState(false);
+    
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     const popupLayers = ['osm-substations-circle', 'votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
@@ -214,6 +217,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         var substations_style = require('./stylesheets/substations.json');
         for (let i = 0; i < substations_style.length; i++) newjson['layers'].push(substations_style[i]);
 
+        // Add viewshed stylesheet
+        var viewshed_style = require('./stylesheets/viewshed.json');
+        for (let i = 0; i < viewshed_style.length; i++) newjson['layers'].push(viewshed_style[i]);
+
         // Add voting stylesheet
         var votes_style = require('./stylesheets/votes.json');
         for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
@@ -299,6 +306,24 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
 
         setShowWindspeeds(!showWindspeeds);
+    }
+
+    const clearViewshed = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return
+        map.getSource('viewshed').setData({type: 'FeatureCollection', features: []});
+    }
+
+    const toggleViewshed = () => {
+        // Switch off layers when activating viewshed
+        if (showViewshed) {
+            clearViewshed();
+            if (!layersVisible) toggleLayersVisibility();
+        } else {
+            setLayersVisible(false);
+            if (layersVisible) toggleLayersVisibility();
+        }
+        setShowViewshed(!showViewshed);
     }
 
     const toggleLayersVisibility = () => {
@@ -389,6 +414,32 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         retrieveTurbinePositionData();
 
     }, [turbinePosition])
+
+    useEffect(() => {
+
+        if(!turbineAdded) return;
+
+        const retrieveViewshed = async () => {
+            const res_viewshed = await fetch(API_BASE_URL + '/api/viewshed', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({longitude: turbinePosition.longitude, latitude: turbinePosition.latitude})
+            });
+
+            if (!res_viewshed.ok) {
+                setError("Unable to retrieve viewshed");
+                return;
+            }
+
+            const data_viewshed = await res_viewshed.json();
+            const map = mapRef.current?.getMap?.();
+            if (!map) return
+            map.getSource('viewshed').setData(data_viewshed);
+        }
+
+        if (showViewshed) retrieveViewshed();
+
+    }, [turbinePosition, showViewshed])
 
     const isPointOnScreen = (map, lng, lat) => {
         const screenPos = map.project([lng, lat]);
@@ -713,7 +764,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (!turbinePosition) return;
         isRecentering.current = true;
-        if (map.getZoom() < MAP_PLACE_ZOOM) {
+        if ((map.getZoom() < MAP_PLACE_ZOOM) && (!showViewshed)) {
             map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
         } else {
             map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
@@ -1209,16 +1260,39 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </Tooltip>
                 </TooltipProvider>
 
+                {turbineAdded && (
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleViewshed}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showViewshed ? (
+                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-600" />
+                            ) : (
+                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
+                            )}
+
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                )}
+
                 {showToggleContraints && (
                 <TooltipProvider>
                     <Tooltip>
                     <TooltipTrigger asChild>
                         <button
                         onClick={toggleLayersVisibility}
-                        className="w-8 h-8 sm:w-10 sm:h-10 p-1 bg-white rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center"
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
                         >
                             {layersVisible ? (
-                                <EyeIcon className="w-5 h-5 text-gray-600" />
+                                <EyeIcon className="w-5 h-5 text-blue-600" />
                             ) : (
                                 <EyeSlashIcon className="w-5 h-5 text-gray-400" />
                             )}

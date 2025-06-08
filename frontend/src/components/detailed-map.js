@@ -6,11 +6,14 @@ import toast, { Toaster } from 'react-hot-toast';
 import debounce from 'lodash.debounce';
 import maplibregl from 'maplibre-gl';
 import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
-import { Wind, SquaresIntersect } from 'lucide-react';
+import { Wind, Video, SquaresIntersect } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point as turfPoint } from '@turf/helpers';
 import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
+import CesiumModal from './cesium-modal';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import LayerTogglePanel from './map-layer-panel';
 import {
@@ -29,8 +32,11 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
     const [showOverlay, setShowOverlay] = useState(true);
     const [showWindspeeds, setShowWindspeeds] = useState(false);
     const [turbinePosition, setTurbinePosition] = useState({longitude: longitude, latitude: latitude});
+    const [turbineAdded, setTurbineAdded] = useState(false);
     const [windspeed, setWindspeed] = useState(null);
     const [positionWindspeed, setPositionWindspeed] = useState(null);
+    const [showCesiumViewer, setShowCesiumViewer] = useState(false);
+    const [showViewshed, setShowViewshed] = useState(false);
 
     const padding = {
         top: 100,
@@ -65,6 +71,10 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
 
     useEffect(() => {
         updateURL();
+
+        if ((!turbinePosition.longitude) || (!turbinePosition.latitude)) setTurbineAdded(false);
+        else setTurbineAdded(true);
+
     }, [turbinePosition]);
 
     useEffect(() => {
@@ -239,6 +249,47 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
         onTurbineMarkerDragEnd(event);
     }
 
+    useEffect(() => {
+
+        if(!turbineAdded) return;
+
+        const retrieveViewshed = async () => {
+            const res_viewshed = await fetch(API_BASE_URL + '/api/viewshed', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({longitude: turbinePosition.longitude, latitude: turbinePosition.latitude})
+            });
+
+            if (!res_viewshed.ok) {
+                setError("Unable to retrieve viewshed");
+                return;
+            }
+
+            const data_viewshed = await res_viewshed.json();
+            const map = mapRef.current?.getMap?.();
+            if (!map) return
+            map.getSource('viewshed').setData(data_viewshed);
+        }
+
+        if (showViewshed) retrieveViewshed();
+
+    }, [turbinePosition, showViewshed])
+
+    const clearViewshed = () => {
+        const map = mapRef.current?.getMap?.();
+        if (!map) return
+        map.getSource('viewshed').setData({type: 'FeatureCollection', features: []});
+    }
+
+    const toggleViewshed = () => {
+        // Switch off layers when activating viewshed
+        if (showViewshed) {
+            clearViewshed();
+        } 
+        
+        setShowViewshed(!showViewshed);
+    }
+
     const mapStyle = useMemo(() => retrieveMapStyle(), []);
 
     return (
@@ -374,7 +425,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                         )}
 
                         {showWindspeeds && positionWindspeed && (
-                        <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`${windspeed2Classname(positionWindspeed)} absolute top-0 left-0 translate-x-0 sm:translate-x-8 translate-y-9 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                        <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`${windspeed2Classname(positionWindspeed)} absolute top-0 left-0 -translate-x-3 sm:translate-x-8 translate-y-9 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
                             <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
                         </div>
                         )}
@@ -387,8 +438,55 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                 </Tooltip>
             </TooltipProvider>
 
+            {turbineAdded && (
+            <>
+            <TooltipProvider>
+                <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                    onClick={() => setShowCesiumViewer(true)} 
+                    className={`${showWindspeeds && ("mt-6 sm:mt-3")} w-8 h-8 sm:w-10 sm:h-10 p-1 text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                    >
+                        <Video className="w-6 h-6 fill-current text-blue-700" />
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                    <div>Show 3D visualisation</div>
+                </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                    onClick={toggleViewshed}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                    >
+                        {showViewshed ? (
+                            <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-600" />
+                        ) : (
+                            <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
+                        )}
+
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                    {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
+                </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            </>
+            )}
+
             </div>
+
         </div>
+
+        {/* Cesium viewer */}
+        {turbineAdded && (
+        <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
+        )}
 
     </main>
     )

@@ -12,7 +12,19 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "/data/openmaptiles.json"
+      "url": "/data/openmaptiles.json",
+      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+    },
+    "hillshadeSource": {
+      "type": "raster-dem",
+      "tiles": [
+          "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+      ],
+      "minzoom": 12,
+      "maxzoom": 15,
+      "tileSize": 256,
+      "encoding": "terrarium",
+      "attribution": "United Kingdom terrain data © Environment Agency copyright and/or database right 2015. All rights reserved"
     },
     "votes": {
       "type": "geojson",
@@ -31,9 +43,12 @@
       "url": "/data/windspeed.json",
       "attribution": "Estimated average wind speeds from NOABL Wind Speed Database © Department for Business, Enterprise & Regulatory Reform 1996"
     },
-    "attribution": {
-      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>",
-      "type": "vector"
+    "viewshed": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection", 
+        "features": []
+      }
     }
   },
   "glyphs":"/fonts/{fontstack}/{range}.pbf",
@@ -1393,6 +1408,14 @@
         ]
       ]
     },
+    {
+        "id": "hills",
+        "minzoom": 13,
+        "type": "hillshade",
+        "source": "hillshadeSource",
+        "layout": { "visibility": "visible" },
+        "paint": { "hillshade-shadow-color": "black" }
+    }, 
     {
       "id": "tunnel_motorway_link_casing",
       "type": "line",
