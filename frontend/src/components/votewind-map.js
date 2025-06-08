@@ -409,11 +409,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         // and get planning constraints for turbine using a combination of queryRenderedFeatures
         // and turfjs booleanPointInPolygon (for better accuracy)
 
-        if(!turbineAdded) return;
-
         const map = mapRef.current?.getMap?.();
         if (!map) return;
-        
+
+        checkZoom(map);
+
+        if(!turbineAdded) return;
+
         // Don't derive planning constraints if zoom is too low
         if (map.getZoom() < MAP_MINZOOM_CONSTRAINTS) return;
         
@@ -528,10 +530,15 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
     }
 
-    const onZoom = (e) => {
-        const currentZoom = e.target.getZoom();
+    const checkZoom = (map) => {
+        if (!map) return;
+        const currentZoom = map.getZoom();
         const showConstraintsNewState = (currentZoom >= MAP_MINZOOM_CONSTRAINTS);
         if (showToggleContraints != showConstraintsNewState) setShowToggleConstraint(showConstraintsNewState);
+
+    }
+    const onZoom = (e) => {
+        checkZoom(e.target);
     }
 
     const toastOnshoreOnly = () => {
