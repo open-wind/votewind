@@ -49,8 +49,6 @@ export default function Default() {
   }, [searchParams]);
 
   const getSubdomain = () => {
-    return 'east-sussex';
-
     const host = window.location.hostname;
     const parts = host.split('.');
     if (parts.length > 2) {
