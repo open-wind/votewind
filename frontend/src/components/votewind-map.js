@@ -1184,13 +1184,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <Wind className="w-6 h-6" />
                             ) : (
                                 <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
-                                    <Wind className="w-4 h-4 text-gray-400 relative top-[1px]" />
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="w-[150%] h-[4px] bg-white rotate-45"></div>
-                                    </div>
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="w-[150%] h-[1.5px] bg-gray-400 rotate-45"></div>
-                                    </div>
+                                    <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                                 </div>
                             )}
 
