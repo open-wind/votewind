@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+import debounce from 'lodash.debounce';
 import maplibregl from 'maplibre-gl';
 import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
 import { SquaresIntersect, SquaresIn } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { point as turfPoint } from '@turf/helpers';
 import { useIsMobile } from "@/components/functions/helpers"
 import 'maplibre-gl/dist/maplibre-gl.css';
 import LayerTogglePanel from './map-layer-panel';
@@ -14,16 +17,16 @@ import { TILESERVER_BASEURL, APP_BASE_URL } from '@/lib/config';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
-export default function DetailedMap({ subdomain=null, data=null }) {
+export default function DetailedMap({ longitude=null, latitude=null, subdomain=null, data=null }) {
     const mapRef = useRef();
     const isMobile = useIsMobile();
     const [mapInstance, setMapInstance] = useState(null);
     const [mapReady, setMapReady] = useState(false);
     const [showOverlay, setShowOverlay] = useState(true);
-    const searchParams = useSearchParams();
+    const [turbinePosition, setTurbinePosition] = useState({longitude: longitude, latitude: latitude});
 
     const padding = {
-        top: 300,
+        top: 100,
         bottom: 100,
         left: isMobile ? 10 : 300,  // For a sidebar
         right: 10
@@ -41,17 +44,22 @@ export default function DetailedMap({ subdomain=null, data=null }) {
         ];
     }
 
-    const longitude = useMemo(() => {
-        const raw = searchParams.get('longitude');
-        if (!raw) return null;
-        return parseFloat(raw);
-    }, [searchParams]);
+    const updateURL = debounce(() => {
+        if ((!turbinePosition.longitude) || (!turbinePosition.latitude)) return;
+        const longitude = turbinePosition.longitude.toFixed(5);
+        const latitude = turbinePosition.latitude.toFixed(5);
+        const params = new URLSearchParams();
+        params.set('longitude', longitude);
+        params.set('latitude', latitude);
+        const query = params.toString();
+        if (query) window.history.replaceState(null, '', `/?${query}`);
+    }, 300);
 
-    const latitude = useMemo(() => {
-        const raw = searchParams.get('latitude');
-        if (!raw) return null;
-        return parseFloat(raw);
-    }, [searchParams]);
+    useEffect(() => {
+        updateURL();
+
+
+    }, [turbinePosition]);
 
     useEffect(() => {
         if (!mapInstance || typeof mapInstance.setMaxBounds !== 'function') return;
@@ -129,10 +137,42 @@ export default function DetailedMap({ subdomain=null, data=null }) {
         setShowOverlay(!showOverlay);
     }
 
+    const toastOnshoreOnly = () => {
+        toast.dismiss();
+        toast.error('Onshore wind only');
+    }
+
+    const onTurbineMarkerDragEnd = (event) => {
+        var acceptableposition = true;
+        const lngLat = event.lngLat;
+        const map = mapRef.current?.getMap?.();
+        if (map) {
+            const point = map.project(lngLat);
+            const features_initial = map.queryRenderedFeatures(point);
+            const features = features_initial.filter((feature) => booleanPointInPolygon(turfPoint([lngLat.lng, lngLat.lat]), feature));
+            if (features.length > 0) {
+                for (const feature of features) {
+                    if (feature['sourceLayer'] === 'water') {
+                        acceptableposition = false;
+                        toastOnshoreOnly();
+                    }
+                    if (['osm-boundaries-overlays', 'mask-global'].includes(feature['sourceLayer'])) acceptableposition = false;
+                }
+            }
+        }
+
+        if (acceptableposition) {
+            setTurbinePosition({'longitude': lngLat.lng, 'latitude': lngLat.lat});
+        }
+        else setTurbinePosition({'longitude': turbinePosition.longitude, 'latitude': turbinePosition.latitude});
+    }
+
     const mapStyle = useMemo(() => retrieveMapStyle(), []);
 
     return (
     <main className={`flex justify-center items-center w-screen h-screen`}>
+
+        <Toaster position="top-center" containerStyle={{top: 50}}/>
 
         {!mapReady && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white">
@@ -150,6 +190,8 @@ export default function DetailedMap({ subdomain=null, data=null }) {
             mapStyle={mapStyle}
             onLoad={onLoad}
             style={{ width: '100%', height: '100%' }}
+            interactiveLayerIds={[
+                'water' ]}
             attributionControl={false}
             >
             <AttributionControl compact position="bottom-right" style={{ right: isMobile ? 4 : 20}}/>
@@ -159,7 +201,7 @@ export default function DetailedMap({ subdomain=null, data=null }) {
             )}
 
             {((longitude !== null) && (latitude !== null)) && (
-                <Marker title="Click to cast vote for this position" longitude={longitude.toFixed(5)} latitude={latitude.toFixed(5)} draggable={false} anchor="bottom" offset={[0, 0]}>
+                <Marker title="Click to cast vote for this position" onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude.toFixed(5)} latitude={turbinePosition.latitude.toFixed(5)} draggable={true} anchor="bottom" offset={[0, 0]}>
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>

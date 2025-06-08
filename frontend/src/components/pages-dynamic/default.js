@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Home from "@/components/home";
 import DetailedMap from "@/components/detailed-map";
 import { API_BASE_URL } from '@/lib/config';
@@ -8,6 +9,7 @@ import { API_BASE_URL } from '@/lib/config';
 export const dynamic = 'force-static';
 
 export default function Default() {
+  const searchParams = useSearchParams();
   const [isReady, setIsReady] = useState(false);
   const [data, setData] = useState(null);
   const [subdomain, setSubdomain] = useState(null);
@@ -34,7 +36,21 @@ export default function Default() {
     );
   }, []);
 
+  const longitude = useMemo(() => {
+      const raw = searchParams.get('longitude');
+      if (!raw) return null;
+      return parseFloat(raw);
+  }, [searchParams]);
+
+  const latitude = useMemo(() => {
+      const raw = searchParams.get('latitude');
+      if (!raw) return null;
+      return parseFloat(raw);
+  }, [searchParams]);
+
   const getSubdomain = () => {
+    return 'east-sussex';
+
     const host = window.location.hostname;
     const parts = host.split('.');
     if (parts.length > 2) {
@@ -46,7 +62,7 @@ export default function Default() {
   if (!isReady) return null;
 
   return subdomain !== null
-  ? <DetailedMap subdomain={subdomain} data={data} />
+  ? <DetailedMap longitude={longitude} latitude={latitude} subdomain={subdomain} data={data} />
   : <Home />;
 
 }
