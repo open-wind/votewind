@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right {
     z-index: 0!important;
 }

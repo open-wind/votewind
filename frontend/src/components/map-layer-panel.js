@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChevronRight, ChevronDown, Settings } from 'lucide-react';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/components/functions/helpers"
 import { TurbineHeightModal } from '@/components/turbineheight-modal';
@@ -9,8 +10,10 @@ export default function LayerTogglePanel({ map }) {
   const [layerGroups, setLayerGroups] = useState([]);
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
+  const [layersVisible, setLayersVisible] = useState(true);
   const [selectedHeight, setSelectedHeight] = useState(TURBINE_HEIGHTTOTIP_DEFAULT);
   const [modalOpen, setModalOpen] = useState(false);
+  const [savedLayersVisible, setSavedLayersVisible] = useState([]);
 
   const desiredColorOrder = [
     'darkgrey',
@@ -128,15 +131,67 @@ export default function LayerTogglePanel({ map }) {
     );
   };
 
+  const saveAndClearAllLayersVisibility = () => {
+    // Save current visibility state for all layers prefixed 'latest--' and makes visible layers invisible 
+    const visibilityStates = [];
+    const layers = map.getStyle().layers;
+    const prefix = 'latest--';
+    layers.forEach(layer => {
+      if (layer.id.startsWith(prefix)) {
+        const visibility = map.getLayoutProperty(layer.id, "visibility") || "visible";
+        if (visibility === 'visible') {
+          visibilityStates.push(layer.id);
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+      }
+    });
+
+    setSavedLayersVisible(visibilityStates);
+  }
+
+  const loadAllLayersVisibility = () => {
+    // Loads saved visibility state for all layers prefixed 'latest--'
+    for(const layer_id of savedLayersVisible) {
+      map.setLayoutProperty(layer_id, 'visibility', 'visible');
+    }
+  }
+
+  const toggleAllLayersVisibility = () => {
+    if (layersVisible) saveAndClearAllLayersVisibility();
+    else loadAllLayersVisibility();
+    setLayersVisible(!layersVisible);
+  }
+
   return (
   <>
   <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/100 rounded-lg shadow-md p-2 sm:p-3 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
    
-      <div onClick={() => setIsOpen(prev => !prev)} className="flex items-center justify-between mb-0 cursor-pointer">
+      <div className="flex items-center justify-between mb-0 cursor-pointer">
+        <TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+            <button onClick={toggleAllLayersVisibility} className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle visibility">
+              {layersVisible ? <EyeIcon className="w-4 h-4 text-blue-600" /> : <EyeSlashIcon className="w-4 h-4 text-gray-400" />}
+            </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+              {layersVisible ? "Disable constraint layers" : "Enable constraint layers"}
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
         <h4 className="text-sm font-semibold">Wind Constraints</h4>
-        <button className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle layer panel">
-          {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
+        <TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+            <button onClick={() => setIsOpen(prev => !prev)} className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle layer panel">
+              {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+              {isOpen ? "Collapse constraint layers" : "Expand constraint layers"}
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
       </div>
 
       {isOpen && (
@@ -164,7 +219,7 @@ export default function LayerTogglePanel({ map }) {
       </div>
 
       {layerGroups.map(group => (
-        <div key={group.color}>
+        <div key={group.color} className={`${!layersVisible && "disabled"}`}>
           {group.layers.map((layer, idx) => {
             const cleanName = layer.id
               .replace(/^latest--/, '')
