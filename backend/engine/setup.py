@@ -528,7 +528,8 @@ def main():
     if not isfile(OSM_BOUNDARIES_OVERLAYS):
         LogMessage("Creating overlays GeoJSON")
 
-        uk_bbox = Polygon.from_bbox((-10.0, 48.9, 3.0, 61.8))
+        # uk_bbox = Polygon.from_bbox((-10.0, 48.9, 3.0, 61.8))
+        uk_bbox = Polygon.from_bbox((-11.0, 47.8, 17.0, 61.8))
         europe_extended = Polygon.from_bbox((-45, 39, 38, 65))
         world = Polygon.from_bbox((-180.0, -90.0, 180.0, 90.0))
         features = []
