@@ -13290,6 +13290,81 @@
             }
         },
         {
+            "id": "osm-boundaries-overlays-line-shadow-1",
+            "type": "line",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "paint": {
+                "line-color": "#000000",
+                "line-opacity": 0.3,
+                "line-width": 1,
+                "line-offset": 1
+            },
+            "layout": {
+                "visibility": "visible"
+            }
+        },
+        {
+            "id": "osm-boundaries-overlays-line-shadow-2",
+            "type": "line",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "paint": {
+                "line-color": "#000000",
+                "line-opacity": 0.25,
+                "line-width": 1,
+                "line-offset": 2
+            },
+            "layout": {
+                "visibility": "visible"
+            }
+        },
+        {
+            "id": "osm-boundaries-overlays-line-shadow-3",
+            "type": "line",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "paint": {
+                "line-color": "#000000",
+                "line-opacity": 0.2,
+                "line-width": 1,
+                "line-offset": 3
+            },
+            "layout": {
+                "visibility": "visible"
+            }
+        },
+        {
+            "id": "osm-boundaries-overlays-line-shadow-4",
+            "type": "line",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "paint": {
+                "line-color": "#000000",
+                "line-opacity": 0.15,
+                "line-width": 1,
+                "line-offset": 4
+            },
+            "layout": {
+                "visibility": "visible"
+            }
+        },
+        {
+            "id": "osm-boundaries-overlays-line-shadow-5",
+            "type": "line",
+            "source": "osm-boundaries-overlays",
+            "source-layer": "osm-boundaries-overlays",
+            "paint": {
+                "line-color": "#000000",
+                "line-opacity": 0.1,
+                "line-width": 1,
+                "line-offset": 5
+            },
+            "layout": {
+                "visibility": "visible"
+            }
+        },
+        {
             "id": "osm-boundaries-overlays-line",
             "type": "line",
             "source": "osm-boundaries-overlays",
