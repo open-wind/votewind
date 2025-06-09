@@ -13298,10 +13298,13 @@
                 "line-color": "#000000",
                 "line-opacity": 0.3,
                 "line-width": 1,
-                "line-offset": 1
+                "line-offset": 1,
+                "line-blur": 1
             },
             "layout": {
-                "visibility": "visible"
+                "visibility": "visible",
+                "line-join": "round",
+                "line-round-limit": 10.2 
             }
         },
         {
@@ -13316,7 +13319,9 @@
                 "line-offset": 2
             },
             "layout": {
-                "visibility": "visible"
+                "visibility": "visible",
+                "line-join": "round",
+                "line-round-limit": 10.2 
             }
         },
         {
@@ -13331,7 +13336,9 @@
                 "line-offset": 3
             },
             "layout": {
-                "visibility": "visible"
+                "visibility": "visible",
+                "line-join": "round",
+                "line-round-limit": 10.2 
             }
         },
         {
@@ -13346,7 +13353,9 @@
                 "line-offset": 4
             },
             "layout": {
-                "visibility": "visible"
+                "visibility": "visible",
+                "line-join": "round",
+                "line-round-limit": 10.2 
             }
         },
         {
@@ -13361,7 +13370,9 @@
                 "line-offset": 5
             },
             "layout": {
-                "visibility": "visible"
+                "visibility": "visible",
+                "line-join": "round",
+                "line-round-limit": 10.2 
             }
         },
         {
