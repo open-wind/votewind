@@ -147,7 +147,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
 
         if (showOverlay) {
             map.setPaintProperty('osm-boundaries-overlays-fill', 'fill-opacity', 0.3);
-            map.setPaintProperty('mask-global-fill', 'fill-color', "#bddbe4"); // Sea color plus 0.3 of #f0f0f0
+            map.setPaintProperty('mask-global-fill', 'fill-color', "#b9dde5"); // Sea color plus 0.3 of #f0f0f0
         } else {
             map.setPaintProperty('osm-boundaries-overlays-fill', 'fill-opacity', 1);
             map.setPaintProperty('mask-global-fill', 'fill-color', "#f0f0f0");
