@@ -64,18 +64,20 @@ def LocationSearch(request):
     query_elements = query.split(", ")
     results_returned = {}
 
-    results_returned    = set()
-    results_postcode    = Postcode.objects.filter(search__istartswith=query_postcode).distinct()
-    results_boundary    = Boundary.objects.exclude(name__iendswith='ED').filter(name__istartswith=query).distinct()
+    results_returned        = set()
+    results_postcode        = Postcode.objects.filter(search__istartswith=query_postcode).distinct()
+    results_boundary        = Boundary.objects.exclude(name__iendswith='ED').filter(name__istartswith=query).distinct()
+    results_organisations   = Organisation.objects.filter(name__icontains=query).distinct()
 
     if len(query_elements) == 2:
         results_place = Place.objects.filter(name__iexact=query_elements[0]).filter(county__istartswith=query_elements[1]).distinct()
     else:
         results_place = Place.objects.filter(name__istartswith=query).order_by('name').distinct()
 
-    for result in results_postcode: results_returned.add(result.name)
-    for result in results_place:    results_returned.add(result.name + ", " + result.county)
-    for result in results_boundary: results_returned.add(result.name + ' (Council or County)')
+    for result in results_postcode:         results_returned.add(result.name)
+    for result in results_place:            results_returned.add(result.name + ", " + result.county)
+    for result in results_boundary:         results_returned.add(result.name + ' (Area)')
+    for result in results_organisations:    results_returned.add(result.name + ' (Organisation)')
 
     results_returned = sorted(list(results_returned))
     results_returned = results_returned[:NUMBER_RESULTS_RETURNED]
@@ -103,10 +105,23 @@ def LocationGet(request):
     Retrieves location information for specific location
     """
 
-    query = request.GET.get('query','').strip().replace(' (Council or County)', '')
+    query = request.GET.get('query','').strip().replace(' (Area)', '')
     query_postcode = query.replace(' ', '').upper()
     query_elements = query.split(", ")
     results_returned = {}
+
+    if '(Organisation)' in query:
+        query = query.replace(' (Organisation)', '')
+        results_organisation = Organisation.objects.filter(name=query).first()
+        results_returned = {    'longitude': results_organisation.geometry.coords[0], 
+                                'latitude': results_organisation.geometry.coords[1], 
+                                'type': 'organisation:' + str(results_organisation.pk), 
+                                'properties': { 'id': results_organisation.pk, 
+                                                'name': results_organisation.name, 
+                                                'url': results_organisation.url, 
+                                                'description': results_organisation.description, 
+                                                'logo_url': results_organisation.logo_url }}
+        return OutputJson({'results': results_returned})
 
     if len(query_elements) == 2:
         place, county = query_elements[0], query_elements[1]
@@ -779,6 +794,7 @@ def Organisations(request):
                         'address': organisation.address, \
                         'description': organisation.description, \
                         'url': organisation.url, \
+                        'logo_url': organisation.logo_url, \
                         'lng': organisation.geometry.coords[0], \
                         'lat': organisation.geometry.coords[1] }
         if hasattr(organisation, 'distance'):

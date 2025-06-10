@@ -1,5 +1,6 @@
 'use client';
 
+const querystring = require('querystring');
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import VoteWindMap from '@/components/votewind-map';
@@ -27,6 +28,17 @@ export default function LongitudeLatitudeZoomPage({ longitude=null, latitude=nul
     return raw;
   }, [searchParams]);
 
+  const properties = useMemo(() => {
+    const raw = searchParams.get('properties');
+    if (!raw) return '';
+    var properties = querystring.parse(raw);
+    if (longitude && latitude) {
+      properties.longitude = parseFloat(longitude);
+      properties.latitude = parseFloat(latitude);
+    }
+    return properties;
+  }, [searchParams]);
+
   const turbineAtCentre = useMemo(() => {
     const raw = searchParams.get('selectturbine');
     if (!raw) return '';
@@ -41,7 +53,7 @@ export default function LongitudeLatitudeZoomPage({ longitude=null, latitude=nul
 
   return (
     <div>
-      <VoteWindMap longitude={longitude} latitude={latitude} zoom={zoom} bounds={bounds} type={type} turbineAtCentre={turbineAtCentre} style={style} />
+      <VoteWindMap longitude={longitude} latitude={latitude} zoom={zoom} bounds={bounds} type={type} properties={properties} turbineAtCentre={turbineAtCentre} style={style} />
     </div>
   );
 }

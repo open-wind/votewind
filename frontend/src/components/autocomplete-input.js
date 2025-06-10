@@ -167,7 +167,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   if ((useLocate !== null) && (useLocate)) useLocate = handleUseMyLocation;
   else useLocate = null;
 
-  const navigateToPosition = (position, type) => {
+  const navigateToPosition = (position) => {
     var errortext = `Your location: ${position.latitude.toFixed(5)}, ${position.longitude.toFixed(5)}`;
     var zoom = MAP_PLACE_ZOOM;
     
@@ -182,6 +182,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
     if (position.bounds) urlparameters.bounds = position.bounds.join(',');
     if (position.boundary) urlparameters.boundary = position.boundary;
     if (position.type) urlparameters.type = position.type;
+    if (position.properties) urlparameters.properties = querystring.stringify(position.properties);
 
     if(Object.keys(urlparameters).length) url += '?' + querystring.stringify(urlparameters);
 
@@ -199,6 +200,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   )}
   
   >
+
     <div className="relative w-full">
 
       {/* Actual user input field */}
@@ -255,9 +257,8 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
 
     {/* Input autosuggestions dropdown */}
     {showDropdown && results.length > 0 && (
-
-  <div className="absolute top-full left-0 right-0 mt-1 z-50">
-    <CommandList className="bg-white shadow rounded-md max-h-40 overflow-y-auto">
+    <div className="absolute top-full left-0 right-0 mt-1 z-50">
+      <CommandList className="bg-white shadow rounded-md max-h-40 overflow-y-auto">
 
         {results.map((item) => (
           <CommandItem
@@ -270,8 +271,9 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
           </CommandItem>
         ))}
       </CommandList>
-      </div>
+    </div>
     )}
+
   </Command>
   );
 

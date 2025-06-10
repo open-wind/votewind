@@ -13,6 +13,7 @@ import { Wind, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
+import { UserGroupIcon } from '@heroicons/react/24/solid'; // or `/outline`
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
 import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
@@ -44,7 +45,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
-export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', bounds=null, style=null, turbineAtCentre=false }) {
+export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, type='', properties=null, bounds=null, style=null, turbineAtCentre=false }) {
     const router = useRouter();
     const mapRef = useRef();
     const markerRef = useRef();
@@ -83,7 +84,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showWindspeeds, setShowWindspeeds] = useState(false);
     const [positionWindspeed, setPositionWindspeed] = useState(null);
     const [showViewshed, setShowViewshed] = useState(false);
-    
+    const [showOrganisations, setShowOrganisations] = useState(false);
+
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     const popupLayers = ['osm-substations-circle', 'votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
@@ -247,6 +249,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!isMobile && feature && popupLayers.includes(feature.layer.id)) {
             var content = '';
             var heading = '';
+            var logo = null;
             if (feature.layer.id.startsWith('votes-')) {
                 const votes_confirmed = parseInt(feature.properties.votes_confirmed);
                 const votes_unconfirmed = parseInt(feature.properties.votes_unconfirmed);
@@ -257,6 +260,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (feature.layer.id.startsWith('organisations-')) {
                 heading = 'Community Energy Organisation';
                 content = feature.properties.name;
+                logo = feature.properties.logo_url;
             }
             if (feature.layer.id.startsWith('osm-substations-')) {
                 heading = 'Substation';
@@ -273,7 +277,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             setPopupInfo({
                 lngLat: e.lngLat,
-                properties: {heading: heading, content: content}
+                properties: {heading: heading, content: content, logo: logo}
             });
         } else {
             setPopupInfo(null);
@@ -306,6 +310,19 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
 
         setShowWindspeeds(!showWindspeeds);
+    }
+
+    const toggleOrganisations = () => {
+        const map = mapRef.current?.getMap();
+        if (!map) return;
+        const new_organisations_visibility = (!showOrganisations) ? 'visible' : 'none';
+        map.setLayoutProperty('organisations-halo', 'visibility', new_organisations_visibility);
+        map.setLayoutProperty('organisations-default', 'visibility', new_organisations_visibility);
+        // If making organisations layer visible, hide constraint layers
+        if (!showOrganisations) {
+            if (layersVisible) toggleLayersVisibility();
+        }
+        setShowOrganisations(!showOrganisations);
     }
 
     const clearViewshed = () => {
@@ -557,6 +574,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const defaultStyle = require('./stylesheets/openmaptiles.json');
         const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
         map.setStyle(mapStyle);
+
+        // If search -> organisation, enable organisations layer and select specific organisation
+        if (type && (type.includes('organisation:'))) {
+            toggleOrganisations();
+            selectOrganisation(map, properties.id, properties)
+        }
+
         setMapLoaded(true);
     }
         
@@ -673,6 +697,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return layer_name;
     }
 
+    const selectOrganisation = (map, id, properties) => {
+        map.setFeatureState({ source: 'organisations', id: id },{ selected: true });
+        setOrganisation(properties);
+    }
 
     const onClick = (event) => {
         var acceptableposition = true;
@@ -704,11 +732,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             if (id.startsWith('organisations-')) {
                 const feature_id = event.features[0]['properties']['id'];
                 const map = mapRef.current?.getMap?.();
-                map.setFeatureState({ source: 'organisations', id: feature_id },{ selected: true });
                 isOrganisation = true;
-                setOrganisation(event.features[0]['properties']);
+                var properties = event.features[0]['properties'];
+                properties.longitude = properties.lng;
+                properties.latitude = properties.lat;
+                selectOrganisation(map, feature_id, properties);
             } 
-
         } 
 
         if ((isExistingVote) || (isOrganisation)) setDisplayTurbine(false);
@@ -747,16 +776,28 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         resetSettings();
     }
 
+    const topPadding = 150;
+
+    const resetPadding = (map) => {
+        map.once('moveend', () => {
+            map.jumpTo({
+                center: map.getCenter(), // real visual center after fly
+                zoom: map.getZoom()
+            });
+        });
+    }
+
     const mapCentreOnSubstation = () => {
         const map = mapRef.current?.getMap?.();
         if (!map) return;
         if (!substation) return;
         isRecentering.current = true;
         if (map.getZoom() < MAP_SUBSTATION_ZOOM) {
-            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, zoom: MAP_SUBSTATION_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, zoom: MAP_SUBSTATION_ZOOM, padding: {top: topPadding, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
         } else {
-            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: substation.position.longitude, lat: substation.position.latitude}, padding: {top: topPadding, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
         }
+        resetPadding(map);
     }
 
     const mapCentreOnTurbine = () => {
@@ -765,10 +806,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!turbinePosition) return;
         isRecentering.current = true;
         if ((map.getZoom() < MAP_PLACE_ZOOM) && (!showViewshed)) {
-            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: topPadding, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
         } else {
-            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: 100, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: turbinePosition.longitude, lat: turbinePosition.latitude}, padding: {top: topPadding, bottom: turbineAdded ? window.innerHeight / 3 : 0}});
         }
+        resetPadding(map);
     }
 
     const mapCentreOnOrganisation = () => {
@@ -776,12 +818,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (!map) return;
         if (organisation === null) return;
         isRecentering.current = true;
-
         if (map.getZoom() < MAP_PLACE_ZOOM) {
-            map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, zoom: MAP_PLACE_ZOOM, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: organisation.longitude, lat: organisation.latitude}, zoom: MAP_PLACE_ZOOM, padding: {top: topPadding, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
         } else {
-            map.flyTo({center: {lng: organisation.lng, lat: organisation.lat}, padding: {top: 100, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
+            map.flyTo({center: {lng: organisation.longitude, lat: organisation.latitude}, padding: {top: topPadding, bottom: (organisation !== null) ? window.innerHeight / 3 : 0}});
         }
+        resetPadding(map);
     }
 
     const mapZoomIn = (e) => {
@@ -1012,7 +1054,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
                             />
 
-                            {(windspeed !== undefined) && (
+                            {(windspeed) && (
                                 <>
                                 {(windspeed < 5) 
                                 ? 
@@ -1189,13 +1231,22 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     {/* Content: Icon + Text */}
                     <div className="flex mt-1 sm:mt-0 sm:w-[800px] mx-auto">
 
-                        <div className="flex-shrink-0 w-20 h-20 sm:w-40 sm:h-40 ml-5 sm:mr-10">
+                        <div className="flex-shrink-0 ml-5 sm:mr-0 ">
                             <div className="relative inline-block">
+                            {(organisation.logo_url === '') 
+                            ?
                             <img
                                 src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
-                                alt="Vote"
-                                className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
+                                alt="Organisation"
+                                className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
                             />
+                            :
+                            <img
+                                src={organisation.logo_url}
+                                alt={organisation.name}
+                                className="mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain bg-gray-300 p-4 m-0"
+                            />
+                            }
                             </div>
                         </div>
 
@@ -1228,7 +1279,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             <Toaster position="top-center" containerStyle={{top: 50}}/>
 
             {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[30%] xl:top-1/2 transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+            <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
                 <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
                 <TooltipProvider>
@@ -1256,6 +1307,25 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </TooltipTrigger>
                     <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
                         {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleOrganisations}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showOrganisations 
+                            ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
+                            : <UserGroupIcon className="w-6 h-6 text-gray-400" />
+                            }
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
                     </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -1390,8 +1460,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             placeholder="Postcode or location"
                         />
                     </div>
+                </div>
+            </div>
 
-                    {(layersVisible && showToggleContraints) && ( 
+            {/* Location search autosuggestion input box */}
+            {(layersVisible && showToggleContraints) && ( 
+            <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
+                <div className="relative w-full sm:w-md max-w-md mx-auto">
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
@@ -1406,10 +1481,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    )}
-
                 </div>
             </div>
+            )}
 
             {/* Main map */}
             <Map
@@ -1474,7 +1548,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
                             )
                         ) 
-                        :   <p className="text-[9pt] pt-0 pb-0">{popupInfo.properties.content}</p>
+                        :
+                        <>
+                        {(popupInfo.properties.logo) && (
+                            <img
+                                src={popupInfo.properties.logo}
+                                className="mt-1 mb-1 max-w-[200px] h-auto object-contain bg-gray-300 p-4 m-0"
+                            />
+                        )}
+                        <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
+                        </>
                         }
                     </div>
                 </Popup>

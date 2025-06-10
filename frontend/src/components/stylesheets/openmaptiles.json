@@ -32,7 +32,7 @@
     },
     "organisations": {
       "type": "geojson",
-      "data": "https://votewind.org/organisations/"
+      "data": "http://localhost:8000/organisations/"
     },
     "osm-substations-wind": {
       "type": "vector",

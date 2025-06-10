@@ -6,6 +6,7 @@ from django.contrib.postgres.indexes import GistIndex
 from django.http import HttpResponse
 from django.utils.text import slugify
 from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.utils.html import format_html
 
 # from django.contrib.gis.admin import OSMGeoAdmin
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
@@ -14,6 +15,14 @@ ORGANISATION_TYPE_CHOICES = (
     ("community-energy-group", "Community Energy Group"),
     ("ngo", "National / Regional NGO"),
     ("electricity", "Elecricity Company"),
+)
+
+ORGANISATION_SOURCE_CHOICES = (
+    ("google", "Google"),
+    ("transition-network", "Transition Network"),
+    ("community-energy-england", "Community Energy England"),
+    ("community-energy-scotland", "Community Energy Scotland"),
+    ("community-energy-wales", "Community Energy Wales"),
 )
 
 class ExportCsvMixin:
@@ -376,34 +385,47 @@ class Organisation(models.Model):
 
     name = models.CharField(max_length=1000, default='', blank=True)
     type = models.CharField(max_length=50, choices=ORGANISATION_TYPE_CHOICES, default="community-energy-group")
+    source = models.CharField(max_length=50, choices=ORGANISATION_SOURCE_CHOICES, default="google")
     email = models.CharField(max_length=200, default='', blank=True)
     address = models.TextField(default='', blank=True)
+    postcode = models.CharField(max_length=60, default='', blank=True)
     description = models.TextField(default='', blank=True)
     url = models.CharField(max_length=1000, default='', blank=True)
+    logo_url = models.CharField(max_length=1000, default='', blank=True)
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    def logo_preview(self):
+        if self.logo_url:
+            return format_html('<img src="{}" style="height:40px;" />', self.logo_url)
+        return "No logo"
+    logo_preview.short_description = "Logo"
+    logo_preview.allow_tags = True
 
     class Meta:
         ordering = ('type', 'name')
         indexes = [
             models.Index(fields=['name',]),
             models.Index(fields=['type',]),
+            models.Index(fields=['source',]),
             models.Index(fields=['email',]),
             models.Index(fields=['url',]),
             GistIndex(fields=['geometry']),
         ]
 
 class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
-    list_display = ['name', 'type', 'email', 'url', 'created']
+    list_display = ['name', 'type', 'source', 'email', 'url', 'logo_preview', 'logo_url', 'created']
     actions = ["export_as_csv", "export_unique_emails_as_csv"]
 
     list_filter = (
         'type',
+        'source'
     )
 
     search_fields = (
         'name',
         'type',
+        'source',
         'email',
         'description',
         'url'

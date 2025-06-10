@@ -7,7 +7,6 @@ import LongitudeLatitudeZoomPage from '@/components/pages-dynamic/longitude-lati
 import LongitudeLatitude3DPage from '@/components/pages-dynamic/longitude-latitude-3d';
 import LongitudeLatitudeVote from '@/components/pages-dynamic/longitude-latitude-vote';
 import Leaderboard from '@/components/pages-dynamic/leaderboard';
-import VoteWindMap from '@/components/votewind-map';
 import ConfirmationError from '@/components/pages-dynamic/confirmation-error';
 import NotFound from '@/components/not-found';
 import { MAP_OVERVIEW_PARAMETERS } from '@/lib/config';
