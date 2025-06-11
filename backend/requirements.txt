@@ -15,3 +15,5 @@ pyproj
 ijson
 turfpy
 beautifulsoup4
+pillow
+cairosvg

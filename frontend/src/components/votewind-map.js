@@ -251,6 +251,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             var content = '';
             var heading = '';
             var logo = null;
+            var logo_transparent = null;
             if (feature.layer.id.startsWith('votes-')) {
                 const votes_confirmed = parseInt(feature.properties.votes_confirmed);
                 const votes_unconfirmed = parseInt(feature.properties.votes_unconfirmed);
@@ -262,6 +263,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 heading = 'Community Energy Organisation';
                 content = feature.properties.name;
                 logo = feature.properties.logo_url;
+                logo_transparent = feature.properties.logo_transparent;
             }
             if (feature.layer.id.startsWith('osm-substations-')) {
                 heading = 'Substation';
@@ -278,7 +280,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             setPopupInfo({
                 lngLat: e.lngLat,
-                properties: {heading: heading, content: content, logo: logo}
+                properties: {heading: heading, content: content, logo: logo, logo_transparent: logo_transparent}
             });
         } else {
             setPopupInfo(null);
@@ -1202,7 +1204,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <img
                             src={item.properties.logo_url}
                             alt={item.properties.name}
-                            className="hidden sm:block mt-0 mb-2 w-24 h:24 sm:w-60 object-contain bg-gray-300 p-4"
+                            className={`${item.properties.logo_transparent && "bg-gray-200"} hidden sm:block mt-0 mb-1 w-24 h:24 sm:w-60 object-contain p-4`}
                         /> 
                         )}
                         <p className="leading-snug text-xs">
@@ -1283,7 +1285,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         {(popupInfo.properties.logo) && (
                             <img
                                 src={popupInfo.properties.logo}
-                                className="mt-1 mb-1 max-w-[200px] h-auto object-contain bg-gray-300 p-4 m-0"
+                                className={`${popupInfo.properties.logo_transparent && "bg-gray-200"} mt-1 mb-1 max-w-[200px] h-auto object-contain p-4 m-0`}
                             />
                         )}
                         <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
@@ -1612,7 +1614,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <img
                                 src={organisation.logo_url}
                                 alt={organisation.name}
-                                className="mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain bg-gray-300 p-4 m-0"
+                                className={`${organisation.logo_transparent && "bg-gray-200"} mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain p-4 m-0`}
                             />
                             }
                             </div>

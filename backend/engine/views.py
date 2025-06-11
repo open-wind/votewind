@@ -795,6 +795,7 @@ def Organisations(request):
                         'description': organisation.description, \
                         'url': organisation.url, \
                         'logo_url': organisation.logo_url, \
+                        'logo_transparent': organisation.logo_transparent, \
                         'longitude': organisation.geometry.coords[0], \
                         'latitude': organisation.geometry.coords[1] }
         if hasattr(organisation, 'distance'):

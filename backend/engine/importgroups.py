@@ -13,6 +13,10 @@ import pyproj
 import unicodedata
 import re
 import requests
+import cairosvg
+import io
+from PIL import Image
+from io import BytesIO
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from decimal import Decimal
@@ -118,9 +122,43 @@ def initLogging():
         handlers=[handler_1, handler_2]
     )
 
-import requests
-from bs4 import BeautifulSoup
+def svg_has_transparency(svg_bytes, background_color=(0, 255, 0)):
+    """
+    Renders an SVG with a green background and checks the top-left pixel.
+    If it's still green, the SVG likely has transparency.
+    """
+    try:
+        png_bytes = cairosvg.svg2png(bytestring=svg_bytes, background_color="rgb(0,255,0)")
+        image = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+        first_pixel = image.getpixel((0, 0))
+        return first_pixel == background_color
+    except Exception as e:
+        print(f"SVG check error: {e}")
+        return False
 
+def is_image_transparent(url, timeout=5):
+    """
+    Checks if an image at a given URL has transparency.
+    Handles both raster images and SVGs.
+    """
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        content_type = response.headers.get("Content-Type", "")
+
+        # SVG check
+        if "image/svg+xml" in content_type or url.lower().endswith(".svg"):
+            return svg_has_transparency(response.content)
+
+        # Raster image check (e.g. PNG)
+        img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+        alpha = img.getchannel("A")
+        return any(pixel < 255 for pixel in alpha.getdata())
+
+    except Exception as e:
+        print(f"Transparency check error: {e}")
+        return False
+    
 def check_url_live(url, timeout=5):
     """
     Checks if a URL is live by sending a HEAD request.
@@ -168,18 +206,6 @@ def get_logo_url(url, timeout=5):
     except requests.RequestException:
         return None
 
-# Example usage
-if __name__ == "__main__":
-    test_urls = [
-        "https://361energy.org/",
-        "https://www.lowcarbonhub.org/p/community-group-of-the-month-abingdon-carbon-cutters/"
-    ]
-    for u in test_urls:
-        is_live = check_url_live(u)
-        logo = get_logo_url(u) if is_live else None
-        print(f"{u} → Live: {is_live}, Logo: {logo}")
-
-
 # ***********************************************************
 # ***********************************************************
 # ********************* MAIN APPLICATION ********************
@@ -216,8 +242,10 @@ def main():
                 if not is_live: continue
 
                 logo_url = get_logo_url(row['Website URL'])
+                logo_transparent = False
                 if logo_url:
                     LogMessage("URL for logo of " + row['Website URL'] + " - " + logo_url) 
+                    logo_transparent = is_image_transparent(logo_url)
                 else: logo_url = ''
 
                 source = extrafields['source']
@@ -231,6 +259,7 @@ def main():
                                                 description=row['Short Description'],
                                                 url=row['Website URL'],
                                                 logo_url=logo_url,
+                                                logo_transparent=logo_transparent,
                                                 geometry=geometry)
 
                 if count % 10000 == 0: LogMessage("Importing organisation: " + str(count))

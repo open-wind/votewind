@@ -392,6 +392,7 @@ class Organisation(models.Model):
     description = models.TextField(default='', blank=True)
     url = models.CharField(max_length=1000, default='', blank=True)
     logo_url = models.CharField(max_length=1000, default='', blank=True)
+    logo_transparent = models.BooleanField(default=False)
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -414,12 +415,13 @@ class Organisation(models.Model):
         ]
 
 class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
-    list_display = ['name', 'type', 'source', 'email', 'url', 'logo_preview', 'logo_url', 'created']
+    list_display = ['name', 'type', 'source', 'email', 'url', 'logo_preview', 'logo_transparent', 'logo_url', 'created']
     actions = ["export_as_csv", "export_unique_emails_as_csv"]
 
     list_filter = (
         'type',
-        'source'
+        'source',
+        'logo_transparent'
     )
 
     search_fields = (
