@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { LocateFixed, LocateFixedIcon } from 'lucide-react';
-import { motion, AnimatePresence } from "framer-motion";
+import { LocateFixed } from 'lucide-react';
 import AutocompleteInput from '@/components/autocomplete-input';
 import PartnerLogos from '@/components/partner-logos';
 
@@ -12,6 +11,7 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [uselocation, setUselocation] = useState(true);
   const [locating, setLocating] = useState(false);
+  const [showLogos, setShowLogos] = useState(false);
   const inputRef = useRef(null);
   
   // Automatically focus on input field as soon as page loads
@@ -24,6 +24,11 @@ export default function Home() {
     if (query == '') setUselocation(true);
     else setUselocation(false);
   }, [query]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLogos(true), 150);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
   <div className="mx-auto mt-0">
@@ -51,71 +56,67 @@ export default function Home() {
 
       </div>
 
-      <div className="sm:relative fixed bottom-[200px] sm:top-2/3 sm:-translate-y-1/2 w-full flex justify-center pl-5 pr-5 z-[100]">
+      <div className="sm:relative fixed bottom-[238px] sm:top-2/3 sm:-translate-y-1/2 w-full flex justify-center pl-5 pr-5 z-[100]">
 
           <div className="relative w-full max-w-[400px]">
 
           <AutocompleteInput ref={inputRef} query={query} setQuery={setQuery} locating={locating} setLocating={setLocating} useLocate={false} />
 
-          <AnimatePresence mode="wait">
-            {uselocation ? (
-              <motion.button
-                key="userlocation"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => inputRef.current?.handleUseMyLocation()}
-                className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
-              >
-                {locating ? (
-                  <>
-                  <svg
-                    className="animate-spin w-5 h-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  <span>Finding your location</span>
-                  </>
-                  ) : (
-                  <>
-                    <LocateFixed className="w-6 h-6 animate-pulse " />
-                    <span>Use my location</span>
-                  </>
-                  )}
-              </motion.button>
-            ) : (
-              <motion.button
-                key="inputlocation"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => inputRef.current?.handleSubmit()}
-                className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
-              >
-                Go to location
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {uselocation ? (
+            <button
+              key="userlocation"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => inputRef.current?.handleUseMyLocation()}
+              className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+            >
+              {locating ? (
+                <>
+                <svg
+                  className="animate-spin w-5 h-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                <span>Finding your location</span>
+                </>
+                ) : (
+                <>
+                  <LocateFixed className="w-6 h-6 animate-pulse " />
+                  <span>Use my location</span>
+                </>
+                )}
+            </button>
+          ) : (
+            <button
+              key="inputlocation"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => inputRef.current?.handleSubmit()}
+              className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+            >
+              Go to location
+            </button>
+          )}
 
           </div>
         </div>
 
       </div>
 
-      <PartnerLogos />
+      {showLogos && <PartnerLogos />}
 
     </div>
-
-
   );
 }

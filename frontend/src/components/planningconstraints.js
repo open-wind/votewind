@@ -1,11 +1,33 @@
-import { useState } from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
+import { useEffect, useRef, useState } from "react";
 import { IoMdClose } from 'react-icons/io'; // Close icon
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 export default function PlanningConstraints({ containingAreas = [], content=null, longitude=null, latitude=null }) {
   const [open, setOpen] = useState(false);
   const firstSlug = containingAreas?.[0] || 'Unknown area';
+  const ref = useRef();
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const update = () => {
+      const hasOverflow = el.scrollHeight > el.clientHeight;
+      setIsOverflowing(hasOverflow);
+      setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    };
+
+    update();
+    el.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   const createURL = (areaname, areaslug) => {
     return (
@@ -14,7 +36,8 @@ export default function PlanningConstraints({ containingAreas = [], content=null
   }
 
   return (
-    <div className="relative inline-block text-left mt-1 z-50">
+
+    <div ref={ref} className="relative inline-block text-left mt-1 max-h-[2.2em] overflow-y-auto">
 
       <p className="text-xs whitespace-normal font-medium text-gray-700 truncate tracking-tight">
 
@@ -64,6 +87,11 @@ export default function PlanningConstraints({ containingAreas = [], content=null
 
         </div>
       )}
+
+      {isOverflowing && !atBottom && (
+        <div className="pointer-events-none absolute bottom-0 left-0 w-full h-6 bg-gradient-to-b from-transparent to-white" />
+      )}
+
     </div>
   );
 }

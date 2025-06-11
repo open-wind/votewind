@@ -59,14 +59,13 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(API_BASE_URL + '/organisations/', {
+                const response = await fetch(API_BASE_URL + '/organisations', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({position: {longitude: longitude, latitude: latitude} }),
                 });
                 const result = await response.json();
                 setLocalGroups(result.features);
-                console.log(result.features);
             } catch (error) {
                 console.error('Fetch failed:', error);
             }

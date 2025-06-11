@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (max-width: 639px) {
+  .mobile-h-1-3-plus-48 {
+    height: calc(33.3333% + 58px);
+  }
+}
+
 .disabled {
   pointer-events: none;
   opacity: 0.5;

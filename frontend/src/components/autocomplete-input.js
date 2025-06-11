@@ -208,6 +208,10 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
         ref={inputRef}
         className={`w-full bg-transparent ${ centralInput ? 'h-8' : 'h-11'} px-4 py-0 text-lg placeholder:text-center border-none outline-none shadow-none rounded-none`}
         placeholder={placeholder}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
+        autoComplete="off"
         value={query}
         onValueChange={setQuery}
         showMagnifier={(useLocate === null)}

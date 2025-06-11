@@ -23,6 +23,8 @@ import PlanningConstraints from './planningconstraints';
 import PercentageSlider from "@/components/percentage-slider";
 import SessionInstructionPopup from '@/components/session-instruction-popup';
 import PulsingSubstationMarker from '@/components/pulsing-substation';
+import ViewportHeightFixer from "@/components/viewport-height-fixer";
+import InputModal from "@/components/input-modal";
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point as turfPoint } from '@turf/helpers';
 import { 
@@ -69,6 +71,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [organisation, setOrganisation] = useState(null);
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
+    const [inputOpen, setInputOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [showConsentBanner, setShowConsentBanner] = useState(false);
     const [error, setError] = useState('');
@@ -806,6 +809,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setLayersClicked(null);
         setWindspeed(null);
         setSubstation(null);
+        setShowViewshed(false);
+        clearViewshed();
         deselectActiveItems();
     }
 
@@ -974,678 +979,689 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }
 
     return (
-    <main className="flex justify-center items-center w-screen h-screen">
+    <div className="min-h-screen flex flex-col justify-between">
 
-        {(!turbineAtCentre) && (!showOrganisations) &&
-        (<SessionInstructionPopup />)
-        }
+        <div className="flex justify-center items-center w-screen h-screen">
 
-        <div className="w-full h-full sm:h relative">
-            <Toaster position="top-center" containerStyle={{top: 50}}/>
+            {(!turbineAtCentre) && (!showOrganisations) &&
+            (<SessionInstructionPopup />)
+            }
 
-            {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
-                <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+            <div className="w-full h-full sm:h relative">
+                <Toaster position="top-center" containerStyle={{top: 50}}/>
 
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleWindspeeds}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showWindspeeds ? (
-                                <Wind className="w-6 h-6" />
-                            ) : (
-                                <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
-                                    <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
-                                </div>
-                            )}
+                {/* Vertical toolbar */}
+                <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+                    <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
-                            {showWindspeeds && positionWindspeed && (
-                            <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
-                                <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
-                            </div>
-                            )}
-
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleOrganisations}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showOrganisations 
-                            ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
-                            : <UserGroupIcon className="w-6 h-6 text-gray-400" />
-                            }
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                {turbineAdded && (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleViewshed}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showViewshed ? (
-                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-600" />
-                            ) : (
-                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
-                            )}
-
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                )}
-
-                {showToggleContraints && (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleLayersVisibility}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {layersVisible ? (
-                                <EyeIcon className="w-5 h-5 text-blue-600" />
-                            ) : (
-                                <EyeSlashIcon className="w-5 h-5 text-gray-400" />
-                            )}
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {layersVisible ? <div>Hide planning constraints</div> : <div>Show planning constraints</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                )}
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 hover:bg-gray-100 transition shadow">
-                        ➕
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Zoom into map
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full hover:bg-gray-100 transition shadow">
-                        ➖
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Zoom out of map
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                {turbineAdded ? (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
-                        <img
-                            alt="Wind turbine"
-                            src={`${assetPrefix}/icons/windturbine_black.png`}
-                            className="block w-5 h-6"
-                        />
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Centre map on selected turbine position
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                ) : null}
-                </div>
-            </div>
-  
-            {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
-            <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
-                <div
-                    className="
-                    inline-flex items-center
-                    bg-blue-600 text-white
-                    py-2 px-4 rounded-3xl
-                    shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
-                    "
-                >
-                    <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
-                    Click on map to place <b className="font-bold">your wind turbine</b>
-                    </p>
-                    <button
-                    onClick={() => setShowInfo(false)}
-                    className="text-white text-sm hover:text-gray-300"
-                    aria-label="Dismiss"
-                    >
-                    ×
-                    </button>
-                </div>
-            </div>
-            )}
-
-            {/* Location search autosuggestion input box */}
-            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
-                <div className="relative w-full sm:w-md max-w-md mx-auto">
-                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
-                        <AutocompleteInput
-                            ref={inputRef}
-                            query={query} setQuery={setQuery}
-                            locating={locating} setLocating={setLocating} 
-                            useLocate={true}
-                            centralInput={true}
-                            submitOnSuggestionSelect={true}
-                            placeholder="Postcode or location"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Constraint layers opacity slider */}
-            {(layersVisible && showToggleContraints) && ( 
-            <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
-                <div className="relative w-full sm:w-md max-w-md mx-auto">
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
-                                <div className="bg-white/70 rounded-full px-4 py-2 pointer-events-auto">
-                                    <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
+                            <button
+                            onClick={toggleWindspeeds}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            >
+                                {showWindspeeds ? (
+                                    <Wind className="w-6 h-6" />
+                                ) : (
+                                    <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
+                                        <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                                    </div>
+                                )}
+
+                                {showWindspeeds && positionWindspeed && (
+                                <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
+                                    <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
                                 </div>
-                            </div>
+                                )}
+
+                            </button>
                         </TooltipTrigger>
-                        <TooltipContent side="bottom" sideOffset={10} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                            Change opacity of planning constraints layers
+                        <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
                         </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                </div>
-            </div>
-            )}
 
-            {/*  Nearest organisations floating area */}
-            {showNearestOrganisations && (!organisation) && (
-            <div className="fixed z-50 bg-white rounded-2xl shadow-2xl px-4 py-2 inset-x-4 bottom-4 max-h-[80vh] overflow-y-auto
-            sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
-            <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
-            {nearestOrganisations && (
-                (nearestOrganisations).map((item, index) => (
-                    <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.id, item.properties)} key={index}>
-                        <div className="p-0 mt-0 mb-1 sm:mb-4 tracking-tight space-y-0">
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                            onClick={toggleOrganisations}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            >
+                                {showOrganisations 
+                                ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
+                                : <UserGroupIcon className="w-6 h-6 text-gray-400" />
+                                }
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                        {(item.properties.logo_url !== '') && (
-                        <img
-                            src={item.properties.logo_url}
-                            alt={item.properties.name}
-                            className={`${item.properties.logo_transparent && "bg-gray-200"} hidden sm:block mt-0 mb-1 w-24 h:24 sm:w-60 object-contain p-4`}
-                        /> 
-                        )}
-                        <p className="leading-snug text-xs">
-                            <span className="font-bold text-blue-600">{item.properties.name}</span>
-                            <span className="font-light text-gray-600"> {item.properties.distance.toFixed(1)} km</span>
-                        </p>
-                        </div>
+                    {turbineAdded && (
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                            onClick={toggleViewshed}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            >
+                                {showViewshed ? (
+                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-700" />
+                                ) : (
+                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
+                                )}
 
-                    </a>
-                )) 
-            )}
-            </div>
-            )}
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    )}
 
-            {/* Main map */}
-            <Map
-                ref={mapRef}
-                mapLib={maplibregl}
-                dragRotate={false}
-                touchRotate={false}
-                pitchWithRotate={false}
-                touchZoomRotate={true}
-                initialViewState={initialViewState}
-                onLoad={onLoad}
-                onMoveEnd={onMoveEnd}
-                onIdle={onIdle}
-                onZoom={onZoom}
-                onClick={onClick}
-                style={{ width: '100%', height: '100%' }}
-                interactiveLayerIds={[
-                    'water', 
-                    'osm-substations-circle',
-                    'votes-unconfirmed', 'votes-confirmed', 
-                    'votes-unconfirmed-single', 'votes-confirmed-single', 
-                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
-                    'organisations-default',
-                    ...LAYERS_ALLCONSTRAINTS ]}
-                attributionControl={true}
-                onMouseMove={onMouseMove}
-                maxBounds={MAP_MAXBOUNDS}
-                crossOrigin="anonymous"
-                transformRequest={(url, resourceType) => {
-                    if (resourceType === 'Tile') {
-                    return {
-                        url,
-                        credentials: 'omit', // Ensures browser caching works cross-origin
-                    };
-                    }
-                    return { url };
-                }}
-                >
+                    {showToggleContraints && (
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                            onClick={toggleLayersVisibility}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            >
+                                {layersVisible ? (
+                                    <EyeIcon className="w-5 h-5 text-blue-600" />
+                                ) : (
+                                    <EyeSlashIcon className="w-5 h-5 text-gray-400" />
+                                )}
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            {layersVisible ? <div>Hide planning constraints</div> : <div>Show planning constraints</div>}
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    )}
 
-                {(turbineAdded && displayTurbine) ? (
-                <Marker onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
-                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
-                </Marker>
-                ) : null}
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 hover:bg-gray-100 transition shadow">
+                            ➕
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Zoom into map
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                {popupInfo && (
-                <Popup
-                    longitude={popupInfo.lngLat.lng}
-                    latitude={popupInfo.lngLat.lat}
-                    closeButton={false}
-                    closeOnClick={false}
-                    anchor="bottom"
-                    offset={10}
-                      className="no-padding-popup px-0 py-0"
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full hover:bg-gray-100 transition shadow">
+                            ➖
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Zoom out of map
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                >
-                    <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
-                        <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
-                        {(Array.isArray(popupInfo.properties.content)) 
-                        ?   (popupInfo.properties.content).map((item, index) => (
-                            <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
-                            )) 
-                        :
-                        <>
-                        {(popupInfo.properties.logo) && (
+                    {turbineAdded ? (
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
                             <img
-                                src={popupInfo.properties.logo}
-                                className={`${popupInfo.properties.logo_transparent && "bg-gray-200"} mt-1 mb-1 max-w-[200px] h-auto object-contain p-4 m-0`}
+                                alt="Wind turbine"
+                                src={`${assetPrefix}/icons/windturbine_black.png`}
+                                className="block w-5 h-6"
                             />
-                        )}
-                        <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
-                        </>
-                        }
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Centre map on selected turbine position
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    ) : null}
                     </div>
-                </Popup>
+                </div>
+    
+                {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
+                <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
+                    <div
+                        className="
+                        inline-flex items-center
+                        bg-blue-600 text-white
+                        py-2 px-4 rounded-3xl
+                        shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
+                        "
+                    >
+                        <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
+                        Click on map to place <b className="font-bold">your wind turbine</b>
+                        </p>
+                        <button
+                        onClick={() => setShowInfo(false)}
+                        className="text-white text-sm hover:text-gray-300"
+                        aria-label="Dismiss"
+                        >
+                        ×
+                        </button>
+                    </div>
+                </div>
                 )}
 
-            </Map>
-
-            {mapRef.current?.getMap() && (substation) && (
-            <PulsingSubstationMarker
-                map={mapRef.current?.getMap()}
-                longitude={substation.position.longitude}
-                latitude={substation.position.latitude}
-            />
-            )}
-
-            {/* Cesium viewer */}
-            {(turbinePosition !== null) && (
-            <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
-            )}
-
-        </div>
-
-        {/*  Voting panel */}
-        {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 min-h-[305px] overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-0 sm:pt-0 sm:pb-2">
-
-            <div className="max-w-screen-xl mx-auto flex-1 px-0 sm:px-4 pb-2">
-
-                {/* Close button */}
-                <button
-                onClick={closePanel}
-                className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                aria-label="Close vote panel"
-                >
-                &times;
-                </button>
-
-                <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleVote();
-                }}
-                  className="flex flex-col justify-between h-full"
-
-                >
-
-                    {/* Content: Icon + Text */}
-                    <div className="flex mt-0 sm:mt-0">
-                        <div className="flex-shrink-0 w-25 h-25 sm:w-60 sm:h-40">
-                            <div className="mt-9 ml-5 sm:mt-0 sm:ml-0 relative inline-block">
-
-                            <img
-                                src={`${assetPrefix}/icons/check-mark.svg`}
-                                alt="Vote"
-                                className="w-20 h-20 sm:w-60 sm:h-60 object-contain"
+                {/* Location search autosuggestion input box */}
+                <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
+                    <div className="relative w-full sm:w-md max-w-md mx-auto">
+                        <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
+                            <AutocompleteInput
+                                ref={inputRef}
+                                query={query} setQuery={setQuery}
+                                locating={locating} setLocating={setLocating} 
+                                useLocate={true}
+                                centralInput={true}
+                                submitOnSuggestionSelect={true}
+                                placeholder="Postcode or location"
                             />
+                        </div>
+                    </div>
+                </div>
 
-                            {(windspeed) && (
-                                <>
-                                {(windspeed < 5) 
-                                ? 
-                                <TooltipProvider>
-                                    <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
-                                            <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
-                                            <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                        Wind speed at this position too low for wind turbine
-                                    </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                                : 
-                                <TooltipProvider>
-                                    <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
-                                            <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
-                                            <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                        Wind speed at this position is {windspeed} metres / second
-                                    </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                                }
-                                </>
-                            )}
-
-                            {/* Red circle badge */}
-                            {(votesCast !== null) && (
-
-                            <TooltipProvider>
-                                <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-green-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
-                                        {votesCast}
+                {/* Constraint layers opacity slider */}
+                {(layersVisible && showToggleContraints) && ( 
+                <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
+                    <div className="relative w-full sm:w-md max-w-md mx-auto">
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
+                                    <div className="bg-white/70 rounded-full px-4 py-2 pointer-events-auto">
+                                        <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
                                     </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                    {votesText} for this location
-                                </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-
-                            )}
-                            </div>
-                        </div>
-
-                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">Wind Turbine Vote     
-                            <TooltipProvider>
-                                <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex ml-2 sm:ml-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                        <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
-                                    </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                    3D view of turbine
-                                </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            </h2>
-
-                            {/* Coordinates */}
-                            <div className="flex flex-wrap gap-1 mt-2 sm:mt-4">
-                                <p className="text-xs text-gray-700 ">
-                                    <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#"><b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
-                                </p>
-                                <p className="text-xs text-gray-700 whitespace-nowrap">
-                                {substation && (
-                                <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#"><b>Nearest substation</b>: {substation.distance_km} km</a>
-                                )}
-                                </p>
-                            </div>
-
-                            {layersClicked && (
-                                <>
-                                {containingAreas && (
-                                <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
-                                ? <i>No planning constraints found</i>
-                                : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
-                                )}
-                                </>
-                            )}
-
-                            <div className="mt-1 hidden sm:block">
-
-                                <div className="mt-3">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Email confirmation:
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        placeholder="Optional: Enter email address to confirm vote"
-                                        autoCorrect="off"
-                                        autoCapitalize="none"
-                                        autoComplete="off"
-                                        spellCheck="false"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    />
-                                    <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                                 </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" sideOffset={10} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                                Change opacity of planning constraints layers
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                </div>
+                )}
 
+                {/*  Nearest organisations floating area */}
+                {showNearestOrganisations && (!organisation) && (
+                <div className="fixed z-50 bg-white rounded-2xl shadow-2xl px-4 py-2 inset-x-4 bottom-[52px] sm:bottom-4 max-h-[80vh] overflow-y-auto
+                sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
+                <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
+                {nearestOrganisations && (
+                    (nearestOrganisations).map((item, index) => (
+                        <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.id, item.properties)} key={index}>
+                            <div className="p-0 mt-0 mb-1 sm:mb-4 tracking-tight space-y-0">
+
+                            {(item.properties.logo_url !== '') && (
+                            <img
+                                src={item.properties.logo_url}
+                                alt={item.properties.name}
+                                className={`${item.properties.logo_transparent && "bg-gray-300"} hidden sm:block mt-0 mb-1 w-24 h:24 sm:w-60 object-contain p-4`}
+                            /> 
+                            )}
+                            <p className="leading-snug text-xs">
+                                <span className="font-bold text-blue-600">{item.properties.name}</span>
+                                <span className="font-light text-gray-600"> {item.properties.distance.toFixed(1)} km</span>
+                            </p>
                             </div>
 
-                        </div>
-                    </div>
+                        </a>
+                    )) 
+                )}
+                </div>
+                )}
 
+                {/* Main map */}
+                <ViewportHeightFixer />
+                <div id="map-container" className="relative w-full" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+                    <Map
+                        ref={mapRef}
+                        mapLib={maplibregl}
+                        dragRotate={false}
+                        touchRotate={false}
+                        pitchWithRotate={false}
+                        touchZoomRotate={true}
+                        initialViewState={initialViewState}
+                        onLoad={onLoad}
+                        onMoveEnd={onMoveEnd}
+                        onIdle={onIdle}
+                        onZoom={onZoom}
+                        onClick={onClick}
+                        style={{ width: '100%', height: '100%' }}
+                        interactiveLayerIds={[
+                            'water', 
+                            'osm-substations-circle',
+                            'votes-unconfirmed', 'votes-confirmed', 
+                            'votes-unconfirmed-single', 'votes-confirmed-single', 
+                            'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
+                            'organisations-default',
+                            ...LAYERS_ALLCONSTRAINTS ]}
+                        attributionControl={true}
+                        onMouseMove={onMouseMove}
+                        maxBounds={MAP_MAXBOUNDS}
+                        crossOrigin="anonymous"
+                        transformRequest={(url, resourceType) => {
+                            if (resourceType === 'Tile') {
+                            return {
+                                url,
+                                credentials: 'omit', // Ensures browser caching works cross-origin
+                            };
+                            }
+                            return { url };
+                        }}
+                        >
 
-                    <div className="mt-0 sm:hidden">
+                        {(turbineAdded && displayTurbine) ? (
+                        <Marker onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
+                            <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
+                        </Marker>
+                        ) : null}
 
-                        <div className="mt-3">
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="Optional: Enter email to confirm vote"
-                                autoCorrect="off"
-                                autoCapitalize="none"
-                                autoComplete="off"
-                                spellCheck="false"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full sm:w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                            <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
-                        </div>
-                    </div>
+                        {popupInfo && (
+                        <Popup
+                            longitude={popupInfo.lngLat.lng}
+                            latitude={popupInfo.lngLat.lat}
+                            closeButton={false}
+                            closeOnClick={false}
+                            anchor="bottom"
+                            offset={10}
+                            className="no-padding-popup px-0 py-0"
 
-                    {/* Buttons: Side-by-side, full width combined */}
-                    <div className="mt-2 flex justify-end gap-x-3">
-                        <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
-                        Cancel
-                        </Button>
+                        >
+                            <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
+                                <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
+                                {(Array.isArray(popupInfo.properties.content)) 
+                                ?   (popupInfo.properties.content).map((item, index) => (
+                                    <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
+                                    )) 
+                                :
+                                <>
+                                {(popupInfo.properties.logo) && (
+                                    <img
+                                        src={popupInfo.properties.logo}
+                                        className={`${popupInfo.properties.logo_transparent && "bg-gray-300"} mt-1 mb-1 max-w-[200px] h-auto object-contain p-4 m-0`}
+                                    />
+                                )}
+                                <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
+                                </>
+                                }
+                            </div>
+                        </Popup>
+                        )}
 
-                        <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
-                        <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
-                        Cast vote!
-                        </Button>
-                    </div>
-                    
-                </form>
+                    </Map>
+                </div>
+
+                {mapRef.current?.getMap() && (substation) && (
+                <PulsingSubstationMarker
+                    map={mapRef.current?.getMap()}
+                    longitude={substation.position.longitude}
+                    latitude={substation.position.latitude}
+                />
+                )}
+
+                {/* Cesium viewer */}
+                {(turbinePosition !== null) && (
+                <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
+                )}
+
             </div>
 
-        </div>
-        )}
+            {/* Cookie consent modal */}
+            {showConsentBanner && (
+            <>
+                {/* Backdrop (prevents background interaction) */}
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
 
-        {/* Cookie consent modal */}
-        {showConsentBanner && (
-        <>
-            {/* Backdrop (prevents background interaction) */}
+                {/* Modal */}
+                <div className="fixed inset-0 z-[1001] flex items-center justify-center">
+                <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
+                    <div className="mb-3 text-center">
+                        <strong className="font-bold block">Set cookie</strong>
+                    </div>
+                    <p className="text-sm text-gray-700">
+                    We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
+                    </p>
+                    {/* Recaptcha error message */}
+                    <div className="w-full flex justify-start mt-4">
+                        {error && (<p className="text-red-600 text-sm font-medium mb-2">{error}</p>)}
+                    </div>
+                    {/* Recaptcha - to prevent spam voting */}
+                    <div className="w-full flex justify-start mt-0">
+                        <div id="recaptcha-container" className="recaptcha-wrapper" />
+                    </div>
+                    <div className="mt-4 flex justify-end gap-2">
+                        <button
+                            onClick={() => setShowConsentBanner(false)}
+                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                        >
+                            Decline
+                        </button>
+                        <button
+                            onClick={handleAccept}
+                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                        >
+                            Accept
+                        </button>
+                    </div>
+                </div>
+                </div>
+            </>
+            )}
+
+            {/*  Invalid email modal */}
+            {alertMessage && (
+            <>
             <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
 
-            {/* Modal */}
-            <div className="fixed inset-0 z-[1001] flex items-center justify-center">
-            <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
-                <div className="mb-3 text-center">
-                    <strong className="font-bold block">Set cookie</strong>
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
+                <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
+                <div className="mb-3">
+                    <strong className="font-bold block">Invalid email</strong>
                 </div>
-                <p className="text-sm text-gray-700">
-                We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
-                </p>
-                {/* Recaptcha error message */}
-                <div className="w-full flex justify-start mt-4">
-                    {error && (<p className="text-red-600 text-sm font-medium mb-2">{error}</p>)}
+                <div className="mb-3 text-sm">
+                    {alertMessage}
                 </div>
-                {/* Recaptcha - to prevent spam voting */}
-                <div className="w-full flex justify-start mt-0">
-                    <div id="recaptcha-container" className="recaptcha-wrapper" />
-                </div>
-                <div className="mt-4 flex justify-end gap-2">
+                <div className="flex justify-center">
                     <button
-                        onClick={() => setShowConsentBanner(false)}
-                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                    onClick={() => setAlertMessage('')}
+                    className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
                     >
-                        Decline
-                    </button>
-                    <button
-                        onClick={handleAccept}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                    >
-                        Accept
+                    Close
                     </button>
                 </div>
+                </div>
             </div>
+            </>
+            )}
+
+            {/*  Processing vote screen */}
+            {processing && (
+            <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
             </div>
-        </>
-        )}
+            )}
 
-        {/*  Invalid email modal */}
-        {alertMessage && (
-        <>
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            {/*  Organisation info panel */}
+            {(organisation !== null) && (
+            <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
-            <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
-            <div className="mb-3">
-                <strong className="font-bold block">Invalid email</strong>
-            </div>
-            <div className="mb-3 text-sm">
-                {alertMessage}
-            </div>
-            <div className="flex justify-center">
-                <button
-                onClick={() => setAlertMessage('')}
-                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                >
-                Close
-                </button>
-            </div>
-            </div>
-        </div>
-        </>
-        )}
+                <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
 
-        {/*  Processing vote screen */}
-        {processing && (
-        <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
-        </div>
-        )}
+                    {/* Close button */}
+                    <button
+                    onClick={closePanel}
+                    className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                    aria-label="Close vote panel"
+                    >
+                    &times;
+                    </button>
 
-        {/*  Organisation info panel */}
-        {(organisation !== null) && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
+                        {/* Content: Icon + Text */}
+                        <div className="flex mt-1 sm:mt-0 sm:w-[800px] mx-auto">
 
-            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
+                            <div className="flex-shrink-0 ml-5 sm:mr-0 ">
+                                <div className="relative inline-block">
+                                {(organisation.logo_url === '') 
+                                ?
+                                <img
+                                    src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
+                                    alt="Organisation"
+                                    className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
+                                />
+                                :
+                                <img
+                                    src={organisation.logo_url}
+                                    alt={organisation.name}
+                                    className={`${organisation.logo_transparent && "bg-gray-300"} mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain p-4 m-0`}
+                                />
+                                }
+                                </div>
+                            </div>
 
-                {/* Close button */}
-                <button
-                onClick={closePanel}
-                className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                aria-label="Close vote panel"
-                >
-                &times;
-                </button>
+                            <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4 mr-4">
+                                {(organisation.url !== '') ? (
+                                <a
+                                href={organisation.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline text-sm"
+                                >
+                                <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                                </a>
+                                ) : (
+                                <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                                )}
 
-                    {/* Content: Icon + Text */}
-                    <div className="flex mt-1 sm:mt-0 sm:w-[800px] mx-auto">
+                                <p className="text-xs text-gray-700 mt-2 sm:mt-4">{organisation.description}</p>
 
-                        <div className="flex-shrink-0 ml-5 sm:mr-0 ">
-                            <div className="relative inline-block">
-                            {(organisation.logo_url === '') 
-                            ?
-                            <img
-                                src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
-                                alt="Organisation"
-                                className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
-                            />
-                            :
-                            <img
-                                src={organisation.logo_url}
-                                alt={organisation.name}
-                                className={`${organisation.logo_transparent && "bg-gray-200"} mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain p-4 m-0`}
-                            />
-                            }
                             </div>
                         </div>
 
-                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4 mr-4">
-                            {(organisation.url !== '') ? (
-                            <a
-                            href={organisation.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline text-sm"
-                            >
-                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
-                            </a>
-                            ) : (
-                            <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
-                            )}
 
-                            <p className="text-xs text-gray-700 mt-2 sm:mt-4">{organisation.description}</p>
+                </div>
 
+            </div>
+            )}
+
+        </div>
+
+        {turbineAdded && (
+        
+        <section className="w-full z-50 bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 sm:overflow-y-auto absolute bottom-0 left-0">
+
+            <div className="w-full max-w-[1000px] mx-auto">
+                
+            <button
+            onClick={closePanel}
+            className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
+            aria-label="Close vote panel"
+            >
+            &times;
+            </button>
+
+            <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleVote();
+            }}
+            className="flex flex-col justify-between h-full"
+
+            >
+
+                <div className="flex mt-0 sm:mt-0">
+                    <div className="flex-shrink-0 w-25 h-25 sm:w-60 sm:h-40">
+                        <div className="hidden sm:block mt-9 ml-5 sm:mt-0 sm:ml-0 relative inline-block">
+
+                        <img
+                            src={`${assetPrefix}/icons/check-mark.svg`}
+                            alt="Vote"
+                            className="hidden sm:block sm:w-60 sm:h-60 object-contain"
+                        />
+
+                        {(windspeed) && (
+                            <>
+                            {(windspeed < 5) 
+                            ? 
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
+                                        <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                        <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    Wind speed at this position too low for wind turbine
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            : 
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                                        <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
+                                        <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    Wind speed at this position is {windspeed} metres / second
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            }
+                            </>
+                        )}
+
+                        {(votesCast !== null) && (
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-green-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
+                                    {votesCast}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                {votesText} for this location
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        )}
                         </div>
                     </div>
 
+                    <div className="ml-0 sm:ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                        <h2 className="text-lg sm:text-[24px] font-semibold mt-0 mb-0 tracking-tight">
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex mr-3 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                    <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                3D view of turbine
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        Wind Turbine Vote
+                        </h2>
+
+                        <div className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-0 mt-2 sm:mt-4">
+                        <p className="text-xs text-gray-700 m-0">
+                            <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">
+                            <b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E
+                            </a>
+                        </p>
+                        
+                        <p className="text-xs text-gray-700 m-0 whitespace-nowrap">
+                            {substation && (
+                            <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#">
+                                <b>Nearest substation</b>: {substation.distance_km} km
+                            </a>
+                            )}
+                            {windspeed && (
+                            <span>&nbsp;&nbsp;<b>Wind speed</b>: {windspeed} m/s</span>
+                            )}
+                        </p>
+                        </div>
+                        <div className="sm:hidden flex flex-wrap gap-1 mt-2 sm:mt-4">
+                            <p className="text-xs text-gray-700 ">
+                                <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
+                            </p>
+                            <p className="text-xs text-gray-700 whitespace-nowrap">
+                            {substation && (
+                            <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#"><b>Sub</b>: {substation.distance_km} km</a>
+                            )}
+                            {windspeed && (
+                            <span>&nbsp;&nbsp;<b>Wind</b>: {windspeed} m/s</span>
+                            )}
+                            </p>
+                        </div>
+
+                        {layersClicked && (
+                            <>
+                            {containingAreas && (
+                            <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
+                            ? <i>No planning constraints found</i>
+                            : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                            )}
+                            </>
+                        )}
+
+                        <div className="mt-1 hidden sm:block">
+
+                            <div className="mt-3">
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email confirmation:
+                                </label>
+                                <div className="w-full bg-white border p-2 rounded shadow max-w-[600px]" onClick={() => setInputOpen(true)}>
+                                    <p className={`${(email !== '') ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer`}>{email || "Optional: Enter email to confirm vote"}</p>
+                                </div>
+                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div className="mt-0 sm:hidden">
+
+                    <div className="mt-3">
+                        <div className="w-full bg-white border p-2 rounded shadow" onClick={() => setInputOpen(true)}>
+                            <p className={`${(email !== '') ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer`}>{email || "Optional: Enter email to confirm vote"}</p>
+                        </div>
+                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                    </div>
+                </div>
+
+                <div className="mt-2 flex justify-end gap-x-3 mb-[32px] sm:mb-4">
+                    <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                    Cancel
+                    </Button>
+
+                    <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
+                    <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                    Cast vote!
+                    </Button>
+                </div>
+                
+            </form>
+
+            <InputModal
+                open={inputOpen}
+                initialValue={email}
+                onClose={() => setInputOpen(false)}
+                onSubmit={(val) => setEmail(val)}
+            />
 
             </div>
 
-        </div>
+        </section>
+
         )}
 
-    </main>
+    </div>
 
   );
 }

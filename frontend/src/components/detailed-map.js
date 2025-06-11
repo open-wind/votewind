@@ -383,7 +383,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
 
         {data && (
         <div 
-            className="absolute bottom-16 sm:bottom-14 left-1/2 transform -translate-x-1/2 z-50 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none" 
+            className="absolute bottom-16 sm:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none" 
             style={{ boxShadow: '0 0px 15px rgba(255, 255, 255, 0.9)' }} 
             >
             {!mapReady && (<span>Loading... </span>)} <span className="font-bold whitespace-nowrap">{data.features[0].properties.boundary}</span>

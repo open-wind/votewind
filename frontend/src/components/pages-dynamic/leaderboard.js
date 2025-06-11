@@ -56,7 +56,7 @@ export default function Leaderboard({}) {
 
         <ScrollHint targetRef={panelRef} />
 
-        <section className="flex flex-col items-center px-3 mb-36">
+        <section className="flex flex-col items-center px-3 mb-40">
 
             <div className="w-full max-w-[800px] mx-auto rounded-2xl mb-2 bg-white/70 p-4 sm:p-6 text-sm sm:text-medium">
               <div className="flex items-center">
