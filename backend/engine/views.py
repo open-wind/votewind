@@ -782,7 +782,7 @@ def Organisations(request):
 
     if 'position' in data:
         centre = Point(float(data['position']['longitude']), float(data['position']['latitude']), srid=4326)    
-        firstcutsize = 10
+        firstcutsize = 5
         organisations = Organisation.objects.filter(type=typefilter).annotate(distance=Distance('geometry' , centre )).order_by('distance')[:firstcutsize]
     else:
         organisations = Organisation.objects.filter(type=typefilter).order_by('name')
@@ -795,8 +795,8 @@ def Organisations(request):
                         'description': organisation.description, \
                         'url': organisation.url, \
                         'logo_url': organisation.logo_url, \
-                        'lng': organisation.geometry.coords[0], \
-                        'lat': organisation.geometry.coords[1] }
+                        'longitude': organisation.geometry.coords[0], \
+                        'latitude': organisation.geometry.coords[1] }
         if hasattr(organisation, 'distance'):
             properties['distance'] = float(organisation.distance.m) / 1000
 

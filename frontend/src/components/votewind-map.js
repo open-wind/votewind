@@ -56,6 +56,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [initialPosition, setInitialPosition] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude), type: type})
     const [processing, setProcessing] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [mapCentre, setMapCentre] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude)});
     const [showInfo, setShowInfo] = useState(!(style === 'overview'));
     const [showCesiumViewer, setShowCesiumViewer] = useState(false);
     const [showToggleContraints, setShowToggleConstraint] = useState(false);
@@ -69,9 +70,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
-    const [hasConsent, setHasConsent] = useState(null); // null = still loading
     const [showConsentBanner, setShowConsentBanner] = useState(false);
-    const [showSearch, setShowSearch] = useState(false);
     const [error, setError] = useState('');
     const [popupInfo, setPopupInfo] = useState(null);
     const [locating, setLocating] = useState(false);
@@ -85,6 +84,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [positionWindspeed, setPositionWindspeed] = useState(null);
     const [showViewshed, setShowViewshed] = useState(false);
     const [showOrganisations, setShowOrganisations] = useState(false);
+    const [showNearestOrganisations, setShowNearestOrganisations] = useState(false);
+    const [nearestOrganisations, setNearestOrganisations] = useState(null);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -319,8 +320,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         map.setLayoutProperty('organisations-halo', 'visibility', new_organisations_visibility);
         map.setLayoutProperty('organisations-default', 'visibility', new_organisations_visibility);
         // If making organisations layer visible, hide constraint layers
+        // Also check to see whether we should show nearby organisations
         if (!showOrganisations) {
             if (layersVisible) toggleLayersVisibility();
+            if (map.getZoom() >= MAP_MINZOOM_CONSTRAINTS) setShowNearestOrganisations(true);
+        } else {
+            setShowNearestOrganisations(false);
         }
         setShowOrganisations(!showOrganisations);
     }
@@ -522,6 +527,29 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         
     }, [bounds, mapLoaded]);
 
+    useEffect(() => {
+
+        const retrieveNearestOrganisations = async () => {
+            const res_nearestorganisations = await fetch(API_BASE_URL + '/organisations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({position: mapCentre})
+            });
+
+            if (!res_nearestorganisations.ok) {
+                setError("Unable to retrieve nearest organisations data");
+                return;
+            }
+
+            const data_nearestorganisations = await res_nearestorganisations.json();
+            setNearestOrganisations(data_nearestorganisations.features);
+        }
+
+        if (mapCentre && showNearestOrganisations) retrieveNearestOrganisations();
+        else setNearestOrganisations(null);
+
+    }, [mapCentre, showNearestOrganisations]);
+
     if (zoom === null) zoom = MAP_DEFAULT_ZOOM;
     if ((latitude === null) || (longitude === null)) {
         bounds = [
@@ -588,6 +616,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const longitude = view.longitude.toFixed(5);
         const latitude = view.latitude.toFixed(5);
         const zoom = view.zoom.toFixed(2)
+        // Only setMapCentre if different from existing value
+        if ((!mapCentre) || (mapCentre.longitude !== longitude) || (mapCentre.latitude !== latitude)) {
+            setMapCentre({longitude: longitude, latitude: latitude});
+        }
         var url = `/${longitude}/${latitude}/${zoom}`;
         const params = new URLSearchParams();
         if (turbineAdded) params.set('selectturbine', 'true');
@@ -596,6 +628,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (query) url += `?${query}`;
         window.history.replaceState(null, '', url);
     }, 300);
+
 
     const onMoveEnd = (e) => {
         if (isFittingBounds.current === false) updateURL(e.viewState);
@@ -610,8 +643,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const currentZoom = map.getZoom();
         const showConstraintsNewState = (currentZoom >= MAP_MINZOOM_CONSTRAINTS);
         if (showToggleContraints != showConstraintsNewState) setShowToggleConstraint(showConstraintsNewState);
-
+        if (showOrganisations) setShowNearestOrganisations(showConstraintsNewState);
+        else setShowNearestOrganisations(false);
     }
+
     const onZoom = (e) => {
         checkZoom(e.target);
     }
@@ -734,8 +769,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 const map = mapRef.current?.getMap?.();
                 isOrganisation = true;
                 var properties = event.features[0]['properties'];
-                properties.longitude = properties.lng;
-                properties.latitude = properties.lat;
+                properties.longitude = properties.longitude;
+                properties.latitude = properties.latitude;
                 selectOrganisation(map, feature_id, properties);
             } 
         } 
@@ -939,88 +974,345 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     return (
     <main className="flex justify-center items-center w-screen h-screen">
 
-        {(!turbineAtCentre) && 
+        {(!turbineAtCentre) && (!showOrganisations) &&
         (<SessionInstructionPopup />)
         }
 
-        {processing && (
-        <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
-        </div>
-        )}
+        <div className="w-full h-full sm:h relative">
+            <Toaster position="top-center" containerStyle={{top: 50}}/>
 
-        {alertMessage && (
-        <>
-        {/* Backdrop (prevents background interaction) */}
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            {/* Vertical toolbar */}
+            <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
+                <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
 
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
-            <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
-            <div className="mb-3">
-                <strong className="font-bold block">Invalid email</strong>
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleWindspeeds}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showWindspeeds ? (
+                                <Wind className="w-6 h-6" />
+                            ) : (
+                                <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
+                                    <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                                </div>
+                            )}
+
+                            {showWindspeeds && positionWindspeed && (
+                            <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
+                                <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
+                            </div>
+                            )}
+
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleOrganisations}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showOrganisations 
+                            ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
+                            : <UserGroupIcon className="w-6 h-6 text-gray-400" />
+                            }
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                {turbineAdded && (
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleViewshed}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {showViewshed ? (
+                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-600" />
+                            ) : (
+                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
+                            )}
+
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                )}
+
+                {showToggleContraints && (
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                        onClick={toggleLayersVisibility}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
+                        >
+                            {layersVisible ? (
+                                <EyeIcon className="w-5 h-5 text-blue-600" />
+                            ) : (
+                                <EyeSlashIcon className="w-5 h-5 text-gray-400" />
+                            )}
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {layersVisible ? <div>Hide planning constraints</div> : <div>Show planning constraints</div>}
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                )}
+
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 hover:bg-gray-100 transition shadow">
+                        ➕
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        Zoom into map
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full hover:bg-gray-100 transition shadow">
+                        ➖
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        Zoom out of map
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                {turbineAdded ? (
+                <TooltipProvider>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
+                        <img
+                            alt="Wind turbine"
+                            src={`${assetPrefix}/icons/windturbine_black.png`}
+                            className="block w-5 h-6"
+                        />
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                        Centre map on selected turbine position
+                    </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                ) : null}
+                </div>
             </div>
-            <div className="mb-3 text-sm">
-                {alertMessage}
-            </div>
-            <div className="flex justify-center">
-                <button
-                onClick={() => setAlertMessage('')}
-                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+  
+            {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
+            <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
+                <div
+                    className="
+                    inline-flex items-center
+                    bg-blue-600 text-white
+                    py-2 px-4 rounded-3xl
+                    shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
+                    "
                 >
-                Close
-                </button>
+                    <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
+                    Click on map to place <b className="font-bold">your wind turbine</b>
+                    </p>
+                    <button
+                    onClick={() => setShowInfo(false)}
+                    className="text-white text-sm hover:text-gray-300"
+                    aria-label="Dismiss"
+                    >
+                    ×
+                    </button>
+                </div>
             </div>
+            )}
+
+            {/* Location search autosuggestion input box */}
+            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
+                <div className="relative w-full sm:w-md max-w-md mx-auto">
+                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
+                        <AutocompleteInput
+                            ref={inputRef}
+                            query={query} setQuery={setQuery}
+                            locating={locating} setLocating={setLocating} 
+                            useLocate={true}
+                            centralInput={true}
+                            submitOnSuggestionSelect={true}
+                            placeholder="Postcode or location"
+                        />
+                    </div>
+                </div>
             </div>
+
+            {/* Constraint layers opacity slider */}
+            {(layersVisible && showToggleContraints) && ( 
+            <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
+                <div className="relative w-full sm:w-md max-w-md mx-auto">
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
+                                <div className="bg-white/70 rounded-full px-4 py-2 pointer-events-auto">
+                                    <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
+                                </div>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" sideOffset={10} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Change opacity of planning constraints layers
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            </div>
+            )}
+
+            {/*  Nearest organisations floating area */}
+            {showNearestOrganisations && (!organisation) && (
+            <div className="fixed z-50 bg-white rounded-2xl shadow-2xl px-4 py-2 inset-x-4 bottom-4 max-h-[80vh] overflow-y-auto
+            sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
+            <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
+            {nearestOrganisations && (
+                (nearestOrganisations).map((item, index) => (
+                    <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.id, item.properties)} key={index}>
+                        <div className="p-0 mt-0 mb-1 sm:mb-4 tracking-tight space-y-0">
+
+                        {(item.properties.logo_url !== '') && (
+                        <img
+                            src={item.properties.logo_url}
+                            alt={item.properties.name}
+                            className="hidden sm:block mt-0 mb-2 w-24 h:24 sm:w-60 object-contain bg-gray-300 p-4"
+                        /> 
+                        )}
+                        <p className="leading-snug text-xs">
+                            <span className="font-bold text-blue-600">{item.properties.name}</span>
+                            <span className="font-light text-gray-600"> {item.properties.distance.toFixed(1)} km</span>
+                        </p>
+                        </div>
+
+                    </a>
+                )) 
+            )}
+            </div>
+            )}
+
+            {/* Main map */}
+            <Map
+                ref={mapRef}
+                mapLib={maplibregl}
+                dragRotate={false}
+                touchRotate={false}
+                pitchWithRotate={false}
+                touchZoomRotate={true}
+                initialViewState={initialViewState}
+                onLoad={onLoad}
+                onMoveEnd={onMoveEnd}
+                onIdle={onIdle}
+                onZoom={onZoom}
+                onClick={onClick}
+                style={{ width: '100%', height: '100%' }}
+                interactiveLayerIds={[
+                    'water', 
+                    'osm-substations-circle',
+                    'votes-unconfirmed', 'votes-confirmed', 
+                    'votes-unconfirmed-single', 'votes-confirmed-single', 
+                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
+                    'organisations-default',
+                    ...LAYERS_ALLCONSTRAINTS ]}
+                attributionControl={true}
+                onMouseMove={onMouseMove}
+                maxBounds={MAP_MAXBOUNDS}
+                crossOrigin="anonymous"
+                transformRequest={(url, resourceType) => {
+                    if (resourceType === 'Tile') {
+                    return {
+                        url,
+                        credentials: 'omit', // Ensures browser caching works cross-origin
+                    };
+                    }
+                    return { url };
+                }}
+                >
+
+                {(turbineAdded && displayTurbine) ? (
+                <Marker onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
+                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
+                </Marker>
+                ) : null}
+
+                {popupInfo && (
+                <Popup
+                    longitude={popupInfo.lngLat.lng}
+                    latitude={popupInfo.lngLat.lat}
+                    closeButton={false}
+                    closeOnClick={false}
+                    anchor="bottom"
+                    offset={10}
+                      className="no-padding-popup px-0 py-0"
+
+                >
+                    <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
+                        <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
+                        {(Array.isArray(popupInfo.properties.content)) 
+                        ?   (popupInfo.properties.content).map((item, index) => (
+                            <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
+                            )) 
+                        :
+                        <>
+                        {(popupInfo.properties.logo) && (
+                            <img
+                                src={popupInfo.properties.logo}
+                                className="mt-1 mb-1 max-w-[200px] h-auto object-contain bg-gray-300 p-4 m-0"
+                            />
+                        )}
+                        <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
+                        </>
+                        }
+                    </div>
+                </Popup>
+                )}
+
+            </Map>
+
+            {mapRef.current?.getMap() && (substation) && (
+            <PulsingSubstationMarker
+                map={mapRef.current?.getMap()}
+                longitude={substation.position.longitude}
+                latitude={substation.position.latitude}
+            />
+            )}
+
+            {/* Cesium viewer */}
+            {(turbinePosition !== null) && (
+            <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
+            )}
+
         </div>
-        </>
-        )}
-
-        {/* Cookie consent banner */}
-        {showConsentBanner && (
-        <>
-            {/* Backdrop (prevents background interaction) */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
-
-            {/* Modal */}
-            <div className="fixed inset-0 z-[1001] flex items-center justify-center">
-            <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
-                <div className="mb-3 text-center">
-                    <strong className="font-bold block">Set cookie</strong>
-                </div>
-                <p className="text-sm text-gray-700">
-                We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
-                </p>
-                {/* Recaptcha error message */}
-                <div className="w-full flex justify-start mt-4">
-                    {error && (<p className="text-red-600 text-sm font-medium mb-2">{error}</p>)}
-                </div>
-                {/* Recaptcha - to prevent spam voting */}
-                <div className="w-full flex justify-start mt-0">
-                    <div id="recaptcha-container" className="recaptcha-wrapper" />
-                </div>
-                <div className="mt-4 flex justify-end gap-2">
-                    <button
-                        onClick={() => setShowConsentBanner(false)}
-                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-                    >
-                        Decline
-                    </button>
-                    <button
-                        onClick={handleAccept}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                    >
-                        Accept
-                    </button>
-                </div>
-            </div>
-            </div>
-        </>
-        )}
 
         {/*  Voting panel */}
         {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 min-h-[305px] overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-0 sm:pt-0 sm:pb-2">
+        <div className="fixed bottom-0 left-0 w-full h-1/3 min-h-[305px] overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-0 sm:pt-0 sm:pb-2">
 
             <div className="max-w-screen-xl mx-auto flex-1 px-0 sm:px-4 pb-2">
 
@@ -1213,9 +1505,85 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         </div>
         )}
 
+        {/* Cookie consent modal */}
+        {showConsentBanner && (
+        <>
+            {/* Backdrop (prevents background interaction) */}
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+
+            {/* Modal */}
+            <div className="fixed inset-0 z-[1001] flex items-center justify-center">
+            <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
+                <div className="mb-3 text-center">
+                    <strong className="font-bold block">Set cookie</strong>
+                </div>
+                <p className="text-sm text-gray-700">
+                We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
+                </p>
+                {/* Recaptcha error message */}
+                <div className="w-full flex justify-start mt-4">
+                    {error && (<p className="text-red-600 text-sm font-medium mb-2">{error}</p>)}
+                </div>
+                {/* Recaptcha - to prevent spam voting */}
+                <div className="w-full flex justify-start mt-0">
+                    <div id="recaptcha-container" className="recaptcha-wrapper" />
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                    <button
+                        onClick={() => setShowConsentBanner(false)}
+                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                        Decline
+                    </button>
+                    <button
+                        onClick={handleAccept}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                    >
+                        Accept
+                    </button>
+                </div>
+            </div>
+            </div>
+        </>
+        )}
+
+        {/*  Invalid email modal */}
+        {alertMessage && (
+        <>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
+            <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
+            <div className="mb-3">
+                <strong className="font-bold block">Invalid email</strong>
+            </div>
+            <div className="mb-3 text-sm">
+                {alertMessage}
+            </div>
+            <div className="flex justify-center">
+                <button
+                onClick={() => setAlertMessage('')}
+                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
+                Close
+                </button>
+            </div>
+            </div>
+        </div>
+        </>
+        )}
+
+        {/*  Processing vote screen */}
+        {processing && (
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
+            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
+        </div>
+        )}
+
         {/*  Organisation info panel */}
         {(organisation !== null) && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/85 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
+        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
             <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
 
@@ -1250,7 +1618,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </div>
                         </div>
 
-                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4 mr-4">
                             {(organisation.url !== '') ? (
                             <a
                             href={organisation.url}
@@ -1275,310 +1643,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         </div>
         )}
 
-        <div className="w-full h-full sm:h relative">
-            <Toaster position="top-center" containerStyle={{top: 50}}/>
-
-            {/* Vertical toolbar */}
-            <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
-                <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleWindspeeds}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showWindspeeds ? (
-                                <Wind className="w-6 h-6" />
-                            ) : (
-                                <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
-                                    <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
-                                </div>
-                            )}
-
-                            {showWindspeeds && positionWindspeed && (
-                            <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
-                                <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
-                            </div>
-                            )}
-
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showWindspeeds ? <div>Hide wind speeds</div> : <div>Show wind speeds</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleOrganisations}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showOrganisations 
-                            ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
-                            : <UserGroupIcon className="w-6 h-6 text-gray-400" />
-                            }
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                {turbineAdded && (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleViewshed}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {showViewshed ? (
-                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-600" />
-                            ) : (
-                                <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
-                            )}
-
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showViewshed ? <div>Hide visibility estimate</div> : <div>Show visibility estimate</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                )}
-
-                {showToggleContraints && (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                        onClick={toggleLayersVisibility}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow hover:bg-gray-100 transition flex items-center justify-center`}
-                        >
-                            {layersVisible ? (
-                                <EyeIcon className="w-5 h-5 text-blue-600" />
-                            ) : (
-                                <EyeSlashIcon className="w-5 h-5 text-gray-400" />
-                            )}
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {layersVisible ? <div>Hide planning constraints</div> : <div>Show planning constraints</div>}
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                )}
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 hover:bg-gray-100 transition shadow">
-                        ➕
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Zoom into map
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full hover:bg-gray-100 transition shadow">
-                        ➖
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Zoom out of map
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                {turbineAdded ? (
-                <TooltipProvider>
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
-                        <img
-                            alt="Wind turbine"
-                            src={`${assetPrefix}/icons/windturbine_black.png`}
-                            className="block w-5 h-6"
-                        />
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                        Centre map on selected turbine position
-                    </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                ) : null}
-                </div>
-            </div>
-  
-            {!turbineAdded && showInfo && (organisation === null) && (
-            <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
-                <div
-                    className="
-                    inline-flex items-center
-                    bg-blue-600 text-white
-                    py-2 px-4 rounded-3xl
-                    shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
-                    "
-                >
-                    <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
-                    Click on map to place <b className="font-bold">your wind turbine</b>
-                    </p>
-                    <button
-                    onClick={() => setShowInfo(false)}
-                    className="text-white text-sm hover:text-gray-300"
-                    aria-label="Dismiss"
-                    >
-                    ×
-                    </button>
-                </div>
-            </div>
-            )}
-
-            {/* Location search autosuggestion input box */}
-            <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
-                <div className="relative w-full sm:w-md max-w-md mx-auto">
-                    <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
-                        <AutocompleteInput
-                            ref={inputRef}
-                            query={query} setQuery={setQuery}
-                            locating={locating} setLocating={setLocating} 
-                            useLocate={true}
-                            centralInput={true}
-                            submitOnSuggestionSelect={true}
-                            placeholder="Postcode or location"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Location search autosuggestion input box */}
-            {(layersVisible && showToggleContraints) && ( 
-            <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
-                <div className="relative w-full sm:w-md max-w-md mx-auto">
-                    <TooltipProvider>
-                        <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="w-full sm:w-1/2 mx-auto mt-2 sm:mt-4 px-0 py-0">
-                                <div className="bg-white/70 rounded-full px-4 py-2 pointer-events-auto">
-                                    <PercentageSlider initial={opacity2slider(layersOpacityValue)} onChange={onOpacitySliderChange} />
-                                </div>
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" sideOffset={10} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                            Change opacity of planning constraints layers
-                        </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </div>
-            )}
-
-            {/* Main map */}
-            <Map
-                ref={mapRef}
-                mapLib={maplibregl}
-                dragRotate={false}
-                touchRotate={false}
-                pitchWithRotate={false}
-                touchZoomRotate={true}
-                initialViewState={initialViewState}
-                onLoad={onLoad}
-                onMoveEnd={onMoveEnd}
-                onIdle={onIdle}
-                onZoom={onZoom}
-                onClick={onClick}
-                style={{ width: '100%', height: '100%' }}
-                interactiveLayerIds={[
-                    'water', 
-                    'osm-substations-circle',
-                    'votes-unconfirmed', 'votes-confirmed', 
-                    'votes-unconfirmed-single', 'votes-confirmed-single', 
-                    'votes-unconfirmed-multiple', 'votes-confirmed-multiple',
-                    'organisations-default',
-                    ...LAYERS_ALLCONSTRAINTS ]}
-                attributionControl={true}
-                onMouseMove={onMouseMove}
-                maxBounds={MAP_MAXBOUNDS}
-                crossOrigin="anonymous"
-                transformRequest={(url, resourceType) => {
-                    if (resourceType === 'Tile') {
-                    return {
-                        url,
-                        credentials: 'omit', // Ensures browser caching works cross-origin
-                    };
-                    }
-                    return { url };
-                }}
-                >
-
-                {(turbineAdded && displayTurbine) ? (
-                <Marker onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} draggable={true} anchor="bottom" offset={[0, 0]}>
-                    <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
-                </Marker>
-                ) : null}
-
-                {popupInfo && (
-                <Popup
-                    longitude={popupInfo.lngLat.lng}
-                    latitude={popupInfo.lngLat.lat}
-                    closeButton={false}
-                    closeOnClick={false}
-                    anchor="bottom"
-                    offset={10}
-                      className="no-padding-popup px-0 py-0"
-
-                >
-                    <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
-                        <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
-                        {(Array.isArray(popupInfo.properties.content)) 
-                        ? 
-                            (popupInfo.properties.content).map((item, index) => (
-                            <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
-                            )
-                        ) 
-                        :
-                        <>
-                        {(popupInfo.properties.logo) && (
-                            <img
-                                src={popupInfo.properties.logo}
-                                className="mt-1 mb-1 max-w-[200px] h-auto object-contain bg-gray-300 p-4 m-0"
-                            />
-                        )}
-                        <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
-                        </>
-                        }
-                    </div>
-                </Popup>
-                )}
-
-            </Map>
-
-        {mapRef.current?.getMap() && (substation) && (
-        <PulsingSubstationMarker
-            map={mapRef.current?.getMap()}
-            longitude={substation.position.longitude}
-            latitude={substation.position.latitude}
-        />
-        )}
-
-        {/* Cesium viewer */}
-        {(turbinePosition !== null) && (
-        <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
-        )}
-
-        </div>
     </main>
 
   );

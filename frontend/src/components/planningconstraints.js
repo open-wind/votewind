@@ -16,7 +16,7 @@ export default function PlanningConstraints({ containingAreas = [], content=null
   return (
     <div className="relative inline-block text-left mt-1 z-50">
 
-      <p className="text-xs whitespace-normal font-medium text-gray-700 truncate">
+      <p className="text-xs whitespace-normal font-medium text-gray-700 truncate tracking-tight">
 
       <TooltipProvider>
           <Tooltip>
