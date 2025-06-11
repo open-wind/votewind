@@ -722,7 +722,7 @@ def Leaderboard(request):
             confirmed_true=Count('id', filter=Q(confirmed=True)),
             confirmed_false=Count('id', filter=Q(confirmed=False)),
         )
-        .order_by('-total_votes', '-confirmed_true')[:10]
+        .order_by('-total_votes', '-confirmed_true')[:8]
     )
 
     features = []
