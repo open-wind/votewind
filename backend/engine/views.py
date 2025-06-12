@@ -712,6 +712,9 @@ def ordinal(n):
     Gets ordinal version of number, eg. 1st, 2nd, 3rd...
     """
 
+    # Don't add ordinal for n > 99 as breaks UI
+    if (n > 99): return n
+
     if 11 <= (n % 100) <= 13:
         suffix = 'th'
     else:

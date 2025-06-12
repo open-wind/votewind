@@ -90,7 +90,7 @@ export default function Leaderboard({}) {
 
   const initialViewState={
       longitude: MAP_DEFAULT_CENTRE.longitude,
-      latitude: (MAP_DEFAULT_CENTRE.latitude - (isMobile ? 4 : 0)),
+      latitude: (MAP_DEFAULT_CENTRE.latitude - (isMobile ? 3 : 0)),
       zoom: isMobile ? 4.1 : MAP_DEFAULT_ZOOM
   };
 
@@ -230,10 +230,10 @@ export default function Leaderboard({}) {
 
           </Map>
 
-          <div className="absolute bottom-10 sm:top-10 w-full sm:right-0 lg:right-10 flex flex-col items-center justify-end px-4 pb-[32px] sm:items-end sm:justify-start sm:pt-[50px] sm:pb-0 pointer-events-none">
+          <div className="absolute bottom-10 sm:top-10 w-full sm:right-0 lg:right-10 flex flex-col items-center justify-end sm:px-4 pb-[14px] sm:pb-0 sm:items-end sm:justify-start sm:pt-[50px] pointer-events-none">
             <div className="w-full max-w-md sm:max-w-3xl sm:w-[400px] p-2 overflow-x-auto">
 
-              <div className="border-4 w-full overflow-hidden rounded-lg border border-gray-200 shadow-md pointer-events-auto">
+              <div className="sm:border-4 w-full overflow-hidden rounded-lg border border-white shadow-md pointer-events-auto">
 
                 <div className="hidden sm:block py-2 text-center text-gray-600 bg-gray-300">
                   <h2 className="text-lg font-light">
@@ -245,8 +245,8 @@ export default function Leaderboard({}) {
                   <thead className="bg-gray-200 text-gray-700 uppercase text-[9px] sm:text-xs font-semibold">
                     <tr>
                       <th className="px-2 py-1 sm:py-3 text-center align-middle">Rank</th>
-                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Area</th>
-                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Votes</th>
+                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Location</th>
+                      <th className="px-1 py-1 sm:py-3 text-left align-middle">Votes</th>
                       <th className="px-1 py-1 sm:py-3 text-center align-middle">Zoom</th>
                       <th className="px-1 py-1 sm:py-3 text-center align-middle">3D</th>
                       <th className="px-1 pr-3 py-1 sm:py-3 text-center align-middle">Share</th>
@@ -361,24 +361,24 @@ export default function Leaderboard({}) {
                 {(firstPage !== lastPage) &&
                 <div className="bg-gray-100">
                   <div className="flex justify-center gap-3 sm:gap-6 items-center pt-1 pb-1 sm:pt-3 sm:pb-3">
-                    <button disabled={page === firstPage} onClick={() => setPage(firstPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ChevronsLeft className="w-3 h-3" strokeWidth={3}/>
+                    <button disabled={page === firstPage} onClick={() => setPage(firstPage)} className="p-2 rounded-full border bg-white border-gray-300 text-blue-600 disabled:text-gray-600 sm:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronsLeft className="w-3 h-3" strokeWidth={3.5}/>
                     </button>
 
-                    <button disabled={page === prevPage} onClick={() => setPage(prevPage)} className="p-2 rounded-full border bg-white border-gray-300 font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ChevronLeft className="w-3 h-3" strokeWidth={3}/>
+                    <button disabled={page === prevPage} onClick={() => setPage(prevPage)} className="p-2 rounded-full border bg-white border-gray-300 text-blue-600 disabled:text-gray-600 sm:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronLeft className="w-3 h-3" strokeWidth={5}/>
                     </button>
 
                     <span className="text-[11px] sm:text-sm font-md text-black">
                       Page {page}
                     </span>
 
-                    <button disabled={page === nextPage} onClick={() => setPage(nextPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ChevronRight className="w-3 h-3" strokeWidth={3}/>
+                    <button disabled={page === nextPage} onClick={() => setPage(nextPage)} className="p-2 rounded-full border bg-white border-gray-300 text-blue-600 disabled:text-gray-600 sm:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronRight className="w-3 h-3" strokeWidth={5}/>
                     </button>
 
-                    <button disabled={page === lastPage} onClick={() => setPage(lastPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ChevronsRight className="w-3 h-3" strokeWidth={3}/>
+                    <button disabled={page === lastPage} onClick={() => setPage(lastPage)} className="p-2 rounded-full border bg-white border-gray-300 text-blue-600 disabled:text-gray-600 sm:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronsRight className="w-3 h-3" strokeWidth={3.5}/>
                     </button>
                   </div>
                 </div>
