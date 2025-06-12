@@ -753,7 +753,7 @@ def Leaderboard(request):
         geom = v['geometry']
         if isinstance(geom, str):
             geom = GEOSGeometry(geom) 
-        boundary = Boundary.objects.filter(level=6).filter(geometry__contains=geom).first()
+        boundary = Boundary.objects.filter(level__in=[5, 6]).filter(geometry__contains=geom).first()
         boundary_name = ''
         if boundary is not None: boundary_name = boundary.name
         features.append({
