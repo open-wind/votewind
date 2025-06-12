@@ -739,7 +739,7 @@ def Leaderboard(request):
             confirmed_true=Count('id', filter=Q(confirmed=True)),
             confirmed_false=Count('id', filter=Q(confirmed=False)),
         )
-        .order_by('-total_votes', '-confirmed_true')
+        .order_by('-total_votes', '-confirmed_true', 'geometry')
     )
     totalitems = votes.count()
     lastpage = int((totalitems - 1) / pagesize) + 1
