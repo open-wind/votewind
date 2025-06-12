@@ -712,8 +712,6 @@ def ordinal(n):
     Gets ordinal version of number, eg. 1st, 2nd, 3rd...
     """
 
-    if (n > 3): return str(n)
-
     if 11 <= (n % 100) <= 13:
         suffix = 'th'
     else:

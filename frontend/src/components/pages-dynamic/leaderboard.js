@@ -132,7 +132,8 @@ export default function Leaderboard({}) {
       map.touchZoomRotate.disableRotation();
 
       // Load any images that are too fiddly to incorporate into default images
-      const images_to_load = [    'mappin-dropshadow',
+      const images_to_load = [    'mappin-badge',
+                                  'mappin-dropshadow',
                                   'mappin-desaturated-dropshadow', 
                                   'check-mark-circle-outline', 
                                   'check-mark-circle-outline-sdf', 
