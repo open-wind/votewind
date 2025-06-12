@@ -754,6 +754,8 @@ def Leaderboard(request):
         if isinstance(geom, str):
             geom = GEOSGeometry(geom) 
         boundary = Boundary.objects.filter(level=6).filter(geometry__contains=geom).first()
+        boundary_name = ''
+        if not boundary: boundary_name = boundary.name
         features.append({
             "type": "Feature",
             "geometry": json.loads(geom.geojson),
@@ -769,7 +771,7 @@ def Leaderboard(request):
                 "numvotes": v['total_votes'],
                 "votes_confirmed": v['confirmed_true'],
                 "votes_unconfirmed": v['confirmed_false'],
-                "area": boundary.name
+                "area": boundary_name
             }
         })
 
