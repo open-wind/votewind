@@ -707,13 +707,30 @@ def Votes(request):
     geojson = { "type": "FeatureCollection", "features": features }
     return OutputJson(geojson)
 
+def ordinal(n):
+    """
+    Gets ordinal version of number, eg. 1st, 2nd, 3rd...
+    """
+
+    if (n > 3): return str(n)
+
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{n}{suffix}"
+
 @csrf_exempt
 def Leaderboard(request):
     """
     Get voting leaderboard data
     """
 
-    top_votes = (
+    page = int(request.GET.get('page','1')) - 1
+    pagesize = 5
+    position = page * pagesize
+
+    votes = (
         Vote.objects
         .filter(live=True)
         .values('geometry')
@@ -722,22 +739,37 @@ def Leaderboard(request):
             confirmed_true=Count('id', filter=Q(confirmed=True)),
             confirmed_false=Count('id', filter=Q(confirmed=False)),
         )
-        .order_by('-total_votes', '-confirmed_true')[:8]
+        .order_by('-total_votes', '-confirmed_true')
     )
+    totalitems = votes.count()
+    lastpage = int((totalitems - 1) / pagesize) + 1
+    top_votes = votes[position:(position + pagesize)]
 
     features = []
 
     for v in top_votes:
+        position += 1
+        positionordinal = ordinal(position)
         geom = v['geometry']
         if isinstance(geom, str):
             geom = GEOSGeometry(geom) 
+        boundary = Boundary.objects.filter(level=6).filter(geometry__contains=geom).first()
         features.append({
             "type": "Feature",
             "geometry": json.loads(geom.geojson),
             "properties": {
+                "id": str(geom.coords[0]) + "_" + str(geom.coords[1]),
+                "totalitems": totalitems,
+                "pagesize": pagesize,
+                "position": position,
+                "positionordinal": positionordinal,
+                'lng': geom.coords[0],
+                'lat': geom.coords[1],
+                "lastpage": lastpage,
                 "numvotes": v['total_votes'],
-                "confirmed": v['confirmed_true'],
-                "unconfirmed": v['confirmed_false'],
+                "votes_confirmed": v['confirmed_true'],
+                "votes_unconfirmed": v['confirmed_false'],
+                "area": boundary.name
             }
         })
 

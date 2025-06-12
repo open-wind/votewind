@@ -60,6 +60,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [mapLoaded, setMapLoaded] = useState(false);
     const [mapCentre, setMapCentre] = useState({longitude: parseFloat(longitude), latitude: parseFloat(latitude)});
     const [showInfo, setShowInfo] = useState(!(style === 'overview'));
+    const [showInstructions, setShowInstructions] = useState(!(style === 'overview'));
     const [showCesiumViewer, setShowCesiumViewer] = useState(false);
     const [showToggleContraints, setShowToggleConstraint] = useState(false);
     const [turbineAdded, setTurbineAdded] = useState(false);
@@ -594,7 +595,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                     'check-mark-blue',
                                     'check-mark-person'];
 
-                                    for(let i = 0; i < images_to_load.length; i++) {
+        for(let i = 0; i < images_to_load.length; i++) {
             const image_id = images_to_load[i];
             if (!map.hasImage(image_id)) {
                 const img = new window.Image();
@@ -983,7 +984,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         <div className="flex justify-center items-center w-screen h-screen">
 
-            {(!turbineAtCentre) && (!showOrganisations) &&
+            {(!turbineAtCentre) && (!showOrganisations) && (showInstructions) && 
             (<SessionInstructionPopup />)
             }
 
@@ -1597,6 +1598,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </p>
                         </div>
 
+                        <div className="min-h-[3em]">
+
                         {layersClicked && (
                             <>
                             {containingAreas && (
@@ -1606,6 +1609,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             )}
                             </>
                         )}
+                        </div>
 
                         <div className="mt-1 hidden sm:block">
 

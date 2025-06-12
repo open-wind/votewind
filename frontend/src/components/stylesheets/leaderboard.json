@@ -1,0 +1,27 @@
+[
+    {
+      "id": "votes",
+      "type": "symbol",
+      "source": "votes",
+      "layout": {
+        "icon-image": "mappin-desaturated-dropshadow",
+        "icon-size": 0.1,
+        "icon-anchor": "bottom",
+        "icon-offset": [0, 1],
+        "icon-allow-overlap": true,
+        "icon-padding": 0,
+        "text-field": ["to-string", ["get", "positionordinal"]],
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 13,
+        "text-anchor": "center",
+        "text-offset": [0, -3],
+        "text-allow-overlap": false,
+        "text-padding": 0
+      },
+      "paint": {
+        "icon-color": "#000000",
+        "icon-opacity": 1,
+        "text-color": "blue"
+      }
+    }
+]

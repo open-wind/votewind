@@ -25,7 +25,7 @@ export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://til
 export const MAP_DEFAULT_CENTRE = 
 {
   'latitude': 55.281960919035086,
-  'longitude': -3.429071942460162,
+  'longitude': -4.29071942460162,
 }
 
 // Default map bounds to use

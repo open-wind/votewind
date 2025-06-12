@@ -1,42 +1,64 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import maplibregl from 'maplibre-gl';
-import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
-import { Video } from 'lucide-react'
+import Map, { Popup } from 'react-map-gl/maplibre';
+import { Share2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Video } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { Card, CardContent } from "@/components/ui/card";
-import ScrollHint from '@/components/scrollhint'
-import PartnerLogos from '@/components/partner-logos';
-import SocialShareButtons from "@/components/social-share-buttons";
+import { useIsMobile } from "@/components/functions/helpers"
+import SocialMediaModal from '../social-media-modal';
 import CesiumModal from '@/components/cesium-modal';
-import { APP_BASE_URL, API_BASE_URL, MAP_PLACE_ZOOM, VOTEWIND_MAPSTYLE } from '@/lib/config';
+import ViewportHeightFixer from "@/components/viewport-height-fixer";
+
+import { 
+  API_BASE_URL, 
+  MAP_PLACE_ZOOM,
+  MAP_MAXBOUNDS,
+  MAP_DEFAULT_CENTRE,
+  MAP_DEFAULT_ZOOM,
+  TILESERVER_BASEURL
+} from '@/lib/config';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export default function Leaderboard({}) {
-  const searchParams = useSearchParams();
-  const panelRef = useRef(null)
+  const router = useRouter();
+  const mapRef = useRef();
+  const [popupInfo, setPopupInfo] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [data, setData] = useState(null);
   const [viewerData, setViewerData] = useState(null);
+  const [socialmedia, setSocialmedia] = useState(null);
+  const [page, setPage] = useState(null);
+  const [firstPage, setFirstPage] = useState(1);
+  const [prevPage, setPrevPage] = useState(1);
+  const [nextPage, setNextPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const mapRefs = useRef({});
 
-  const rankStyles = {
-    1: { size: 'w-14 h-14 text-4xl sm:w-24 sm:h-24 sm:text-7xl', bg: 'bg-blue-800', color: 'text-white'},
-    2: { size: 'w-12 h-12 text-3xl sm:w-20 sm:h-20 sm:text-5xl', bg: 'bg-blue-500', color: 'text-white' },
-    3: { size: 'w-11 h-11 text-2xl sm:w-16 sm:h-16 sm:text-4xl', bg: 'bg-blue-300', color: 'text-white' },
-    default: { size: 'w-10 h-10 text-2xl sm:w-14 sm:h-14 sm:text-3xl', bg: 'bg-blue-100', color: 'text-gray-400' }
-  };
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    
-    fetch(API_BASE_URL + `/api/leaderboard`)
+    if (!page) return;
+
+    setData(null);
+    const url_to_fetch = API_BASE_URL + `/api/leaderboard?page=` + String(page);
+    fetch(url_to_fetch)
       .then(res => res.json())
       .then((data) => {
         setData(data);
+
+        const lastpage = data.features[0].properties.lastpage;
+        setLastPage(lastpage);
+        if (page !== 1) setPrevPage(page - 1);
+        else setPrevPage(1);
+        if (page < lastpage) setNextPage(page + 1);
+        else setNextPage(lastpage);
+
+        const map = mapRef.current?.getMap();
+        if (map) map.getSource('votes').setData(data);
+
         setIsReady(true);
       })
       .catch((error) => {
@@ -44,221 +66,348 @@ export default function Leaderboard({}) {
         // console.error;
       }
     );
+  }, [page]);
+
+  useEffect(() => {
+    setPage(1);
   }, []);
 
   if (!isReady) return null;
 
+  const topPadding = 100;
+
+  const onZoomTo = (item) => {
+    const position_lnglat = {lng: item.geometry.coordinates[0], lat: item.geometry.coordinates[1]};
+    const map = mapRef.current?.getMap?.();
+    if (!map) return;
+    const padding = {top: topPadding, bottom: isMobile ? window.innerHeight / 3 : 0};
+    if (map.getZoom() < MAP_PLACE_ZOOM) {
+        map.flyTo({center: position_lnglat, zoom: MAP_PLACE_ZOOM, animate: false, padding: padding});
+    } else {
+        map.flyTo({center: position_lnglat, animate: false, padding: padding});
+    }
+  }
+
+  const initialViewState={
+      longitude: MAP_DEFAULT_CENTRE.longitude,
+      latitude: (MAP_DEFAULT_CENTRE.latitude - (isMobile ? 4 : 0)),
+      zoom: isMobile ? 4.1 : MAP_DEFAULT_ZOOM
+  };
+
+  const incorporateBaseDomain = (baseurl, json) => {
+
+      let newjson = JSON.parse(JSON.stringify(json));
+      const sources_keys = Object.keys(newjson['sources'])
+      for (let i = 0; i < sources_keys.length; i++) {
+          const sources_key = sources_keys[i];
+          if ('url' in newjson['sources'][sources_key]) {
+              if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
+                  newjson['sources'][sources_key]['url'] = baseurl + newjson['sources'][sources_key]['url'];
+              }
+          }
+      }  
+
+      newjson['sources']['votes'] = {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection", 
+          "features": []
+        }
+      }
+
+      // Add voting stylesheet
+      var votes_style = require('../stylesheets/leaderboard.json');
+      for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
+
+      newjson['glyphs'] = baseurl + newjson['glyphs'];
+      newjson['sprite'] = baseurl + newjson['sprite'];
+
+      return newjson;
+  }
+  
+  const onLoad = () => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+
+      map.touchZoomRotate.disableRotation();
+
+      // Load any images that are too fiddly to incorporate into default images
+      const images_to_load = [    'mappin-dropshadow',
+                                  'mappin-desaturated-dropshadow', 
+                                  'check-mark-circle-outline', 
+                                  'check-mark-circle-outline-sdf', 
+                                  'check-mark-blue',
+                                  'check-mark-person'];
+
+      for(let i = 0; i < images_to_load.length; i++) {
+          const image_id = images_to_load[i];
+          if (!map.hasImage(image_id)) {
+              const img = new window.Image();
+              img.src = `${assetPrefix}/icons/${image_id}.png`;
+              img.onload = () => map.addImage(image_id, img, { sdf: image_id.endsWith('-sdf')});
+
+          }
+      }
+
+      const defaultStyle = require('../stylesheets/openmaptiles.json');
+      const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
+      map.setStyle(mapStyle);
+
+      if (data) map.getSource('votes').setData(data);
+  }
+
+  const onClick = (event) => {
+      
+      if (event.features.length > 0) {
+          var id = event.features[0]['layer']['id'];
+
+          if (id === 'votes') {
+              const turbineposition = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
+              const new_url = window.location.origin + '/' + String(turbineposition.longitude) + '/' + String(turbineposition.latitude) + '/12?selectturbine=true';
+              router.push(new_url);
+          } 
+      } 
+  }
+
+  const onMouseMove = (e) => {
+      const feature = e.features?.[0];
+      if (!isMobile && feature) setPopupInfo({lngLat: e.lngLat});
+      else setPopupInfo(null);
+  }
+
   return (
     <div>
 
-    <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-cover bg-center"
-        style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
+      {/* Main map */}
+      <ViewportHeightFixer />
 
-        <ScrollHint targetRef={panelRef} />
-
-        <section className="flex flex-col items-center px-3 mb-40">
-
-            <div className="w-full max-w-[800px] mx-auto rounded-2xl mb-2 bg-white/70 p-4 sm:p-6 text-sm sm:text-medium">
-              <div className="flex items-center">
-                <img
-                  src={`${assetPrefix}/icons/check-mark.svg`}
-                  alt="Vote"
-                  className="w-20 h-20 sm:w-[150px] sm:h-[150px] mr-2 sm:mr-6"
-                />
-                <h1 className="text-4xl sm:text-7xl font-light sm:font-thin text-left">Leaderboard</h1>
-              </div>
-
-              <div className="space-y-2 mt-5">
-                {data.features.map((feature, index) => {
-                  const rank = index + 1;
-                  const style = rankStyles[rank] || rankStyles.default;
-                  const turbinePosition = {longitude: feature.geometry.coordinates[0], latitude: feature.geometry.coordinates[1]};
-                  const zoom = MAP_PLACE_ZOOM;
-                  const initialViewState={
-                      longitude: turbinePosition.longitude,
-                      latitude: turbinePosition.latitude,
-                      zoom: zoom
+      <div id="map-container" className="relative w-full" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+          <Map
+              ref={mapRef}
+              mapLib={maplibregl}
+              dragRotate={false}
+              touchRotate={false}
+              pitchWithRotate={false}
+              touchZoomRotate={true}
+              initialViewState={initialViewState}
+              onLoad={onLoad}
+              interactive={true}
+              onClick={onClick}
+              onMouseMove={onMouseMove}
+              style={{ width: '100%', height: '100%' }}
+              interactiveLayerIds={['votes' ]}
+              attributionControl={true}
+              maxBounds={MAP_MAXBOUNDS}
+              crossOrigin="anonymous"
+              transformRequest={(url, resourceType) => {
+                  if (resourceType === 'Tile') {
+                  return {
+                      url,
+                      credentials: 'omit', // Ensures browser caching works cross-origin
                   };
+                  }
+                  return { url };
+              }}
+              >
 
-                  return (
-                    <div key={index} className="flex space-x-4">
-                      {/* Fixed-width number column, centered circle */}
-                      <div className="w-16 sm:w-[150px] flex justify-center mr-0 sm:mr-0">
-                        <div
-                          className={`flex items-center justify-center rounded-full font-bold ${style.color} ${style.size} ${style.bg} sm:ml-3 mr-0 sm:mr-3`}
-                        >
-                          {rank}
-                        </div>
-                      </div>
+              {popupInfo && (
+              <Popup
+                  longitude={popupInfo.lngLat.lng}
+                  latitude={popupInfo.lngLat.lat}
+                  closeButton={false}
+                  closeOnClick={false}
+                  anchor="bottom"
+                  offset={10}
+                  className="no-padding-popup px-0 py-0"
 
-                      {/* Vote info */}
-                      <div className="w-full text-sm sm:text-base">
+              >
+                  <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
+                    <p className="font-md text-sm">Click for site info + voting</p>
+                  </div>
+              </Popup>
+              )}
 
-                        <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-0">
-                          <CardContent className="w-full flex flex-col items-center gap-3 px-4 pt-4 sm:px-6 sm:pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
+          </Map>
 
-                            {/* MAP */}
-                            <div className="w-full h-[200px] sm:w-full sm:h-[350px] border-[4px] border-black overflow-hidden">
-                              <div id="map" className="w-full h-full relative">
+          <div className="absolute bottom-10 sm:top-10 w-full sm:right-0 lg:right-10 flex flex-col items-center justify-end px-4 pb-[32px] sm:items-end sm:justify-start sm:pt-[50px] sm:pb-0 pointer-events-none">
+            <div className="w-full max-w-md sm:max-w-3xl sm:w-[400px] p-2 overflow-x-auto">
 
-                                <div className="absolute left-2 top-2 z-10">
-                                  <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
+              <div className="border-4 w-full overflow-hidden rounded-lg border border-gray-200 shadow-md pointer-events-auto">
 
-                                      <button type="button" onClick={() => mapRefs.current[index]?.zoomIn()} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
-                                      ➕
-                                      </button>
-                                      <button type="button" onClick={() => mapRefs.current[index]?.zoomOut()} className="w-6 h-6 bg-white rounded">
-                                      ➖
-                                      </button>
+                <div className="hidden sm:block py-2 text-center text-gray-600 bg-gray-300">
+                  <h2 className="text-lg font-light">
+                    Leaderboard
+                  </h2>
+                </div>
 
-                                    </div>
-                                </div>
+                <table className="min-w-full table-fixed border-separate border-spacing-0">
+                  <thead className="bg-gray-200 text-gray-700 uppercase text-[9px] sm:text-xs font-semibold">
+                    <tr>
+                      <th className="px-2 py-1 sm:py-3 text-center align-middle">Rank</th>
+                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Area</th>
+                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Votes</th>
+                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Zoom</th>
+                      <th className="px-1 py-1 sm:py-3 text-center align-middle">3D</th>
+                      <th className="px-1 pr-3 py-1 sm:py-3 text-center align-middle">Share</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data && (
+                    <>
+                    {data.features.map((item, index) => (
+                      <tr
+                        key={index}
+                        className={`${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        } ${index === data.length - 1 ? 'rounded-b-lg overflow-hidden' : ''}`}
+                      >
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm font-extrabold text-blue-800 text-center align-middle">{item.properties.positionordinal}</td>
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left align-left">{item.properties.area}</td>
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left font-extrabold align-middle"> 
+                          {item.properties.numvotes}&nbsp;
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="text-gray-300 font-md">
+                                (
+                                {(item.properties.votes_confirmed !== 0) && <span className="text-green-400">{item.properties.votes_confirmed}</span>}
+                                {(item.properties.votes_confirmed !== 0) && (item.properties.votes_unconfirmed !== 0) && "/"}
+                                {(item.properties.votes_unconfirmed !== 0) && <span >{item.properties.votes_unconfirmed}</span>}
+                                )
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                sideOffset={10}
+                                className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
+                              >
+                                {item.properties.votes_confirmed} confirmed vote{(item.properties.votes_confirmed == 1) ? '': 's'}, {item.properties.votes_unconfirmed} unconfirmed vote{(item.properties.votes_unconfirmed == 1) ? '': 's'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          </td>
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-center align-middle">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => onZoomTo(item)}
+                                  type="button"
+                                >
+                                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                sideOffset={10}
+                                className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
+                              >
+                                Zoom to position
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </td>
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-center align-middle">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => setViewerData({longitude: item.geometry.coordinates[0], latitude: item.geometry.coordinates[1]})}
+                                  type="button"
+                                >
+                                  <Video className="w-5 h-5 sm:w-5 sm:h-5 fill-current text-blue-600" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                sideOffset={10}
+                                className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
+                              >
+                                3D view of turbine
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </td>
+                        <td className="px-2 py-1 pr-3 sm:py-3 text-[11px] sm:text-sm text-center align-middle">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => setSocialmedia(item)}
+                                  type="button"
+                                >
+                                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-blue-600" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                sideOffset={10}
+                                className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
+                              >
+                                Share this vote on social media
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </td>
+                      </tr>
+                    ))}
+                    </>
 
+                    )}
+                  </tbody>
+                </table>
 
-                                <Map
-                                  ref={(instance) => {if (instance) {mapRefs.current[index] = instance;}}}
-                                  mapLib={maplibregl}
-                                  dragPan={false}
-                                  dragRotate={false}
-                                  scrollZoom={false}
-                                  doubleClickZoom={true}
-                                  boxZoom={false}
-                                  keyboard={false}
-                                  touchZoomRotate={true}
-                                  interactive={false}
-                                  touchRotate={false}
-                                  pitchWithRotate={false}
-                                  initialViewState={initialViewState}
-                                  style={{ width: '100%', height: '100%' }}
-                                  padding={{ top: 80, bottom: 0, left: 0, right: 0 }}
-                                  mapStyle={VOTEWIND_MAPSTYLE}
-                                  mapLibOptions={{
-                                    preserveDrawingBuffer: false
-                                  }}
-                                  >
-                                  <Marker
-                                    longitude={initialViewState.longitude}
-                                    latitude={initialViewState.latitude}
-                                    draggable={false}
-                                    anchor="bottom"
-                                    offset={[0, 0]}
-                                  >
-                                    <img
-                                      alt="Wind turbine"
-                                      width="80"
-                                      height="80"
-                                      src={`${assetPrefix}/icons/windturbine_blue.png`}
-                                    />
-                                  </Marker>
-                                </Map>
-                              </div>
-                            </div>
+                {(firstPage !== lastPage) &&
+                <div className="bg-gray-100">
+                  <div className="flex justify-center gap-3 sm:gap-6 items-center pt-1 pb-1 sm:pt-3 sm:pb-3">
+                    <button disabled={page === firstPage} onClick={() => setPage(firstPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronsLeft className="w-3 h-3" strokeWidth={3}/>
+                    </button>
 
-                            {/* TEXT BELOW MAP */}
-                            <div className="flex flex-col items-center text-center">
-                              <h1 className="text-md sm:text-2xl font-medium sm:font-medium leading-snug mb-2">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <a className="text-blue-700" href={APP_BASE_URL + "/" + String(turbinePosition.longitude) + "/" + String(turbinePosition.latitude) + "/12/"}>
-                                        {turbinePosition.latitude.toFixed(5)}° N,&nbsp;
-                                        {turbinePosition.longitude.toFixed(5)}° E
-                                      </a>
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="left"
-                                      sideOffset={10}
-                                      className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
-                                    >
-                                      Click to goto position on main map
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                    <button disabled={page === prevPage} onClick={() => setPage(prevPage)} className="p-2 rounded-full border bg-white border-gray-300 font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronLeft className="w-3 h-3" strokeWidth={3}/>
+                    </button>
 
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <button
-                                        onClick={() => setViewerData(turbinePosition)}
-                                        type="button"
-                                        className="inline-flex ml-4 translate-y-[4px] sm:translate-y-[0px] relative items-center justify-center h-6 w-6 sm:h-6 sm:w-6 px-1 py-1 bg-blue-600 text-white rounded-full shadow-lg"
-                                      >
-                                        <Video className="w-5 h-5 sm:w-5 sm:h-5 fill-current text-white" />
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="right"
-                                      sideOffset={10}
-                                      className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block"
-                                    >
-                                      3D view of turbine
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </h1>
+                    <span className="text-[11px] sm:text-sm font-md text-black">
+                      Page {page}
+                    </span>
 
-                              <h2 className="text-2xl font-light leading-snug mb-1">
-                              </h2>
+                    <button disabled={page === nextPage} onClick={() => setPage(nextPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronRight className="w-3 h-3" strokeWidth={3}/>
+                    </button>
 
-                              <div className="flex flex-wrap justify-center items-center text-center gap-x-3 gap-y-2 mb-4">
-                                <div className="flex gap-2">
-                                  {(feature.properties.confirmed !== 0) && (
-                                  <div className="min-w-12 px-3 h-12 rounded-full bg-green-600 text-white flex items-center justify-center shadow-md text-xl font-extrabold">
-                                    {feature.properties.confirmed}
-                                  </div>
-                                  )}
-                                  {(feature.properties.unconfirmed !== 0) && (
-                                  <div className="min-w-12 h-12 px-3 rounded-full bg-white text-black flex items-center justify-center shadow-md border text-xl font-extrabold">
-                                    {feature.properties.unconfirmed}
-                                  </div>
-                                  )}
-                                </div>
+                    <button disabled={page === lastPage} onClick={() => setPage(lastPage)} className="p-2 rounded-full border bg-white border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronsRight className="w-3 h-3" strokeWidth={3}/>
+                    </button>
+                  </div>
+                </div>
+                }
 
-                                <p className="text-[10px] sm:text-sm text-gray-700">
-                                  {feature.properties.confirmed !== 0 && (
-                                    <>{feature.properties.confirmed} confirmed vote{(feature.properties.confirmed > 1) && (<>s</>)}</>
-                                  )}
-                                  {feature.properties.confirmed !== 0 && feature.properties.unconfirmed !== 0 && ', '}
-                                  {feature.properties.unconfirmed !== 0 && (
-                                    <>{feature.properties.unconfirmed} unconfirmed vote{(feature.properties.unconfirmed > 1) && (<>s</>)}</>
-                                  )}
-                                </p>
-                              </div>
-
-                              <SocialShareButtons showstrap={false} title="Vote for this community wind turbine location!" suppliedurl={APP_BASE_URL + "/" + String(turbinePosition.longitude) + "/" + String(turbinePosition.latitude) + "/vote"} />
-                            </div>
-                          </CardContent>
-                        </Card>
-
-
-                      </div>
-
-                    </div>
-                  );
-                })}
               </div>
+
+              {socialmedia && (
+                <SocialMediaModal
+                  open={true}
+                  data={socialmedia}
+                  onClose={() => setSocialmedia(null)}
+                />
+              )}
+
+              {viewerData && (
+                <CesiumModal
+                  isOpen={true}
+                  longitude={viewerData.longitude}
+                  latitude={viewerData.latitude}
+                  onClose={() => setViewerData(null)}
+                />
+              )}
 
             </div>
+          </div>
 
-
-
-        </section>
-
-{viewerData && (
-  <CesiumModal
-    isOpen={true}
-    longitude={viewerData.longitude}
-    latitude={viewerData.latitude}
-    onClose={() => setViewerData(null)}
-  />
-)}
-
-    {/* <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} /> */}
-
-    </main>
-
-      <PartnerLogos />
+      </div>
 
     </div>
+
   );
 }

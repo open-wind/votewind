@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@cesium/widgets": "^12.0.0",
+    "@dnd-kit/core": "^6.3.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.2.0",
@@ -36,6 +37,7 @@
     "rc-tooltip": "^6.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-draggable": "^4.4.6",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-infinite-logo-slider": "^1.1.4",

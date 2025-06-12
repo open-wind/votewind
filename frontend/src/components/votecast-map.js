@@ -192,7 +192,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
         <ScrollHint targetRef={panelRef} />
 
-        <section className="flex flex-col items-center px-3">
+        <section className="flex flex-col items-center px-3 mb-[180px]">
             {/* centred text above */}
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                 <>
@@ -338,9 +338,9 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                         spellCheck="false"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full sm:w-[400px] px-3 py-2 border border-gray-300 rounded text-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
-                                    <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                                    <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                                 </div>
 
                                 {/* Buttons: Side-by-side, full width combined */}
@@ -370,7 +370,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
 
-            <div className="max-w-[800px] md:w-[800px] mx-auto mb-4 bg-white/80 p-5 p-4 sm:p-6 text-sm sm:text-medium mt-4 rounded-2xl mb-40">
+            <div className="max-w-[800px] md:w-[800px] mx-auto mb-4 bg-white/80 p-5 p-4 sm:p-6 text-sm sm:text-medium mt-4 rounded-2xl">
 
 
                 <h1 className="text-4xl font-bold text-left mb-8">
@@ -567,109 +567,6 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
             </div>
             </div>
         </>
-        )}
-
-        {/*  Voting panel */}
-        {turbineAdded && (
-        <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
-
-            <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 py-1">
-
-                {/* Close button */}
-                <button
-                onClick={closeVotingPanel}
-                className="absolute top-1 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
-                aria-label="Close vote panel"
-                >
-                &times;
-                </button>
-
-                <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleVote();
-                }}
-                >
-
-                    {/* Content: Icon + Text */}
-                    <div className="flex mt-1">
-                        <div className="flex-shrink-0 w-20 h-20 sm:w-60 sm:h-60">
-                            <img
-                            alt="Vote"
-                            src="/icons/check-mark.svg"
-                            className="block"
-                            />
-                        </div>
-
-                        <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                            <h2 className="text-xl sm:text-[24px] font-semibold mb-0">Cast turbine vote</h2>
-                            {/* Coordinates */}
-                            <p className="text-xs text-gray-700 mt-2 sm:mt-4">
-                                <b>Position: </b>
-                            {turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E
-                            </p>
-
-                            <p className="text-xs text-gray-500 sm:mb-8">
-                            <b>Planning constraints: </b>Footpaths (120m turbine) 
-                            </p>
-
-                            <div className="mt-1 hidden sm:block">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email confirmation:
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    placeholder="Optional: Enter email address to confirm vote"
-                                    autoCorrect="off"
-                                    autoCapitalize="none"
-                                    autoComplete="off"
-                                    spellCheck="false"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full max-w-[400px] px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                />
-                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: email_explanation }} />
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div className="mt-1 sm:hidden">
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Optional: Enter email to confirm vote"
-                            autoCorrect="off"
-                            autoCapitalize="none"
-                            autoComplete="off"
-                            spellCheck="false"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full sm:w-[400px] px-3 py-1 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-1" dangerouslySetInnerHTML={{ __html: email_explanation }} />
-                    </div>
-
-                    {/* Buttons: Side-by-side, full width combined */}
-                    <div className="mt-2 flex justify-end gap-3">
-                    <button type="button"
-                        onClick={closeVotingPanel}
-                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
-                    >
-                        Cancel
-                    </button>
-                    <button type="submit" className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Cast your vote!
-                    </button>
-                    </div>
-                </form>
-            </div>
-
-        </div>
         )}
 
     {/* Cesium viewer */}
