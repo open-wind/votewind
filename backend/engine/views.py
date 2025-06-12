@@ -755,7 +755,7 @@ def Leaderboard(request):
             geom = GEOSGeometry(geom) 
         boundary = Boundary.objects.filter(level=6).filter(geometry__contains=geom).first()
         boundary_name = ''
-        if not boundary: boundary_name = boundary.name
+        if boundary is not None: boundary_name = boundary.name
         features.append({
             "type": "Feature",
             "geometry": json.loads(geom.geojson),
