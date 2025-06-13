@@ -57,7 +57,7 @@ export default function Leaderboard({}) {
         else setNextPage(lastpage);
 
         const map = mapRef.current?.getMap();
-        if (map) map.getSource('votes').setData(data);
+        if (map) map.getSource('votes-leaderboard').setData(data);
 
         setIsReady(true);
       })
@@ -107,7 +107,7 @@ export default function Leaderboard({}) {
           }
       }  
 
-      newjson['sources']['votes'] = {
+      newjson['sources']['votes-leaderboard'] = {
         "type": "geojson",
         "data": {
           "type": "FeatureCollection", 
@@ -133,12 +133,7 @@ export default function Leaderboard({}) {
 
       // Load any images that are too fiddly to incorporate into default images
       const images_to_load = [    'mappin-badge',
-                                  'mappin-dropshadow',
-                                  'mappin-desaturated-dropshadow', 
-                                  'check-mark-circle-outline', 
-                                  'check-mark-circle-outline-sdf', 
-                                  'check-mark-blue',
-                                  'check-mark-person'];
+                                  'mappin-badge-disabled' ];
 
       for(let i = 0; i < images_to_load.length; i++) {
           const image_id = images_to_load[i];
@@ -154,7 +149,7 @@ export default function Leaderboard({}) {
       const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
       map.setStyle(mapStyle);
 
-      if (data) map.getSource('votes').setData(data);
+      if (data) map.getSource('votes-leaderboard').setData(data);
   }
 
   const onClick = (event) => {
@@ -162,7 +157,7 @@ export default function Leaderboard({}) {
       if (event.features.length > 0) {
           var id = event.features[0]['layer']['id'];
 
-          if (id === 'votes') {
+          if (id.startsWith('votes-')) {
               const turbineposition = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
               const new_url = window.location.origin + '/' + String(turbineposition.longitude) + '/' + String(turbineposition.latitude) + '/12?selectturbine=true';
               router.push(new_url);
@@ -196,7 +191,7 @@ export default function Leaderboard({}) {
               onClick={onClick}
               onMouseMove={onMouseMove}
               style={{ width: '100%', height: '100%' }}
-              interactiveLayerIds={['votes' ]}
+              interactiveLayerIds={['votes-default', 'votes-leaderboard']}
               attributionControl={true}
               maxBounds={MAP_MAXBOUNDS}
               crossOrigin="anonymous"
@@ -262,7 +257,7 @@ export default function Leaderboard({}) {
                           index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                         } ${index === data.length - 1 ? 'rounded-b-lg overflow-hidden' : ''}`}
                       >
-                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm font-extrabold text-blue-800 text-center align-middle">{item.properties.positionordinal}</td>
+                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm font-extrabold text-gray-800 text-center align-middle">{item.properties.positionordinal}</td>
                         <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left align-left">{item.properties.area}</td>
                         <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left font-extrabold align-middle"> 
                           {item.properties.numvotes}&nbsp;

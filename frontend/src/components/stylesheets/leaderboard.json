@@ -1,8 +1,34 @@
 [
     {
-      "id": "votes",
+      "id": "votes-default",
       "type": "symbol",
       "source": "votes",
+      "minzoom": 11,
+      "layout": {
+        "icon-image": "mappin-badge-disabled",
+        "icon-size": 0.1,
+        "icon-anchor": "center",
+        "icon-offset": [0, -230],
+        "icon-allow-overlap": true,
+        "icon-padding": 0,
+        "text-field": ["to-string", ["get", "positionordinal"]],
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 12,
+        "text-anchor": "bottom",
+        "text-offset": [-0.1, -2.2],
+        "text-allow-overlap": false,
+        "text-padding": 0
+      },
+      "paint": {
+        "icon-color": "#000000",
+        "icon-opacity": 1,
+        "text-color": "blue"
+      }
+    },
+    {
+      "id": "votes-leaderboard",
+      "type": "symbol",
+      "source": "votes-leaderboard",
       "layout": {
         "icon-image": "mappin-badge",
         "icon-size": 0.1,

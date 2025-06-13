@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { Wind, Video } from 'lucide-react'
+import { ExternalLink, Wind, Video } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
@@ -613,7 +613,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if (type && (type.includes('organisation:'))) {
             toggleOrganisations();
             selectOrganisation(map, properties.id, properties)
+        } else {
+            if (style === 'overview') toggleOrganisations();
         }
+
 
         setMapLoaded(true);
     }
@@ -1403,7 +1406,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             {(organisation !== null) && (
             <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-                <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-between px-0 sm:px-4 pb-4">
+                <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-start px-0 sm:px-4 pb-4">
 
                     {/* Close button */}
                     <button
@@ -1414,47 +1417,46 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     &times;
                     </button>
 
-                        {/* Content: Icon + Text */}
-                        <div className="flex mt-1 sm:mt-0 sm:w-[800px] mx-auto">
+                    <div className="mx-2 flex flex-col justify-start mt-2 sm:mt-8">
+                        {(organisation.url !== '') ? (
+                        <a
+                        href={organisation.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline text-sm"
+                        >
+                        <h2 className="text-sm sm:text-[24px] font-semibold mt-0 mb-0 inline-flex">{organisation.name} <ExternalLink className="ml-2 mr-8 w-4 h-4" /></h2>
+                        </a>
+                        ) : (
+                        <h2 className="text-md sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                        )}
+                    </div>
 
-                            <div className="flex-shrink-0 ml-5 sm:mr-0 ">
-                                <div className="relative inline-block">
-                                {(organisation.logo_url === '') 
-                                ?
-                                <img
-                                    src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
-                                    alt="Organisation"
-                                    className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
-                                />
-                                :
-                                <img
-                                    src={organisation.logo_url}
-                                    alt={organisation.name}
-                                    className={`${organisation.logo_transparent && "bg-gray-300"} mt-2 sm:mt-6 w-24 h:24 sm:w-60 object-contain p-4 m-0`}
-                                />
-                                }
-                                </div>
-                            </div>
+                    {/* Content: Icon + Text */}
+                    <div className="mt-2 sm:mt-6 sm:w-[800px] mx-auto">
 
-                            <div className="ml-4 flex flex-col justify-start mt-0 sm:mt-4 mr-4">
-                                {(organisation.url !== '') ? (
-                                <a
-                                href={organisation.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 underline text-sm"
-                                >
-                                <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
-                                </a>
-                                ) : (
-                                <h2 className="text-xl sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
-                                )}
-
-                                <p className="text-xs text-gray-700 mt-2 sm:mt-4">{organisation.description}</p>
-
+                        <div className="float-left mx-2 sm:mr-4">
+                            <div className="relative inline-block">
+                            {(organisation.logo_url === '') 
+                            ?
+                            <img
+                                src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
+                                alt="Organisation"
+                                className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
+                            />
+                            :
+                            <img
+                                src={organisation.logo_url}
+                                alt={organisation.name}
+                                className={`${organisation.logo_transparent && "bg-gray-300"} w-full h:44 sm:w-80 max-h-40 object-contain p-4 m-0`}
+                            />
+                            }
                             </div>
                         </div>
 
+                        <p className="mx-2 text-xs text-gray-700 mb-8">{organisation.description}</p>
+
+                    </div>
 
                 </div>
 
