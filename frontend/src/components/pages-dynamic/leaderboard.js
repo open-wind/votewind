@@ -240,7 +240,7 @@ export default function Leaderboard({}) {
                   <thead className="bg-gray-200 text-gray-700 uppercase text-[9px] sm:text-xs font-semibold">
                     <tr>
                       <th className="px-2 py-1 sm:py-3 text-center align-middle">Rank</th>
-                      <th className="px-1 py-1 sm:py-3 text-center align-middle">Location</th>
+                      <th className="px-1 py-1 sm:py-3 text-left align-middle">Location</th>
                       <th className="px-1 py-1 sm:py-3 text-left align-middle">Votes</th>
                       <th className="px-1 py-1 sm:py-3 text-center align-middle">Zoom</th>
                       <th className="px-1 py-1 sm:py-3 text-center align-middle">3D</th>

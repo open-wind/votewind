@@ -1428,30 +1428,23 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         )}
                     </div>
 
-                    {/* Content: Icon + Text */}
                     <div className="mt-2 sm:mt-6 sm:w-[800px] mx-auto">
-
-                        <div className="float-left mx-2 sm:mr-4">
-                            <div className="relative inline-block">
-                            {(organisation.logo_url === '') 
-                            ?
-                            <img
-                                src={`${assetPrefix}/icons/multiple-users-silhouette.svg`}
-                                alt="Organisation"
-                                className="w-24 h-24 sm:w-40 sm:h-40 p-2 sm:p-4 m-0 object-contain object-top"
-                            />
-                            :
-                            <img
+                        <div className="flex flex-col sm:flex-row sm:items-start mx-2 sm:mr-4">
+                            
+                            {(organisation.logo_url !== '') &&
+                            <div className="w-full sm:w-1/2 sm:mr-4 mb-4 sm:mb-0">
+                                <img
                                 src={organisation.logo_url}
                                 alt={organisation.name}
                                 className={`${organisation.logo_transparent && "bg-gray-300"} w-full h:44 sm:w-80 max-h-40 object-contain p-4 m-0`}
-                            />
-                            }
+                                />
                             </div>
+                            }
+
+                            <p className="text-xs text-gray-700 mb-8">
+                            {organisation.description}
+                            </p>
                         </div>
-
-                        <p className="mx-2 text-xs text-gray-700 mb-8">{organisation.description}</p>
-
                     </div>
 
                 </div>
