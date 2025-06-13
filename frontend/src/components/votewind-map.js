@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { ExternalLink, Wind, Video } from 'lucide-react'
+import { ExternalLink, Wind, Video, Check } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
@@ -67,8 +67,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [displayTurbine, setDisplayTurbine] = useState(true);
     const [turbinePosition, setTurbinePosition] = useState({'longitude': null, 'latitude': null});
     const [containingAreas, setContainingAreas] = useState(null);
-    const [votesCast, setVotesCast] = useState(null);
-    const [votesText, setVotesText] = useState('');
+    const [votes, setVotes] = useState(null);
     const [organisation, setOrganisation] = useState(null);
     const [isBouncing, setIsBouncing] = useState(false);
     const [email, setEmail] = useState('');
@@ -702,8 +701,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }, [organisation]);
 
     const deselectActiveItems = () => {
-        setVotesCast(null);
-        setVotesText(null);
+        setVotes(null);
         const map = mapRef.current?.getMap?.();
         if (map) {
             map.removeFeatureState({ source: "votes" });
@@ -768,8 +766,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 map.setFeatureState({ source: 'votes', id: feature_id },{ selected: true });
                 const votes_confirmed = parseInt(event.features[0]['properties']['votes_confirmed']);
                 const votes_unconfirmed = parseInt(event.features[0]['properties']['votes_unconfirmed']);
-                setVotesCast(votes_confirmed + votes_unconfirmed)
-                setVotesText(getVoteText(votes_confirmed, votes_unconfirmed));
+                setVotes({confirmed: votes_confirmed, unconfirmed: votes_unconfirmed, total: (votes_confirmed + votes_unconfirmed)});                
                 isExistingVote = true;
             } 
 
@@ -807,8 +804,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setDisplayTurbine(true);
         setError("");
         setEmail("");
-        setVotesCast(null);
-        setVotesText('');
+        setVotes(null);
         setOrganisation(null);
         setLayersClicked(null);
         setWindspeed(null);
@@ -1534,38 +1530,97 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </>
                         )}
 
-                        {(votesCast !== null) && (
-                        <TooltipProvider>
-                            <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="absolute bottom-0 right-2 inline-flex items-center justify-center sm:bottom-2 sm:right-12 h-6 min-w-6 sm:h-14 sm:min-w-14 px-2 py-0.5 min-w-[1.25rem] bg-green-600 border-2 sm:border-4 border-white text-white text-[9px] sm:text-lg font-medium sm:font-bold rounded-full shadow-lg">
-                                    {votesCast}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                {votesText} for this location
-                            </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        {(votes !== null) && (
+                            <div className="-translate-y-8 text-right w-[200px]">
+                                {(votes.confirmed !== 0) &&
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="ml-3 inline-flex border-2 border-white items-center text-black tracking-loose rounded-full overflow-hidden h-7 -translate-y-1 shadow-lg cursor-pointer" style={{backgroundColor: '#009045'}}>
+                                            <div className="w-6 h-6 border-0 border-white rounded-full flex items-center justify-center shadow-lg" style={{backgroundColor: '#b0ef8f'}}>
+                                                <img src={`${assetPrefix}/icons/mappin-check-mark-green.svg`} alt="Vote" className="w-4 h-4 object-contain"/>
+                                            </div>
+                                            <div className="pl-2 pr-3 text-sm text-white font-semibold">
+                                                {votes.confirmed}
+                                            </div>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    {votes.confirmed} confirmed vote{(votes.confirmed > 1) && "s"}
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                }
+            
+                                {(votes.unconfirmed !== 0) &&
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="ml-1 inline-flex border-2 border-white items-center text-black tracking-loose rounded-full overflow-hidden h-7 -translate-y-1 shadow-lg bg-gray-100 cursor-pointer">
+                                            <div className="w-6 h-6 border-0 border-white rounded-full flex items-center justify-center bg-white shadow-lg">
+                                                <img src={`${assetPrefix}/icons/mappin-check-mark.svg`} alt="Vote" className="w-4 h-4 object-contain"/>
+                                            </div>
+
+                                            <div className="pl-2 pr-3 text-sm text-gray-600 font-semibold">
+                                            {votes.unconfirmed}
+                                            </div>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    {votes.unconfirmed} unconfirmed vote{(votes.unconfirmed > 1) && "s"}
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                }
+                            </div>
                         )}
+
                         </div>
                     </div>
 
                     <div className="ml-0 sm:ml-4 flex flex-col justify-start mt-0 sm:mt-4">
-                        <h2 className="text-lg sm:text-[24px] font-semibold mt-0 mb-0 tracking-tight">
-                        <TooltipProvider>
-                            <Tooltip>
-                            <TooltipTrigger asChild>
-                                <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex mr-3 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                    <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
-                                </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                3D view of turbine
-                            </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                        Wind Turbine Vote
+                        <h2 className="text-lg sm:text-[24px] font-semibold mt-0 mb-0">
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex mr-3 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
+                                        <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    3D view of turbine
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            Wind Turbine Vote
+
+                            {(votes !== null) && (
+                                <div className="sm:hidden inline-flex ml-3">
+                                    {(votes.confirmed !== 0) &&
+                                        <div className="inline-flex border-0 border-white items-center text-black tracking-loose rounded-full overflow-hidden h-5 -translate-y-0.5 shadow-lg cursor-pointer" style={{backgroundColor: '#009045'}}>
+                                            <div className="w-5 h-5 border-0 border-white rounded-full flex items-center justify-center shadow-lg" style={{backgroundColor: '#b0ef8f'}}>
+                                                <img src={`${assetPrefix}/icons/mappin-check-mark-green.svg`} alt="Vote" className="w-3 h-3 object-contain"/>
+                                            </div>
+                                            <div className="pl-2 pr-2 text-xs text-white font-semibold">
+                                                {votes.confirmed}
+                                            </div>
+                                        </div>
+                                    }
+                
+                                    {(votes.unconfirmed !== 0) &&
+                                        <div className="ml-1 inline-flex border-0 border-white items-center text-black tracking-loose rounded-full overflow-hidden h-5 -translate-y-0.5 shadow-lg bg-gray-100 cursor-pointer">
+                                            <div className="w-5 h-5 border-0 border-white rounded-full flex items-center justify-center bg-white shadow-lg">
+                                                <img src={`${assetPrefix}/icons/mappin-check-mark.svg`} alt="Vote" className="w-3 h-3 object-contain"/>
+                                            </div>
+
+                                            <div className="pl-2 pr-3 text-sm text-gray-600 font-semibold">
+                                            {votes.unconfirmed}
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            )}
+
                         </h2>
 
                         <div className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-0 mt-2 sm:mt-4">
