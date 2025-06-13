@@ -10,6 +10,11 @@
   }
 }
 
+.no-padding-popup .maplibregl-popup-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 .disabled {
   pointer-events: none;
   opacity: 0.5;
@@ -21,10 +26,6 @@
 
 [cmdk-input-wrapper] {
   border-bottom: none !important;
-}
-
-.mapboxgl-popup-content.no-padding-popup {
-  padding: 0 !important;
 }
 
 .no-scrollbar::-webkit-scrollbar {

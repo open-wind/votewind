@@ -153,7 +153,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setTimeout(() => setIsBouncing(false), 500); // match animation duration
     };
     
-    const incorporateBaseDomain = (baseurl, json) => {
+    const incorporateBaseDomain = (tileserver_baseurl, api_baseurl, json) => {
 
         let newjson = JSON.parse(JSON.stringify(json));
         const sources_keys = Object.keys(newjson['sources'])
@@ -161,7 +161,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             const sources_key = sources_keys[i];
             if ('url' in newjson['sources'][sources_key]) {
                 if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
-                    newjson['sources'][sources_key]['url'] = baseurl + newjson['sources'][sources_key]['url'];
+                    newjson['sources'][sources_key]['url'] = tileserver_baseurl + newjson['sources'][sources_key]['url'];
+                }
+            }
+            if ('data' in newjson['sources'][sources_key]) {
+                if ((typeof newjson['sources'][sources_key]['data'] === 'string') && 
+                    (!(newjson['sources'][sources_key]['data'].startsWith('http')))) {
+                    newjson['sources'][sources_key]['data'] = api_baseurl + newjson['sources'][sources_key]['data'];
                 }
             }
         }  
@@ -235,8 +241,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         var organisations_style = require('./stylesheets/organisations.json');
         for (let i = 0; i < organisations_style.length; i++) newjson['layers'].push(organisations_style[i]);
 
-        newjson['glyphs'] = baseurl + newjson['glyphs'];
-        newjson['sprite'] = baseurl + newjson['sprite'];
+        newjson['glyphs'] = tileserver_baseurl + newjson['glyphs'];
+        newjson['sprite'] = tileserver_baseurl + newjson['sprite'];
 
         return newjson;
     }
@@ -255,15 +261,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             var heading = '';
             var logo = null;
             var logo_transparent = null;
+            var offset = 40;
             if (feature.layer.id.startsWith('votes-')) {
+                heading = 'Votes';
+                offset = 600;
                 const votes_confirmed = parseInt(feature.properties.votes_confirmed);
                 const votes_unconfirmed = parseInt(feature.properties.votes_unconfirmed);
-                heading = 'Votes';
                 content = getVoteText(votes_confirmed, votes_unconfirmed) + ' ';
                 content = content.replaceAll(' votes', '').replaceAll(' vote', '').replaceAll(' and ', ', ');
             }
             if (feature.layer.id.startsWith('organisations-')) {
                 heading = 'Community Energy Organisation';
+                offset = 500;
                 content = feature.properties.name;
                 logo = feature.properties.logo_url;
                 logo_transparent = feature.properties.logo_transparent;
@@ -282,7 +291,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
 
             setPopupInfo({
-                lngLat: e.lngLat,
+                offset: offset,
+                lngLat: {lng: feature.geometry.coordinates[0], lat: feature.geometry.coordinates[1]},
                 properties: {heading: heading, content: content, logo: logo, logo_transparent: logo_transparent}
             });
         } else {
@@ -303,7 +313,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     setPositionWindspeed(null);
                 }
             }
-
         }
     }
 
@@ -492,6 +501,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         checkZoom(map);
 
+        // If no turbine added, don't do anything else
         if(!turbineAdded) return;
 
         // Don't derive planning constraints if zoom is too low
@@ -509,6 +519,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             clicked_features.push(formatLayerName(clicked_feature.layer.id));
         }
         setLayersClicked(clicked_features.reverse());
+
+        // If position coincides with vote, select vote - which hides turbine marker
+        const votefeatures = map.queryRenderedFeatures(screenPoint, { layers: ['votes-confirmed', 'votes-unconfirmed']});
+        if ((votefeatures.length > 0) && (!votes)) selectVote(map, votefeatures[0].properties);
     }
 
     useEffect(() => {
@@ -605,17 +619,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
 
         const defaultStyle = require('./stylesheets/openmaptiles.json');
-        const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
+        const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
         map.setStyle(mapStyle);
 
         // If search -> organisation, enable organisations layer and select specific organisation
         if (type && (type.includes('organisation:'))) {
             toggleOrganisations();
-            selectOrganisation(map, properties.id, properties)
+            selectOrganisation(map, properties)
         } else {
             if (style === 'overview') toggleOrganisations();
         }
-
 
         setMapLoaded(true);
     }
@@ -739,63 +752,61 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return layer_name;
     }
 
-    const selectOrganisation = (map, id, properties) => {
-        map.setFeatureState({ source: 'organisations', id: id },{ selected: true });
+    const selectOrganisation = (map, properties) => {
+        if (!map) return;
+        map.setFeatureState({ source: 'organisations', id: properties.id },{ selected: true });
         setOrganisation(properties);
+        setDisplayTurbine(false);
+        setTurbinePosition(null);
+        setTurbineAdded(false);
+        setSubstation(null);
+        setVotes(null);
     }
+
+    const selectVote = (map, properties) => {
+        if (!map) return;
+        map.setFeatureState({ source: 'votes', id: properties['id'] },{ selected: true });
+        const votes_confirmed = parseInt(properties['votes_confirmed']);
+        const votes_unconfirmed = parseInt(properties['votes_unconfirmed']);
+        setVotes({confirmed: votes_confirmed, unconfirmed: votes_unconfirmed, total: (votes_confirmed + votes_unconfirmed)});                
+        setTurbinePosition({longitude: properties.lng, latitude: properties.lat});
+        setTurbineAdded(true);
+        setDisplayTurbine(false);
+        setOrganisation(null);
+    } 
 
     const onClick = (event) => {
         var acceptableposition = true;
         deselectActiveItems();
 
         var turbineposition_new = {'longitude': event.lngLat.lng, 'latitude': event.lngLat.lat};
-        var isExistingVote = false;
-        var isOrganisation = false;
         
         if (event.features.length > 0) {
             var id = event.features[0]['layer']['id'];
+            const map = mapRef.current?.getMap?.();
+
             if (id == 'water') {
                 acceptableposition = false;
                 toastOnshoreOnly();
             }
 
             if (id.startsWith('votes-')) {
-                const feature_id = event.features[0]['properties']['id'];
                 turbineposition_new = {'longitude': event.features[0]['properties']['lng'], 'latitude': event.features[0]['properties']['lat']};
-                const map = mapRef.current?.getMap?.();
-                map.setFeatureState({ source: 'votes', id: feature_id },{ selected: true });
-                const votes_confirmed = parseInt(event.features[0]['properties']['votes_confirmed']);
-                const votes_unconfirmed = parseInt(event.features[0]['properties']['votes_unconfirmed']);
-                setVotes({confirmed: votes_confirmed, unconfirmed: votes_unconfirmed, total: (votes_confirmed + votes_unconfirmed)});                
-                isExistingVote = true;
+                selectVote(map, event.features[0]['properties']);
+                return;
             } 
 
             if (id.startsWith('organisations-')) {
-                const feature_id = event.features[0]['properties']['id'];
-                const map = mapRef.current?.getMap?.();
-                isOrganisation = true;
-                var properties = event.features[0]['properties'];
-                properties.longitude = properties.longitude;
-                properties.latitude = properties.latitude;
-                selectOrganisation(map, feature_id, properties);
+                selectOrganisation(map, event.features[0]['properties']);
+                return;
             } 
         } 
 
-        if ((isExistingVote) || (isOrganisation)) setDisplayTurbine(false);
-        else {
-            if (!displayTurbine) setDisplayTurbine(true);
-        }
+        if (!displayTurbine) setDisplayTurbine(true);
 
-        if (isOrganisation) {
-            setTurbinePosition(null);
-            setTurbineAdded(false);
-        }
-        else {
-            setOrganisation(null);
-            if (acceptableposition) {
-                setTurbinePosition(turbineposition_new);
-                setTurbineAdded(true);
-            }
+        if (acceptableposition) {
+            setTurbinePosition(turbineposition_new);
+            setTurbineAdded(true);
         }
     }
 
@@ -977,6 +988,16 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             else setAlertMessage('Please enter a valid email address - or delete your input to use no email address.');
         }
     }
+
+    const scalePopupOffset = (offset, zoom) => {
+        if (!zoom) return offset;
+        if (zoom >= 10) return (offset * 0.1);
+        if (zoom >= 9) return (offset * 0.0875);
+        if (zoom >= 8) return (offset * 0.075);
+        if (zoom >= 7) return (offset * 0.0675);
+        if (zoom >= 6) return (offset * 0.05);
+        return (offset * 0.025);
+    };
 
     return (
     <div className="min-h-screen flex flex-col justify-between">
@@ -1204,7 +1225,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
                 {nearestOrganisations && (
                     (nearestOrganisations).map((item, index) => (
-                        <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.id, item.properties)} key={index}>
+                        <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.properties)} key={index}>
                             <div className="p-0 mt-0 mb-1 sm:mb-4 tracking-tight space-y-0">
 
                             {(item.properties.logo_url !== '') && (
@@ -1279,11 +1300,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             closeButton={false}
                             closeOnClick={false}
                             anchor="bottom"
-                            offset={10}
+                            offset={scalePopupOffset(popupInfo.offset, mapRef.current?.getMap()?.getZoom())}
                             className="no-padding-popup px-0 py-0"
 
                         >
-                            <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
+                            <div className="text-sm font-medium px-3 py-2 leading-normal">
                                 <h1 className="font-extrabold text-medium w-full text-center px-0 py-0">{popupInfo.properties.heading}</h1>
                                 {(Array.isArray(popupInfo.properties.content)) 
                                 ?   (popupInfo.properties.content).map((item, index) => (

@@ -94,7 +94,7 @@ export default function Leaderboard({}) {
       zoom: isMobile ? 4.1 : MAP_DEFAULT_ZOOM
   };
 
-  const incorporateBaseDomain = (baseurl, json) => {
+  const incorporateBaseDomain = (tileserver_baseurl, api_baseurl, json) => {
 
       let newjson = JSON.parse(JSON.stringify(json));
       const sources_keys = Object.keys(newjson['sources'])
@@ -102,7 +102,13 @@ export default function Leaderboard({}) {
           const sources_key = sources_keys[i];
           if ('url' in newjson['sources'][sources_key]) {
               if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
-                  newjson['sources'][sources_key]['url'] = baseurl + newjson['sources'][sources_key]['url'];
+                  newjson['sources'][sources_key]['url'] = tileserver_baseurl + newjson['sources'][sources_key]['url'];
+              }
+          }
+          if ('data' in newjson['sources'][sources_key]) {
+              if ((typeof newjson['sources'][sources_key]['data'] === 'string') && 
+                  (!(newjson['sources'][sources_key]['data'].startsWith('http')))) {
+                  newjson['sources'][sources_key]['data'] = api_baseurl + newjson['sources'][sources_key]['data'];
               }
           }
       }  
@@ -119,8 +125,8 @@ export default function Leaderboard({}) {
       var votes_style = require('../stylesheets/leaderboard.json');
       for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
 
-      newjson['glyphs'] = baseurl + newjson['glyphs'];
-      newjson['sprite'] = baseurl + newjson['sprite'];
+      newjson['glyphs'] = tileserver_baseurl + newjson['glyphs'];
+      newjson['sprite'] = tileserver_baseurl + newjson['sprite'];
 
       return newjson;
   }
@@ -146,7 +152,7 @@ export default function Leaderboard({}) {
       }
 
       const defaultStyle = require('../stylesheets/openmaptiles.json');
-      const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, defaultStyle);
+      const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
       map.setStyle(mapStyle);
 
       if (data) map.getSource('votes-leaderboard').setData(data);
@@ -167,7 +173,9 @@ export default function Leaderboard({}) {
 
   const onMouseMove = (e) => {
       const feature = e.features?.[0];
-      if (!isMobile && feature) setPopupInfo({lngLat: e.lngLat});
+      if (!isMobile && feature) {
+        setPopupInfo({lngLat: {lng: e.features[0].properties.lng, lat: e.features[0].properties.lat}});
+      }
       else setPopupInfo(null);
   }
 
@@ -213,12 +221,12 @@ export default function Leaderboard({}) {
                   closeButton={false}
                   closeOnClick={false}
                   anchor="bottom"
-                  offset={10}
-                  className="no-padding-popup px-0 py-0"
+                  offset={50}
+                  className="no-padding-popup px-0 py-0 m-0"
 
               >
-                  <div className="text-sm font-medium px-0 py-0 pb-0 leading-normal">
-                    <p className="font-md text-sm">Click for site info + voting</p>
+                  <div className="text-sm font-medium px-2 py-2 leading-normal">
+                    <p className="font-md text-xs">Click for site info & voting</p>
                   </div>
               </Popup>
               )}
