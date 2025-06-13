@@ -1475,8 +1475,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         </div>
 
+        {/* Voting panel */}
         {turbineAdded && (
-        
         <section className="w-full z-50 bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 sm:overflow-y-auto absolute bottom-0 left-0">
 
             <div className="w-full max-w-[1000px] mx-auto">
@@ -1685,13 +1685,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <div className="mt-1 hidden sm:block">
 
                             <div className="mt-3">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email confirmation:
-                                </label>
-                                <div className="w-full bg-white border p-2 rounded shadow max-w-[600px]" onClick={() => setInputOpen(true)}>
-                                    <p className={`${(email !== '') ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer`}>{email || "Optional: Enter email to confirm vote"}</p>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label>
+
+                                <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
+                                    <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer pr-6`}>
+                                        {email || "Optional: Enter email to confirm vote"}
+                                    </p>
+                                    {email && (
+                                    <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl leading-none" aria-label="Clear email">
+                                        &times;
+                                    </button>
+                                    )}
                                 </div>
-                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+
+                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                             </div>
 
                         </div>
@@ -1703,11 +1710,20 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <div className="mt-0 sm:hidden">
 
                     <div className="mt-3">
-                        <div className="w-full bg-white border p-2 rounded shadow" onClick={() => setInputOpen(true)}>
-                            <p className={`${(email !== '') ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer`}>{email || "Optional: Enter email to confirm vote"}</p>
+                        <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
+                            <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer pr-6`}>
+                                {email || "Optional: Enter email to confirm vote"}
+                            </p>
+                            {email && (
+                            <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl leading-none" aria-label="Clear email">
+                                &times;
+                            </button>
+                            )}
                         </div>
-                        <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+
+                        <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                     </div>
+                    
                 </div>
 
                 <div className="mt-2 flex justify-end gap-x-3 mb-[32px] sm:mb-4">
