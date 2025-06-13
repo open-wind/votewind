@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { ExternalLink, Wind, Video, Check } from 'lucide-react'
+import { Layers, ExternalLink, Wind, Video, Check } from 'lucide-react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
@@ -1020,10 +1020,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleWindspeeds}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
                             >
                                 {showWindspeeds ? (
-                                    <Wind className="w-6 h-6" />
+                                    <Wind className="w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
                                     <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
                                         <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
@@ -1049,10 +1049,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleOrganisations}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
                             >
                                 {showOrganisations 
-                                ? <UserGroupIcon className="w-6 h-6 text-blue-700" />
+                                ? <UserGroupIcon className="w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 : <UserGroupIcon className="w-6 h-6 text-gray-400" />
                                 }
                             </button>
@@ -1069,10 +1069,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleViewshed}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-100") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
                             >
                                 {showViewshed ? (
-                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-blue-700" />
+                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
                                     <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
                                 )}
@@ -1092,12 +1092,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleLayersVisibility}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-100") : ("bg-white")}  rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-600") : ("bg-white")}  rounded-full shadow sm:hover:bg-gray-100 transition flex items-center justify-center`}
                             >
                                 {layersVisible ? (
-                                    <EyeIcon className="w-5 h-5 text-blue-600" />
+                                    <Layers className="w-5 h-5 text-white" strokeWidth={2} style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
-                                    <EyeSlashIcon className="w-5 h-5 text-gray-400" />
+                                    <Layers className="w-5 h-5 text-gray-400" strokeWidth={1.5}/>
                                 )}
                             </button>
                         </TooltipTrigger>
@@ -1138,7 +1138,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
+                            <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white sm:hover:bg-gray-100 rounded-full flex items-center justify-center">
                             <img
                                 alt="Wind turbine"
                                 src={`${assetPrefix}/icons/windturbine_black.png`}
@@ -1723,7 +1723,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                     </div>
-                    
+
                 </div>
 
                 <div className="mt-2 flex justify-end gap-x-3 mb-[32px] sm:mb-4">
