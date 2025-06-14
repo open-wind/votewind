@@ -114,3 +114,12 @@ export const LAYERS_OPACITY = 0.05;
 
 // Default turbine height-to-tip used when displaying detailed planning constraints
 export const TURBINE_HEIGHTTOTIP_DEFAULT = 100;
+
+// Default AR hubheight
+// Based on openwind's own manual data on all large (>=75 m to tip-height) failed and successful UK onshore wind projects
+export const TURBINE_AR_DEFAULT_HUBHEIGHT = 124.2;
+
+// Default AR bladeradius
+// Based on openwind's own manual data on all large (>=75 m to tip-height) failed and successful UK onshore wind projects
+export const TURBINE_AR_DEFAULT_BLADERADIUS = 47.8;
+

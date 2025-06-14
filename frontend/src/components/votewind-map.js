@@ -10,14 +10,15 @@ import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
 import { Layers, ExternalLink, Wind, Video, Check } from 'lucide-react'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
 import { UserGroupIcon } from '@heroicons/react/24/solid'; // or `/outline`
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
 import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
+import QRModal from './qr-modal';
 import AutocompleteInput from './autocomplete-input';
 import PlanningConstraints from './planningconstraints';
 import PercentageSlider from "@/components/percentage-slider";
@@ -25,6 +26,7 @@ import SessionInstructionPopup from '@/components/session-instruction-popup';
 import PulsingSubstationMarker from '@/components/pulsing-substation';
 import ViewportHeightFixer from "@/components/viewport-height-fixer";
 import InputModal from "@/components/input-modal";
+import { useSession } from '@/components/session-context';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point as turfPoint } from '@turf/helpers';
 import { 
@@ -40,7 +42,9 @@ import {
     TILESERVER_BASEURL,
     LAYERS_ALLCONSTRAINTS, 
     LAYERS_COLOR, 
-    LAYERS_OPACITY 
+    LAYERS_OPACITY,
+    TURBINE_AR_DEFAULT_HUBHEIGHT,
+    TURBINE_AR_DEFAULT_BLADERADIUS
 } from '@/lib/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -89,6 +93,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showOrganisations, setShowOrganisations] = useState(false);
     const [showNearestOrganisations, setShowNearestOrganisations] = useState(false);
     const [nearestOrganisations, setNearestOrganisations] = useState(null);
+    const [showQR, setShowQR] = useState(false);
+    const [QRurl, setQRurl] = useState(false);
+    const { sessionValue } = useSession();
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -398,7 +405,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     useEffect(() => {
 
-        if(!turbineAdded) return;
+        if(!turbineAdded) {
+            setQRurl(null);
+            return;
+        }
+
+        setQRurl(createQRCode(turbinePosition));
 
         // Reset planning constraint layers as these will be set onIdle
         setLayersClicked(null);
@@ -1001,6 +1013,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return (offset * 0.025);
     };
 
+    const createQRCode = (parameters) => {
+        const qrcode_url = 'https://votewind.org/ar/' + String(parameters.longitude) + '/' + String(parameters.latitude) + '/' + String(TURBINE_AR_DEFAULT_HUBHEIGHT) + '/' + String(TURBINE_AR_DEFAULT_BLADERADIUS);
+        console.log(qrcode_url);
+        return qrcode_url;
+    }
+
     return (
     <div className="min-h-screen flex flex-col justify-between">
 
@@ -1338,10 +1356,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 />
                 )}
 
-                {/* Cesium viewer */}
+                {/* Cesium viewer and AR/QRCode */}
                 {(turbinePosition !== null) && (
-                <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
+                <CesiumModal isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude}/>
                 )}
+
+                {(QRurl !== null) &&
+                <QRModal isOpen={showQR} onClose={()=>setShowQR(false)} url={QRurl} />
+                }
 
             </div>
 
@@ -1547,7 +1569,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         )}
 
                         {(votes !== null) && (
-                            <div className="-translate-y-8 text-right w-[200px]">
+                            <div className="-translate-y-7 text-right w-[200px]">
                                 {(votes.confirmed !== 0) &&
                                 <TooltipProvider>
                                     <Tooltip>
@@ -1599,19 +1621,43 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="inline-flex mr-3 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                        <Video className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-white" />
+                                    <button type="button" onClick={() => setShowCesiumViewer(true)} className="translate-y-2 sm:translate-y-2 inline-flex mr-2 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-8 sm:w-8 px-0 py-0 sm:text-sm rounded-full">
+                                        <Video className="w-7 h-7 sm:w-8 sm:h-8 fill-current text-blue-600" />
                                     </button>
                                 </TooltipTrigger>
-                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                <TooltipContent side="left" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
                                     3D view of turbine
                                 </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
-                            Wind Turbine Vote
+
+                            {(sessionValue === 'ar-is-enabled') &&
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    {isMobile ? (
+                                    <a href={"intent://#Intent;S.data=" + QRurl + ";scheme=votewind-ar;package=org.votewind.viewer;end"}>
+                                    <button type="button" className="translate-y-1 inline-flex mr-1 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-white text-white sm:text-sm rounded-full">
+                                        <ViewInArIcon className="fill-current text-blue-600" style={{ fontSize: isMobile? '20px': '28px' }}  />
+                                    </button>
+                                    </a>
+                                    ) : (
+                                    <button type="button" onClick={() => setShowQR(true)} className="translate-y-1 inline-flex mr-1 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-white text-white sm:text-sm rounded-full">
+                                        <ViewInArIcon className="fill-current text-blue-600" style={{ fontSize: isMobile? '20px': '28px' }}  />
+                                    </button>
+                                    )}
+                                </TooltipTrigger>
+                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    View in Augmented Reality - requires ARCore-compliant Android phone
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            }
+
+                            <span className="hidden sm:inline">Wind&nbsp;</span>Turbine Vote
 
                             {(votes !== null) && (
-                                <div className="sm:hidden inline-flex ml-3">
+                                <div className="sm:hidden inline-flex ml-2 sm:ml-3">
                                     {(votes.confirmed !== 0) &&
                                         <div className="inline-flex border-0 border-white items-center text-black tracking-loose rounded-full overflow-hidden h-5 -translate-y-0.5 shadow-lg cursor-pointer" style={{backgroundColor: '#009045'}}>
                                             <div className="w-5 h-5 border-0 border-white rounded-full flex items-center justify-center shadow-lg" style={{backgroundColor: '#b0ef8f'}}>

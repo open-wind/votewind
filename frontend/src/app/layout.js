@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from 'next/script';
 import "./globals.css";
 import Navbar from '@/components/navbar'; // adjust path if needed
+import { SessionProvider } from '@/components/session-context';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,11 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
         />
         <Navbar />
-        <main>{children}</main>
+        <main>
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+        </main>
       </body>
     </html>
   );
