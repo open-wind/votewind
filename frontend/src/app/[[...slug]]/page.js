@@ -8,6 +8,7 @@ import LongitudeLatitude3DPage from '@/components/pages-dynamic/longitude-latitu
 import LongitudeLatitudeVote from '@/components/pages-dynamic/longitude-latitude-vote';
 import Leaderboard from '@/components/pages-dynamic/leaderboard';
 import ConfirmationError from '@/components/pages-dynamic/confirmation-error';
+import EnableAR from '@/components/pages-dynamic/enablear';
 import NotFound from '@/components/not-found';
 import { MAP_OVERVIEW_PARAMETERS } from '@/lib/config';
 
@@ -42,6 +43,7 @@ export default function ClientRouter() {
   const isOverviewMap = pathSegments?.[0] === 'map';
   const isLeaderboard = pathSegments?.length === 1 && pathSegments[0] === 'leaderboard';
   const isConfirmationError = pathSegments?.length === 1 && pathSegments[0] === 'confirmationerror';
+  const isEnableAR = pathSegments?.[0] === 'enablear';
 
   useEffect(() => {
     if (isOverviewMap && !hasRedirectedRef.current) {
@@ -59,8 +61,9 @@ export default function ClientRouter() {
   if (isVote) return <LongitudeLatitudeVote longitude={pathSegments[0]} latitude={pathSegments[1]} />;
   if (isLeaderboard) return <Leaderboard/>;
   if (isConfirmationError) return <ConfirmationError />;
+  if (isEnableAR) return <EnableAR/>;
   if (isOverviewMap) return <p>Redirecting to overview map…</p>; 
-  
+
   return <NotFound />;
 
 }

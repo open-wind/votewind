@@ -1154,7 +1154,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </Tooltip>
                     </TooltipProvider>
 
-                    {turbineAdded ? (
+                    {(turbineAdded && (!isMobile)) ? (
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
