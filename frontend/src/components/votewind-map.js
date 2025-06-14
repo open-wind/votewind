@@ -26,7 +26,6 @@ import SessionInstructionPopup from '@/components/session-instruction-popup';
 import PulsingSubstationMarker from '@/components/pulsing-substation';
 import ViewportHeightFixer from "@/components/viewport-height-fixer";
 import InputModal from "@/components/input-modal";
-import { useSession } from '@/components/session-context';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point as turfPoint } from '@turf/helpers';
 import { 
@@ -95,7 +94,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [nearestOrganisations, setNearestOrganisations] = useState(null);
     const [showQR, setShowQR] = useState(false);
     const [QRurl, setQRurl] = useState(false);
-    const { sessionValue } = useSession();
+    const [isAREnabled, setAREnabled] = useState(false);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -381,6 +380,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const onOpacitySliderChange = (slider) => {
         setLayersOpacityValue(slider2opacity(slider));
     }
+
+    useEffect(() => {
+        const value = sessionStorage.getItem('votewind-use-ar');
+        setAREnabled(value === 'true');
+    }, []);
 
     useEffect(() => {
         const map = mapRef.current?.getMap?.();
@@ -1015,7 +1019,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
     const createQRCode = (parameters) => {
         const qrcode_url = 'https://votewind.org/ar/' + String(parameters.longitude) + '/' + String(parameters.latitude) + '/' + String(TURBINE_AR_DEFAULT_HUBHEIGHT) + '/' + String(TURBINE_AR_DEFAULT_BLADERADIUS);
-        console.log(qrcode_url);
         return qrcode_url;
     }
 
@@ -1631,7 +1634,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 </Tooltip>
                             </TooltipProvider>
 
-                            {(sessionValue === 'ar-is-enabled') &&
+                            {(isAREnabled) &&
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
