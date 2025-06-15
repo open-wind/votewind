@@ -1,0 +1,794 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpKI>
+  <HelpKINode Title="Airy1830Ellipsoid class">
+    <HelpKINode Title="Airy1830Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Airy1830Ellipsoid.htm" />
+    <HelpKINode Title="about Airy1830Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Airy1830Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Airy1830Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Airy1830Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Airy1830Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Airy1830Ellipsoid.Airy1830Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Airy1830Ellipsoid__ctor.htm" />
+  <HelpKINode Title="AustralianNational1966Ellipsoid class">
+    <HelpKINode Title="AustralianNational1966Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid.htm" />
+    <HelpKINode Title="about AustralianNational1966Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AustralianNational1966Ellipsoid.AustralianNational1966Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Bearing method" Url="html/M_DotNetCoords_LatLng_Bearing.htm" />
+  <HelpKINode Title="Bessel1841Ellipsoid class">
+    <HelpKINode Title="Bessel1841Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid.htm" />
+    <HelpKINode Title="about Bessel1841Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Bessel1841Ellipsoid.Bessel1841Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Clarke1866Ellipsoid class">
+    <HelpKINode Title="Clarke1866Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid.htm" />
+    <HelpKINode Title="about Clarke1866Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Clarke1866Ellipsoid.Clarke1866Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Clarke1880Ellipsoid class">
+    <HelpKINode Title="Clarke1880Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid.htm" />
+    <HelpKINode Title="about Clarke1880Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Clarke1880Ellipsoid.Clarke1880Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid__ctor.htm" />
+  <HelpKINode Title="CoordinateSystem class">
+    <HelpKINode Title="CoordinateSystem Class" Url="html/T_DotNetCoords_CoordinateSystem.htm" />
+    <HelpKINode Title="about CoordinateSystem class" Url="html/T_DotNetCoords_CoordinateSystem.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_CoordinateSystem__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_CoordinateSystem.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_CoordinateSystem.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CoordinateSystem.CoordinateSystem constructor" Url="html/M_DotNetCoords_CoordinateSystem__ctor.htm" />
+  <HelpKINode Title="CoordinateSystem.Datum property" Url="html/P_DotNetCoords_CoordinateSystem_Datum.htm" />
+  <HelpKINode Title="CoordinateSystem.ToLatLng method" Url="html/M_DotNetCoords_CoordinateSystem_ToLatLng.htm" />
+  <HelpKINode Title="Datum class">
+    <HelpKINode Title="Datum Class" Url="html/T_DotNetCoords_Datum_Datum.htm" />
+    <HelpKINode Title="about Datum class" Url="html/T_DotNetCoords_Datum_Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Datum property">
+    <HelpKINode Title="CoordinateSystem.Datum Property " Url="html/P_DotNetCoords_CoordinateSystem_Datum.htm" />
+    <HelpKINode Title="LatLng.Datum Property " Url="html/P_DotNetCoords_LatLng_Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Datum(Of T) class">
+    <HelpKINode Title="Datum(T) Class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="about Datum(Of T) class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_Datum_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_Datum_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Datum(Of T).Datum constructor" Url="html/M_DotNetCoords_Datum_Datum_1__ctor.htm" />
+  <HelpKINode Title="Datum(Of T).Instance property" Url="html/P_DotNetCoords_Datum_Datum_1_Instance.htm" />
+  <HelpKINode Title="Datum.Datum constructor" Url="html/M_DotNetCoords_Datum_Datum__ctor.htm" />
+  <HelpKINode Title="Datum.DS property" Url="html/P_DotNetCoords_Datum_Datum_DS.htm" />
+  <HelpKINode Title="Datum.DX property" Url="html/P_DotNetCoords_Datum_Datum_DX.htm" />
+  <HelpKINode Title="Datum.DY property" Url="html/P_DotNetCoords_Datum_Datum_DY.htm" />
+  <HelpKINode Title="Datum.DZ property" Url="html/P_DotNetCoords_Datum_Datum_DZ.htm" />
+  <HelpKINode Title="Datum.Name property" Url="html/P_DotNetCoords_Datum_Datum_Name.htm" />
+  <HelpKINode Title="Datum.ReferenceEllipsoid property" Url="html/P_DotNetCoords_Datum_Datum_ReferenceEllipsoid.htm" />
+  <HelpKINode Title="Datum.RX property" Url="html/P_DotNetCoords_Datum_Datum_RX.htm" />
+  <HelpKINode Title="Datum.RY property" Url="html/P_DotNetCoords_Datum_Datum_RY.htm" />
+  <HelpKINode Title="Datum.RZ property" Url="html/P_DotNetCoords_Datum_Datum_RZ.htm" />
+  <HelpKINode Title="Datum.ToString method" Url="html/M_DotNetCoords_Datum_Datum_ToString.htm" />
+  <HelpKINode Title="Datum&lt;T&gt; class">
+    <HelpKINode Title="Datum(T) Class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="about Datum&lt;T&gt; class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_Datum_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_Datum_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_Datum_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Datum&lt;T&gt;.Datum constructor" Url="html/M_DotNetCoords_Datum_Datum_1__ctor.htm" />
+  <HelpKINode Title="Datum&lt;T&gt;.Instance property" Url="html/P_DotNetCoords_Datum_Datum_1_Instance.htm" />
+  <HelpKINode Title="Distance method" Url="html/M_DotNetCoords_LatLng_Distance.htm" />
+  <HelpKINode Title="DistanceMiles method" Url="html/M_DotNetCoords_LatLng_DistanceMiles.htm" />
+  <HelpKINode Title="DotNetCoords namespace" Url="html/N_DotNetCoords.htm" />
+  <HelpKINode Title="DotNetCoords.CoordinateSystem class" Url="html/T_DotNetCoords_CoordinateSystem.htm" />
+  <HelpKINode Title="DotNetCoords.Datum namespace" Url="html/N_DotNetCoords_Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.Datum class" Url="html/T_DotNetCoords_Datum_Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.Datum(Of T) class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.Datum&lt;T&gt; class" Url="html/T_DotNetCoords_Datum_Datum_1.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.ED50Datum class" Url="html/T_DotNetCoords_Datum_ED50Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.ETRF89Datum class" Url="html/T_DotNetCoords_Datum_ETRF89Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.Ireland1965Datum class" Url="html/T_DotNetCoords_Datum_Ireland1965Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.IRENET95Datum class" Url="html/T_DotNetCoords_Datum_IRENET95Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27 namespace" Url="html/N_DotNetCoords_Datum_NAD27.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27AlaskaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27AlbertaBritishColumbiaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27AleutianEastDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27AleutianWestDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27BahamasDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27BahamasDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanadaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanadaEastDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanadaManitobaOntarioDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanadaNWTerritoryDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanadaYukonDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CanalZoneDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CaribbeanDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CentralAmericaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27ContiguousUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27CubaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CubaDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27EasternUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27GreenlandDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27MexicoDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27MexicoDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27SanSalvadorDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.NAD27.NAD27WesternUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.OSGB36Datum class" Url="html/T_DotNetCoords_Datum_OSGB36Datum.htm" />
+  <HelpKINode Title="DotNetCoords.Datum.WGS84Datum class" Url="html/T_DotNetCoords_Datum_WGS84Datum.htm" />
+  <HelpKINode Title="DotNetCoords.EastWest enumeration" Url="html/T_DotNetCoords_EastWest.htm" />
+  <HelpKINode Title="DotNetCoords.ECEFRef class" Url="html/T_DotNetCoords_ECEFRef.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid namespace" Url="html/N_DotNetCoords_Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Airy1830Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Airy1830Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.AustralianNational1966Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_AustralianNational1966Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Bessel1841Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Bessel1841Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Clarke1866Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1866Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Clarke1880Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Clarke1880Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Ellipsoid(Of T) class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Ellipsoid&lt;T&gt; class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.EverestEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_EverestEllipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Fischer1960Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Fischer1968Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.GRS67Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS67Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.GRS75Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS75Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.GRS80Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS80Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Hayford1910Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Helmert1906Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Hough1956Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Hough1956Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.IERS1989Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_IERS1989Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.InternationalEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_InternationalEllipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.Krassovsky1940Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.ModifiedAiryEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.ModifiedEverestEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.NewInternational1967Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.SouthAmerican1969Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.WGS60Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS60Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.WGS66Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS66Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.WGS72Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS72Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.Ellipsoid.WGS84Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS84Ellipsoid.htm" />
+  <HelpKINode Title="DotNetCoords.IrishRef class" Url="html/T_DotNetCoords_IrishRef.htm" />
+  <HelpKINode Title="DotNetCoords.ITMRef class" Url="html/T_DotNetCoords_ITMRef.htm" />
+  <HelpKINode Title="DotNetCoords.LatLng class" Url="html/T_DotNetCoords_LatLng.htm" />
+  <HelpKINode Title="DotNetCoords.MGRSRef class" Url="html/T_DotNetCoords_MGRSRef.htm" />
+  <HelpKINode Title="DotNetCoords.NorthSouth enumeration" Url="html/T_DotNetCoords_NorthSouth.htm" />
+  <HelpKINode Title="DotNetCoords.NotDefinedOnUtmGridException class" Url="html/T_DotNetCoords_NotDefinedOnUtmGridException.htm" />
+  <HelpKINode Title="DotNetCoords.OSRef class" Url="html/T_DotNetCoords_OSRef.htm" />
+  <HelpKINode Title="DotNetCoords.Precision enumeration" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="DotNetCoords.UTMRef class" Url="html/T_DotNetCoords_UTMRef.htm" />
+  <HelpKINode Title="DS property" Url="html/P_DotNetCoords_Datum_Datum_DS.htm" />
+  <HelpKINode Title="DX property" Url="html/P_DotNetCoords_Datum_Datum_DX.htm" />
+  <HelpKINode Title="DY property" Url="html/P_DotNetCoords_Datum_Datum_DY.htm" />
+  <HelpKINode Title="DZ property" Url="html/P_DotNetCoords_Datum_Datum_DZ.htm" />
+  <HelpKINode Title="East enumeration member" Url="html/T_DotNetCoords_EastWest.htm" />
+  <HelpKINode Title="Easting property">
+    <HelpKINode Title="IrishRef.Easting Property " Url="html/P_DotNetCoords_IrishRef_Easting.htm" />
+    <HelpKINode Title="ITMRef.Easting Property " Url="html/P_DotNetCoords_ITMRef_Easting.htm" />
+    <HelpKINode Title="MGRSRef.Easting Property " Url="html/P_DotNetCoords_MGRSRef_Easting.htm" />
+    <HelpKINode Title="OSRef.Easting Property " Url="html/P_DotNetCoords_OSRef_Easting.htm" />
+    <HelpKINode Title="UTMRef.Easting Property " Url="html/P_DotNetCoords_UTMRef_Easting.htm" />
+  </HelpKINode>
+  <HelpKINode Title="EastingId property" Url="html/P_DotNetCoords_MGRSRef_EastingId.htm" />
+  <HelpKINode Title="EastWest enumeration" Url="html/T_DotNetCoords_EastWest.htm" />
+  <HelpKINode Title="EccentricitySquared property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_EccentricitySquared.htm" />
+  <HelpKINode Title="ECEFRef class">
+    <HelpKINode Title="ECEFRef Class" Url="html/T_DotNetCoords_ECEFRef.htm" />
+    <HelpKINode Title="about ECEFRef class" Url="html/T_DotNetCoords_ECEFRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_ECEFRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_ECEFRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_ECEFRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ECEFRef.ECEFRef constructor" Url="html/Overload_DotNetCoords_ECEFRef__ctor.htm" />
+  <HelpKINode Title="ECEFRef.ToLatLng method" Url="html/M_DotNetCoords_ECEFRef_ToLatLng.htm" />
+  <HelpKINode Title="ECEFRef.ToString method" Url="html/M_DotNetCoords_ECEFRef_ToString.htm" />
+  <HelpKINode Title="ECEFRef.X property" Url="html/P_DotNetCoords_ECEFRef_X.htm" />
+  <HelpKINode Title="ECEFRef.Y property" Url="html/P_DotNetCoords_ECEFRef_Y.htm" />
+  <HelpKINode Title="ECEFRef.Z property" Url="html/P_DotNetCoords_ECEFRef_Z.htm" />
+  <HelpKINode Title="ED50Datum class">
+    <HelpKINode Title="ED50Datum Class" Url="html/T_DotNetCoords_Datum_ED50Datum.htm" />
+    <HelpKINode Title="about ED50Datum class" Url="html/T_DotNetCoords_Datum_ED50Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_ED50Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_ED50Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_ED50Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ED50Datum.ED50Datum constructor" Url="html/M_DotNetCoords_Datum_ED50Datum__ctor.htm" />
+  <HelpKINode Title="Ellipsoid class">
+    <HelpKINode Title="Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid.htm" />
+    <HelpKINode Title="about Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Ellipsoid(Of T) class">
+    <HelpKINode Title="Ellipsoid(T) Class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="about Ellipsoid(Of T) class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Ellipsoid(Of T).Ellipsoid constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid_1__ctor.htm" />
+  <HelpKINode Title="Ellipsoid(Of T).Instance property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_1_Instance.htm" />
+  <HelpKINode Title="Ellipsoid.EccentricitySquared property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_EccentricitySquared.htm" />
+  <HelpKINode Title="Ellipsoid.Ellipsoid constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Ellipsoid.Flattening property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_Flattening.htm" />
+  <HelpKINode Title="Ellipsoid.SemiMajorAxis property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_SemiMajorAxis.htm" />
+  <HelpKINode Title="Ellipsoid.SemiMinorAxis property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_SemiMinorAxis.htm" />
+  <HelpKINode Title="Ellipsoid.ToString method" Url="html/M_DotNetCoords_Ellipsoid_Ellipsoid_ToString.htm" />
+  <HelpKINode Title="Ellipsoid&lt;T&gt; class">
+    <HelpKINode Title="Ellipsoid(T) Class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="about Ellipsoid&lt;T&gt; class" Url="html/T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid_1__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Ellipsoid_1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Ellipsoid&lt;T&gt;.Ellipsoid constructor" Url="html/Overload_DotNetCoords_Ellipsoid_Ellipsoid_1__ctor.htm" />
+  <HelpKINode Title="Ellipsoid&lt;T&gt;.Instance property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_1_Instance.htm" />
+  <HelpKINode Title="ETRF89Datum class">
+    <HelpKINode Title="ETRF89Datum Class" Url="html/T_DotNetCoords_Datum_ETRF89Datum.htm" />
+    <HelpKINode Title="about ETRF89Datum class" Url="html/T_DotNetCoords_Datum_ETRF89Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_ETRF89Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_ETRF89Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_ETRF89Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ETRF89Datum.ETRF89Datum constructor" Url="html/M_DotNetCoords_Datum_ETRF89Datum__ctor.htm" />
+  <HelpKINode Title="EverestEllipsoid class">
+    <HelpKINode Title="EverestEllipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_EverestEllipsoid.htm" />
+    <HelpKINode Title="about EverestEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_EverestEllipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_EverestEllipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_EverestEllipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_EverestEllipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="EverestEllipsoid.EverestEllipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_EverestEllipsoid__ctor.htm" />
+  <HelpKINode Title="Fischer1960Ellipsoid class">
+    <HelpKINode Title="Fischer1960Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid.htm" />
+    <HelpKINode Title="about Fischer1960Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Fischer1960Ellipsoid.Fischer1960Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Fischer1960Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Fischer1968Ellipsoid class">
+    <HelpKINode Title="Fischer1968Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid.htm" />
+    <HelpKINode Title="about Fischer1968Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Fischer1968Ellipsoid.Fischer1968Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Fischer1968Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Flattening property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_Flattening.htm" />
+  <HelpKINode Title="GetUTMLatitudeZoneLetter method" Url="html/M_DotNetCoords_UTMRef_GetUTMLatitudeZoneLetter.htm" />
+  <HelpKINode Title="GRS67Ellipsoid class">
+    <HelpKINode Title="GRS67Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_GRS67Ellipsoid.htm" />
+    <HelpKINode Title="about GRS67Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS67Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS67Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_GRS67Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_GRS67Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GRS67Ellipsoid.GRS67Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS67Ellipsoid__ctor.htm" />
+  <HelpKINode Title="GRS75Ellipsoid class">
+    <HelpKINode Title="GRS75Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_GRS75Ellipsoid.htm" />
+    <HelpKINode Title="about GRS75Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS75Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS75Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_GRS75Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_GRS75Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GRS75Ellipsoid.GRS75Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS75Ellipsoid__ctor.htm" />
+  <HelpKINode Title="GRS80Ellipsoid class">
+    <HelpKINode Title="GRS80Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_GRS80Ellipsoid.htm" />
+    <HelpKINode Title="about GRS80Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_GRS80Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS80Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_GRS80Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_GRS80Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GRS80Ellipsoid.GRS80Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_GRS80Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Hayford1910Ellipsoid class">
+    <HelpKINode Title="Hayford1910Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid.htm" />
+    <HelpKINode Title="about Hayford1910Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Hayford1910Ellipsoid.Hayford1910Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Hayford1910Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Height property" Url="html/P_DotNetCoords_LatLng_Height.htm" />
+  <HelpKINode Title="Helmert1906Ellipsoid class">
+    <HelpKINode Title="Helmert1906Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid.htm" />
+    <HelpKINode Title="about Helmert1906Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Helmert1906Ellipsoid.Helmert1906Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Helmert1906Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Hough1956Ellipsoid class">
+    <HelpKINode Title="Hough1956Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Hough1956Ellipsoid.htm" />
+    <HelpKINode Title="about Hough1956Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Hough1956Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Hough1956Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Hough1956Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Hough1956Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Hough1956Ellipsoid.Hough1956Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Hough1956Ellipsoid__ctor.htm" />
+  <HelpKINode Title="IERS1989Ellipsoid class">
+    <HelpKINode Title="IERS1989Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_IERS1989Ellipsoid.htm" />
+    <HelpKINode Title="about IERS1989Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_IERS1989Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_IERS1989Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_IERS1989Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_IERS1989Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IERS1989Ellipsoid.IERS1989Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_IERS1989Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Instance property">
+    <HelpKINode Title="Datum(T).Instance Property " Url="html/P_DotNetCoords_Datum_Datum_1_Instance.htm" />
+    <HelpKINode Title="Ellipsoid(T).Instance Property " Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_1_Instance.htm" />
+  </HelpKINode>
+  <HelpKINode Title="InternationalEllipsoid class">
+    <HelpKINode Title="InternationalEllipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_InternationalEllipsoid.htm" />
+    <HelpKINode Title="about InternationalEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_InternationalEllipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_InternationalEllipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_InternationalEllipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_InternationalEllipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="InternationalEllipsoid.InternationalEllipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_InternationalEllipsoid__ctor.htm" />
+  <HelpKINode Title="Ireland1965Datum class">
+    <HelpKINode Title="Ireland1965Datum Class" Url="html/T_DotNetCoords_Datum_Ireland1965Datum.htm" />
+    <HelpKINode Title="about Ireland1965Datum class" Url="html/T_DotNetCoords_Datum_Ireland1965Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_Ireland1965Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_Ireland1965Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_Ireland1965Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Ireland1965Datum.Ireland1965Datum constructor" Url="html/M_DotNetCoords_Datum_Ireland1965Datum__ctor.htm" />
+  <HelpKINode Title="IRENET95Datum class">
+    <HelpKINode Title="IRENET95Datum Class" Url="html/T_DotNetCoords_Datum_IRENET95Datum.htm" />
+    <HelpKINode Title="about IRENET95Datum class" Url="html/T_DotNetCoords_Datum_IRENET95Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_IRENET95Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_IRENET95Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_IRENET95Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IRENET95Datum.IRENET95Datum constructor" Url="html/M_DotNetCoords_Datum_IRENET95Datum__ctor.htm" />
+  <HelpKINode Title="IrishRef class">
+    <HelpKINode Title="IrishRef Class" Url="html/T_DotNetCoords_IrishRef.htm" />
+    <HelpKINode Title="about IrishRef class" Url="html/T_DotNetCoords_IrishRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_IrishRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_IrishRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_IrishRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IrishRef.Easting property" Url="html/P_DotNetCoords_IrishRef_Easting.htm" />
+  <HelpKINode Title="IrishRef.IrishRef constructor" Url="html/Overload_DotNetCoords_IrishRef__ctor.htm" />
+  <HelpKINode Title="IrishRef.Northing property" Url="html/P_DotNetCoords_IrishRef_Northing.htm" />
+  <HelpKINode Title="IrishRef.ToITMRef method" Url="html/M_DotNetCoords_IrishRef_ToITMRef.htm" />
+  <HelpKINode Title="IrishRef.ToLatLng method" Url="html/M_DotNetCoords_IrishRef_ToLatLng.htm" />
+  <HelpKINode Title="IrishRef.ToSixFigureString method" Url="html/M_DotNetCoords_IrishRef_ToSixFigureString.htm" />
+  <HelpKINode Title="IrishRef.ToString method" Url="html/M_DotNetCoords_IrishRef_ToString.htm" />
+  <HelpKINode Title="IsBessel method" Url="html/M_DotNetCoords_MGRSRef_IsBessel.htm" />
+  <HelpKINode Title="IsValidLatitude method" Url="html/M_DotNetCoords_LatLng_IsValidLatitude.htm" />
+  <HelpKINode Title="IsValidLongitude method" Url="html/M_DotNetCoords_LatLng_IsValidLongitude.htm" />
+  <HelpKINode Title="ITMRef class">
+    <HelpKINode Title="ITMRef Class" Url="html/T_DotNetCoords_ITMRef.htm" />
+    <HelpKINode Title="about ITMRef class" Url="html/T_DotNetCoords_ITMRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_ITMRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_ITMRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_ITMRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ITMRef.Easting property" Url="html/P_DotNetCoords_ITMRef_Easting.htm" />
+  <HelpKINode Title="ITMRef.ITMRef constructor" Url="html/Overload_DotNetCoords_ITMRef__ctor.htm" />
+  <HelpKINode Title="ITMRef.Northing property" Url="html/P_DotNetCoords_ITMRef_Northing.htm" />
+  <HelpKINode Title="ITMRef.ToIrishRef method" Url="html/M_DotNetCoords_ITMRef_ToIrishRef.htm" />
+  <HelpKINode Title="ITMRef.ToLatLng method" Url="html/M_DotNetCoords_ITMRef_ToLatLng.htm" />
+  <HelpKINode Title="Krassovsky1940Ellipsoid class">
+    <HelpKINode Title="Krassovsky1940Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid.htm" />
+    <HelpKINode Title="about Krassovsky1940Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Krassovsky1940Ellipsoid.Krassovsky1940Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_Krassovsky1940Ellipsoid__ctor.htm" />
+  <HelpKINode Title="Latitude property" Url="html/P_DotNetCoords_LatLng_Latitude.htm" />
+  <HelpKINode Title="LatitudeDegrees property" Url="html/P_DotNetCoords_LatLng_LatitudeDegrees.htm" />
+  <HelpKINode Title="LatitudeMinutes property" Url="html/P_DotNetCoords_LatLng_LatitudeMinutes.htm" />
+  <HelpKINode Title="LatitudeSeconds property" Url="html/P_DotNetCoords_LatLng_LatitudeSeconds.htm" />
+  <HelpKINode Title="LatLng class">
+    <HelpKINode Title="LatLng Class" Url="html/T_DotNetCoords_LatLng.htm" />
+    <HelpKINode Title="about LatLng class" Url="html/T_DotNetCoords_LatLng.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_LatLng__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_LatLng.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_LatLng.htm" />
+  </HelpKINode>
+  <HelpKINode Title="LatLng.Bearing method" Url="html/M_DotNetCoords_LatLng_Bearing.htm" />
+  <HelpKINode Title="LatLng.Datum property" Url="html/P_DotNetCoords_LatLng_Datum.htm" />
+  <HelpKINode Title="LatLng.Distance method" Url="html/M_DotNetCoords_LatLng_Distance.htm" />
+  <HelpKINode Title="LatLng.DistanceMiles method" Url="html/M_DotNetCoords_LatLng_DistanceMiles.htm" />
+  <HelpKINode Title="LatLng.Height property" Url="html/P_DotNetCoords_LatLng_Height.htm" />
+  <HelpKINode Title="LatLng.IsValidLatitude method" Url="html/M_DotNetCoords_LatLng_IsValidLatitude.htm" />
+  <HelpKINode Title="LatLng.IsValidLongitude method" Url="html/M_DotNetCoords_LatLng_IsValidLongitude.htm" />
+  <HelpKINode Title="LatLng.Latitude property" Url="html/P_DotNetCoords_LatLng_Latitude.htm" />
+  <HelpKINode Title="LatLng.LatitudeDegrees property" Url="html/P_DotNetCoords_LatLng_LatitudeDegrees.htm" />
+  <HelpKINode Title="LatLng.LatitudeMinutes property" Url="html/P_DotNetCoords_LatLng_LatitudeMinutes.htm" />
+  <HelpKINode Title="LatLng.LatitudeSeconds property" Url="html/P_DotNetCoords_LatLng_LatitudeSeconds.htm" />
+  <HelpKINode Title="LatLng.LatLng constructor" Url="html/Overload_DotNetCoords_LatLng__ctor.htm" />
+  <HelpKINode Title="LatLng.Longitude property" Url="html/P_DotNetCoords_LatLng_Longitude.htm" />
+  <HelpKINode Title="LatLng.LongitudeDegrees property" Url="html/P_DotNetCoords_LatLng_LongitudeDegrees.htm" />
+  <HelpKINode Title="LatLng.LongitudeMinutes property" Url="html/P_DotNetCoords_LatLng_LongitudeMinutes.htm" />
+  <HelpKINode Title="LatLng.LongitudeSeconds property" Url="html/P_DotNetCoords_LatLng_LongitudeSeconds.htm" />
+  <HelpKINode Title="LatLng.ToDatum method" Url="html/M_DotNetCoords_LatLng_ToDatum.htm" />
+  <HelpKINode Title="LatLng.ToDMSString method" Url="html/M_DotNetCoords_LatLng_ToDMSString.htm" />
+  <HelpKINode Title="LatLng.ToMGRSRef method" Url="html/M_DotNetCoords_LatLng_ToMGRSRef.htm" />
+  <HelpKINode Title="LatLng.ToOSGB36 method" Url="html/M_DotNetCoords_LatLng_ToOSGB36.htm" />
+  <HelpKINode Title="LatLng.ToOSRef method" Url="html/M_DotNetCoords_LatLng_ToOSRef.htm" />
+  <HelpKINode Title="LatLng.ToString method" Url="html/M_DotNetCoords_LatLng_ToString.htm" />
+  <HelpKINode Title="LatLng.ToUtmRef method" Url="html/M_DotNetCoords_LatLng_ToUtmRef.htm" />
+  <HelpKINode Title="LatLng.ToWGS84 method" Url="html/M_DotNetCoords_LatLng_ToWGS84.htm" />
+  <HelpKINode Title="LatZone property" Url="html/P_DotNetCoords_UTMRef_LatZone.htm" />
+  <HelpKINode Title="LngZone property" Url="html/P_DotNetCoords_UTMRef_LngZone.htm" />
+  <HelpKINode Title="Longitude property" Url="html/P_DotNetCoords_LatLng_Longitude.htm" />
+  <HelpKINode Title="LongitudeDegrees property" Url="html/P_DotNetCoords_LatLng_LongitudeDegrees.htm" />
+  <HelpKINode Title="LongitudeMinutes property" Url="html/P_DotNetCoords_LatLng_LongitudeMinutes.htm" />
+  <HelpKINode Title="LongitudeSeconds property" Url="html/P_DotNetCoords_LatLng_LongitudeSeconds.htm" />
+  <HelpKINode Title="MGRSRef class">
+    <HelpKINode Title="MGRSRef Class" Url="html/T_DotNetCoords_MGRSRef.htm" />
+    <HelpKINode Title="about MGRSRef class" Url="html/T_DotNetCoords_MGRSRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_MGRSRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_MGRSRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_MGRSRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="MGRSRef.Easting property" Url="html/P_DotNetCoords_MGRSRef_Easting.htm" />
+  <HelpKINode Title="MGRSRef.EastingId property" Url="html/P_DotNetCoords_MGRSRef_EastingId.htm" />
+  <HelpKINode Title="MGRSRef.IsBessel method" Url="html/M_DotNetCoords_MGRSRef_IsBessel.htm" />
+  <HelpKINode Title="MGRSRef.MGRSRef constructor" Url="html/Overload_DotNetCoords_MGRSRef__ctor.htm" />
+  <HelpKINode Title="MGRSRef.Northing property" Url="html/P_DotNetCoords_MGRSRef_Northing.htm" />
+  <HelpKINode Title="MGRSRef.NorthingId property" Url="html/P_DotNetCoords_MGRSRef_NorthingId.htm" />
+  <HelpKINode Title="MGRSRef.Precision property" Url="html/P_DotNetCoords_MGRSRef_Precision.htm" />
+  <HelpKINode Title="MGRSRef.ToLatLng method" Url="html/M_DotNetCoords_MGRSRef_ToLatLng.htm" />
+  <HelpKINode Title="MGRSRef.ToString method" Url="html/Overload_DotNetCoords_MGRSRef_ToString.htm" />
+  <HelpKINode Title="MGRSRef.ToUTMRef method" Url="html/M_DotNetCoords_MGRSRef_ToUTMRef.htm" />
+  <HelpKINode Title="MGRSRef.UtmZoneChar property" Url="html/P_DotNetCoords_MGRSRef_UtmZoneChar.htm" />
+  <HelpKINode Title="MGRSRef.UtmZoneNumber property" Url="html/P_DotNetCoords_MGRSRef_UtmZoneNumber.htm" />
+  <HelpKINode Title="ModifiedAiryEllipsoid class">
+    <HelpKINode Title="ModifiedAiryEllipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid.htm" />
+    <HelpKINode Title="about ModifiedAiryEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ModifiedAiryEllipsoid.ModifiedAiryEllipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_ModifiedAiryEllipsoid__ctor.htm" />
+  <HelpKINode Title="ModifiedEverestEllipsoid class">
+    <HelpKINode Title="ModifiedEverestEllipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid.htm" />
+    <HelpKINode Title="about ModifiedEverestEllipsoid class" Url="html/T_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ModifiedEverestEllipsoid.ModifiedEverestEllipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_ModifiedEverestEllipsoid__ctor.htm" />
+  <HelpKINode Title="NAD27AlaskaDatum class">
+    <HelpKINode Title="NAD27AlaskaDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum.htm" />
+    <HelpKINode Title="about NAD27AlaskaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27AlaskaDatum.NAD27AlaskaDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AlaskaDatum__ctor.htm" />
+  <HelpKINode Title="NAD27AlbertaBritishColumbiaDatum class">
+    <HelpKINode Title="NAD27AlbertaBritishColumbiaDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum.htm" />
+    <HelpKINode Title="about NAD27AlbertaBritishColumbiaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27AlbertaBritishColumbiaDatum.NAD27AlbertaBritishColumbiaDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AlbertaBritishColumbiaDatum__ctor.htm" />
+  <HelpKINode Title="NAD27AleutianEastDatum class">
+    <HelpKINode Title="NAD27AleutianEastDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum.htm" />
+    <HelpKINode Title="about NAD27AleutianEastDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27AleutianEastDatum.NAD27AleutianEastDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AleutianEastDatum__ctor.htm" />
+  <HelpKINode Title="NAD27AleutianWestDatum class">
+    <HelpKINode Title="NAD27AleutianWestDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum.htm" />
+    <HelpKINode Title="about NAD27AleutianWestDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27AleutianWestDatum.NAD27AleutianWestDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27AleutianWestDatum__ctor.htm" />
+  <HelpKINode Title="NAD27BahamasDatum class">
+    <HelpKINode Title="NAD27BahamasDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27BahamasDatum.htm" />
+    <HelpKINode Title="about NAD27BahamasDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27BahamasDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27BahamasDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27BahamasDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27BahamasDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27BahamasDatum.NAD27BahamasDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27BahamasDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanadaDatum class">
+    <HelpKINode Title="NAD27CanadaDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaDatum.htm" />
+    <HelpKINode Title="about NAD27CanadaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanadaDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanadaDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanadaDatum.NAD27CanadaDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanadaEastDatum class">
+    <HelpKINode Title="NAD27CanadaEastDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum.htm" />
+    <HelpKINode Title="about NAD27CanadaEastDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanadaEastDatum.NAD27CanadaEastDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaEastDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanadaManitobaOntarioDatum class">
+    <HelpKINode Title="NAD27CanadaManitobaOntarioDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum.htm" />
+    <HelpKINode Title="about NAD27CanadaManitobaOntarioDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanadaManitobaOntarioDatum.NAD27CanadaManitobaOntarioDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaManitobaOntarioDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanadaNWTerritoryDatum class">
+    <HelpKINode Title="NAD27CanadaNWTerritoryDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum.htm" />
+    <HelpKINode Title="about NAD27CanadaNWTerritoryDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanadaNWTerritoryDatum.NAD27CanadaNWTerritoryDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaNWTerritoryDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanadaYukonDatum class">
+    <HelpKINode Title="NAD27CanadaYukonDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum.htm" />
+    <HelpKINode Title="about NAD27CanadaYukonDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanadaYukonDatum.NAD27CanadaYukonDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanadaYukonDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CanalZoneDatum class">
+    <HelpKINode Title="NAD27CanalZoneDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum.htm" />
+    <HelpKINode Title="about NAD27CanalZoneDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CanalZoneDatum.NAD27CanalZoneDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CanalZoneDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CaribbeanDatum class">
+    <HelpKINode Title="NAD27CaribbeanDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum.htm" />
+    <HelpKINode Title="about NAD27CaribbeanDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CaribbeanDatum.NAD27CaribbeanDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CaribbeanDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CentralAmericaDatum class">
+    <HelpKINode Title="NAD27CentralAmericaDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum.htm" />
+    <HelpKINode Title="about NAD27CentralAmericaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CentralAmericaDatum.NAD27CentralAmericaDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CentralAmericaDatum__ctor.htm" />
+  <HelpKINode Title="NAD27ContiguousUSDatum class">
+    <HelpKINode Title="NAD27ContiguousUSDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum.htm" />
+    <HelpKINode Title="about NAD27ContiguousUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27ContiguousUSDatum.NAD27ContiguousUSDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27ContiguousUSDatum__ctor.htm" />
+  <HelpKINode Title="NAD27CubaDatum class">
+    <HelpKINode Title="NAD27CubaDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CubaDatum.htm" />
+    <HelpKINode Title="about NAD27CubaDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27CubaDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CubaDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27CubaDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27CubaDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27CubaDatum.NAD27CubaDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27CubaDatum__ctor.htm" />
+  <HelpKINode Title="NAD27EasternUSDatum class">
+    <HelpKINode Title="NAD27EasternUSDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum.htm" />
+    <HelpKINode Title="about NAD27EasternUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27EasternUSDatum.NAD27EasternUSDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27EasternUSDatum__ctor.htm" />
+  <HelpKINode Title="NAD27GreenlandDatum class">
+    <HelpKINode Title="NAD27GreenlandDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum.htm" />
+    <HelpKINode Title="about NAD27GreenlandDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27GreenlandDatum.NAD27GreenlandDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27GreenlandDatum__ctor.htm" />
+  <HelpKINode Title="NAD27MexicoDatum class">
+    <HelpKINode Title="NAD27MexicoDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27MexicoDatum.htm" />
+    <HelpKINode Title="about NAD27MexicoDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27MexicoDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27MexicoDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27MexicoDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27MexicoDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27MexicoDatum.NAD27MexicoDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27MexicoDatum__ctor.htm" />
+  <HelpKINode Title="NAD27SanSalvadorDatum class">
+    <HelpKINode Title="NAD27SanSalvadorDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum.htm" />
+    <HelpKINode Title="about NAD27SanSalvadorDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27SanSalvadorDatum.NAD27SanSalvadorDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27SanSalvadorDatum__ctor.htm" />
+  <HelpKINode Title="NAD27WesternUSDatum class">
+    <HelpKINode Title="NAD27WesternUSDatum Class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum.htm" />
+    <HelpKINode Title="about NAD27WesternUSDatum class" Url="html/T_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NAD27WesternUSDatum.NAD27WesternUSDatum constructor" Url="html/M_DotNetCoords_Datum_NAD27_NAD27WesternUSDatum__ctor.htm" />
+  <HelpKINode Title="Name property" Url="html/P_DotNetCoords_Datum_Datum_Name.htm" />
+  <HelpKINode Title="NewInternational1967Ellipsoid class">
+    <HelpKINode Title="NewInternational1967Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid.htm" />
+    <HelpKINode Title="about NewInternational1967Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NewInternational1967Ellipsoid.NewInternational1967Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_NewInternational1967Ellipsoid__ctor.htm" />
+  <HelpKINode Title="North enumeration member" Url="html/T_DotNetCoords_NorthSouth.htm" />
+  <HelpKINode Title="Northing property">
+    <HelpKINode Title="IrishRef.Northing Property " Url="html/P_DotNetCoords_IrishRef_Northing.htm" />
+    <HelpKINode Title="ITMRef.Northing Property " Url="html/P_DotNetCoords_ITMRef_Northing.htm" />
+    <HelpKINode Title="MGRSRef.Northing Property " Url="html/P_DotNetCoords_MGRSRef_Northing.htm" />
+    <HelpKINode Title="OSRef.Northing Property " Url="html/P_DotNetCoords_OSRef_Northing.htm" />
+    <HelpKINode Title="UTMRef.Northing Property " Url="html/P_DotNetCoords_UTMRef_Northing.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NorthingId property" Url="html/P_DotNetCoords_MGRSRef_NorthingId.htm" />
+  <HelpKINode Title="NorthSouth enumeration" Url="html/T_DotNetCoords_NorthSouth.htm" />
+  <HelpKINode Title="NotDefinedOnUtmGridException class">
+    <HelpKINode Title="NotDefinedOnUtmGridException Class" Url="html/T_DotNetCoords_NotDefinedOnUtmGridException.htm" />
+    <HelpKINode Title="about NotDefinedOnUtmGridException class" Url="html/T_DotNetCoords_NotDefinedOnUtmGridException.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_NotDefinedOnUtmGridException__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_NotDefinedOnUtmGridException.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_NotDefinedOnUtmGridException.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NotDefinedOnUtmGridException.NotDefinedOnUtmGridException constructor" Url="html/Overload_DotNetCoords_NotDefinedOnUtmGridException__ctor.htm" />
+  <HelpKINode Title="OSGB36Datum class">
+    <HelpKINode Title="OSGB36Datum Class" Url="html/T_DotNetCoords_Datum_OSGB36Datum.htm" />
+    <HelpKINode Title="about OSGB36Datum class" Url="html/T_DotNetCoords_Datum_OSGB36Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_OSGB36Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_OSGB36Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_OSGB36Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OSGB36Datum.OSGB36Datum constructor" Url="html/M_DotNetCoords_Datum_OSGB36Datum__ctor.htm" />
+  <HelpKINode Title="OSRef class">
+    <HelpKINode Title="OSRef Class" Url="html/T_DotNetCoords_OSRef.htm" />
+    <HelpKINode Title="about OSRef class" Url="html/T_DotNetCoords_OSRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_OSRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_OSRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_OSRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OSRef.Easting property" Url="html/P_DotNetCoords_OSRef_Easting.htm" />
+  <HelpKINode Title="OSRef.Northing property" Url="html/P_DotNetCoords_OSRef_Northing.htm" />
+  <HelpKINode Title="OSRef.OSRef constructor" Url="html/Overload_DotNetCoords_OSRef__ctor.htm" />
+  <HelpKINode Title="OSRef.ToLatLng method" Url="html/M_DotNetCoords_OSRef_ToLatLng.htm" />
+  <HelpKINode Title="OSRef.ToSixFigureString method" Url="html/M_DotNetCoords_OSRef_ToSixFigureString.htm" />
+  <HelpKINode Title="OSRef.ToString method" Url="html/M_DotNetCoords_OSRef_ToString.htm" />
+  <HelpKINode Title="OSRef.ToTenFigureString method" Url="html/M_DotNetCoords_OSRef_ToTenFigureString.htm" />
+  <HelpKINode Title="Precision enumeration" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="Precision property" Url="html/P_DotNetCoords_MGRSRef_Precision.htm" />
+  <HelpKINode Title="Precision10000M enumeration member" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="Precision1000M enumeration member" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="Precision100M enumeration member" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="Precision10M enumeration member" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="Precision1M enumeration member" Url="html/T_DotNetCoords_Precision.htm" />
+  <HelpKINode Title="ReferenceEllipsoid property" Url="html/P_DotNetCoords_Datum_Datum_ReferenceEllipsoid.htm" />
+  <HelpKINode Title="RX property" Url="html/P_DotNetCoords_Datum_Datum_RX.htm" />
+  <HelpKINode Title="RY property" Url="html/P_DotNetCoords_Datum_Datum_RY.htm" />
+  <HelpKINode Title="RZ property" Url="html/P_DotNetCoords_Datum_Datum_RZ.htm" />
+  <HelpKINode Title="SemiMajorAxis property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_SemiMajorAxis.htm" />
+  <HelpKINode Title="SemiMinorAxis property" Url="html/P_DotNetCoords_Ellipsoid_Ellipsoid_SemiMinorAxis.htm" />
+  <HelpKINode Title="South enumeration member" Url="html/T_DotNetCoords_NorthSouth.htm" />
+  <HelpKINode Title="SouthAmerican1969Ellipsoid class">
+    <HelpKINode Title="SouthAmerican1969Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid.htm" />
+    <HelpKINode Title="about SouthAmerican1969Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SouthAmerican1969Ellipsoid.SouthAmerican1969Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_SouthAmerican1969Ellipsoid__ctor.htm" />
+  <HelpKINode Title="ToDatum method" Url="html/M_DotNetCoords_LatLng_ToDatum.htm" />
+  <HelpKINode Title="ToDMSString method" Url="html/M_DotNetCoords_LatLng_ToDMSString.htm" />
+  <HelpKINode Title="ToIrishRef method" Url="html/M_DotNetCoords_ITMRef_ToIrishRef.htm" />
+  <HelpKINode Title="ToITMRef method" Url="html/M_DotNetCoords_IrishRef_ToITMRef.htm" />
+  <HelpKINode Title="ToLatLng method">
+    <HelpKINode Title="CoordinateSystem.ToLatLng Method " Url="html/M_DotNetCoords_CoordinateSystem_ToLatLng.htm" />
+    <HelpKINode Title="ECEFRef.ToLatLng Method " Url="html/M_DotNetCoords_ECEFRef_ToLatLng.htm" />
+    <HelpKINode Title="IrishRef.ToLatLng Method " Url="html/M_DotNetCoords_IrishRef_ToLatLng.htm" />
+    <HelpKINode Title="ITMRef.ToLatLng Method " Url="html/M_DotNetCoords_ITMRef_ToLatLng.htm" />
+    <HelpKINode Title="MGRSRef.ToLatLng Method " Url="html/M_DotNetCoords_MGRSRef_ToLatLng.htm" />
+    <HelpKINode Title="OSRef.ToLatLng Method " Url="html/M_DotNetCoords_OSRef_ToLatLng.htm" />
+    <HelpKINode Title="UTMRef.ToLatLng Method " Url="html/M_DotNetCoords_UTMRef_ToLatLng.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ToMGRSRef method" Url="html/M_DotNetCoords_LatLng_ToMGRSRef.htm" />
+  <HelpKINode Title="ToOSGB36 method" Url="html/M_DotNetCoords_LatLng_ToOSGB36.htm" />
+  <HelpKINode Title="ToOSRef method" Url="html/M_DotNetCoords_LatLng_ToOSRef.htm" />
+  <HelpKINode Title="ToSixFigureString method">
+    <HelpKINode Title="IrishRef.ToSixFigureString Method " Url="html/M_DotNetCoords_IrishRef_ToSixFigureString.htm" />
+    <HelpKINode Title="OSRef.ToSixFigureString Method " Url="html/M_DotNetCoords_OSRef_ToSixFigureString.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ToString method">
+    <HelpKINode Title="Datum.ToString Method " Url="html/M_DotNetCoords_Datum_Datum_ToString.htm" />
+    <HelpKINode Title="ECEFRef.ToString Method " Url="html/M_DotNetCoords_ECEFRef_ToString.htm" />
+    <HelpKINode Title="Ellipsoid.ToString Method " Url="html/M_DotNetCoords_Ellipsoid_Ellipsoid_ToString.htm" />
+    <HelpKINode Title="IrishRef.ToString Method " Url="html/M_DotNetCoords_IrishRef_ToString.htm" />
+    <HelpKINode Title="LatLng.ToString Method " Url="html/M_DotNetCoords_LatLng_ToString.htm" />
+    <HelpKINode Title="MGRSRef.ToString Method " Url="html/Overload_DotNetCoords_MGRSRef_ToString.htm" />
+    <HelpKINode Title="OSRef.ToString Method " Url="html/M_DotNetCoords_OSRef_ToString.htm" />
+    <HelpKINode Title="UTMRef.ToString Method " Url="html/M_DotNetCoords_UTMRef_ToString.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ToTenFigureString method" Url="html/M_DotNetCoords_OSRef_ToTenFigureString.htm" />
+  <HelpKINode Title="ToUTMRef method" Url="html/M_DotNetCoords_MGRSRef_ToUTMRef.htm" />
+  <HelpKINode Title="ToUtmRef method" Url="html/M_DotNetCoords_LatLng_ToUtmRef.htm" />
+  <HelpKINode Title="ToWGS84 method" Url="html/M_DotNetCoords_LatLng_ToWGS84.htm" />
+  <HelpKINode Title="UTMRef class">
+    <HelpKINode Title="UTMRef Class" Url="html/T_DotNetCoords_UTMRef.htm" />
+    <HelpKINode Title="about UTMRef class" Url="html/T_DotNetCoords_UTMRef.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_DotNetCoords_UTMRef__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_UTMRef.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_UTMRef.htm" />
+  </HelpKINode>
+  <HelpKINode Title="UTMRef.Easting property" Url="html/P_DotNetCoords_UTMRef_Easting.htm" />
+  <HelpKINode Title="UTMRef.GetUTMLatitudeZoneLetter method" Url="html/M_DotNetCoords_UTMRef_GetUTMLatitudeZoneLetter.htm" />
+  <HelpKINode Title="UTMRef.LatZone property" Url="html/P_DotNetCoords_UTMRef_LatZone.htm" />
+  <HelpKINode Title="UTMRef.LngZone property" Url="html/P_DotNetCoords_UTMRef_LngZone.htm" />
+  <HelpKINode Title="UTMRef.Northing property" Url="html/P_DotNetCoords_UTMRef_Northing.htm" />
+  <HelpKINode Title="UTMRef.ToLatLng method" Url="html/M_DotNetCoords_UTMRef_ToLatLng.htm" />
+  <HelpKINode Title="UTMRef.ToString method" Url="html/M_DotNetCoords_UTMRef_ToString.htm" />
+  <HelpKINode Title="UTMRef.UTMRef constructor" Url="html/Overload_DotNetCoords_UTMRef__ctor.htm" />
+  <HelpKINode Title="UtmZoneChar property" Url="html/P_DotNetCoords_MGRSRef_UtmZoneChar.htm" />
+  <HelpKINode Title="UtmZoneNumber property" Url="html/P_DotNetCoords_MGRSRef_UtmZoneNumber.htm" />
+  <HelpKINode Title="West enumeration member" Url="html/T_DotNetCoords_EastWest.htm" />
+  <HelpKINode Title="WGS60Ellipsoid class">
+    <HelpKINode Title="WGS60Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_WGS60Ellipsoid.htm" />
+    <HelpKINode Title="about WGS60Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS60Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS60Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_WGS60Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_WGS60Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="WGS60Ellipsoid.WGS60Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS60Ellipsoid__ctor.htm" />
+  <HelpKINode Title="WGS66Ellipsoid class">
+    <HelpKINode Title="WGS66Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_WGS66Ellipsoid.htm" />
+    <HelpKINode Title="about WGS66Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS66Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS66Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_WGS66Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_WGS66Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="WGS66Ellipsoid.WGS66Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS66Ellipsoid__ctor.htm" />
+  <HelpKINode Title="WGS72Ellipsoid class">
+    <HelpKINode Title="WGS72Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_WGS72Ellipsoid.htm" />
+    <HelpKINode Title="about WGS72Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS72Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS72Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_WGS72Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_WGS72Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="WGS72Ellipsoid.WGS72Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS72Ellipsoid__ctor.htm" />
+  <HelpKINode Title="WGS84Datum class">
+    <HelpKINode Title="WGS84Datum Class" Url="html/T_DotNetCoords_Datum_WGS84Datum.htm" />
+    <HelpKINode Title="about WGS84Datum class" Url="html/T_DotNetCoords_Datum_WGS84Datum.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Datum_WGS84Datum__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Datum_WGS84Datum.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Datum_WGS84Datum.htm" />
+  </HelpKINode>
+  <HelpKINode Title="WGS84Datum.WGS84Datum constructor" Url="html/M_DotNetCoords_Datum_WGS84Datum__ctor.htm" />
+  <HelpKINode Title="WGS84Ellipsoid class">
+    <HelpKINode Title="WGS84Ellipsoid Class" Url="html/T_DotNetCoords_Ellipsoid_WGS84Ellipsoid.htm" />
+    <HelpKINode Title="about WGS84Ellipsoid class" Url="html/T_DotNetCoords_Ellipsoid_WGS84Ellipsoid.htm" />
+    <HelpKINode Title="constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS84Ellipsoid__ctor.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_DotNetCoords_Ellipsoid_WGS84Ellipsoid.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_DotNetCoords_Ellipsoid_WGS84Ellipsoid.htm" />
+  </HelpKINode>
+  <HelpKINode Title="WGS84Ellipsoid.WGS84Ellipsoid constructor" Url="html/M_DotNetCoords_Ellipsoid_WGS84Ellipsoid__ctor.htm" />
+  <HelpKINode Title="X property" Url="html/P_DotNetCoords_ECEFRef_X.htm" />
+  <HelpKINode Title="Y property" Url="html/P_DotNetCoords_ECEFRef_Y.htm" />
+  <HelpKINode Title="Z property" Url="html/P_DotNetCoords_ECEFRef_Z.htm" />
+</HelpKI>
