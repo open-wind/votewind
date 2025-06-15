@@ -17,6 +17,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "VoteWind.org",
   description: "Vote for community wind turbines anywhere in the UK",
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icons/icon-192.png',
+  },
 };
 
 export default function RootLayout({ children }) {
