@@ -14,13 +14,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const assetPrefix = process.env.ASSET_PREFIX || '';
+
 export const metadata = {
   title: "VoteWind.org",
   description: "Vote for community wind turbines anywhere in the UK",
-  manifest: '/manifest.json',
+  manifest: `${assetPrefix}/manifest.json`,
   icons: {
-    icon: '/favicon.ico',
-    apple: '/icons/icon-192.png',
+    icon: `${assetPrefix}/favicon.ico`,
+    apple: `${assetPrefix}/icons/icon-192.png`,
   },
 };
 
