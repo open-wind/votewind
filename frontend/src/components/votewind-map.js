@@ -1520,14 +1520,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             >
 
-                <div className="flex mt-0 sm:mt-0">
+                <div className="flex mt-0 sm:mt-0 mb-2">
                     <div className="flex-shrink-0 w-25 h-25 sm:w-60 sm:h-40">
                         <div className="hidden sm:block mt-9 ml-5 sm:mt-0 sm:ml-0 relative inline-block">
 
                         <img
                             src={`${assetPrefix}/icons/check-mark.svg`}
                             alt="Vote"
-                            className="hidden sm:block sm:w-60 sm:h-60 object-contain pb-4"
+                            className="hidden sm:block sm:w-56 sm:h-56 object-contain"
                         />
 
                         {(windspeed) && (
@@ -1537,7 +1537,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-0 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
                                         <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                         <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
                                     </div>
@@ -1551,7 +1551,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
                                         <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                         <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
                                     </div>
@@ -1566,7 +1566,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         )}
 
                         {(votes !== null) && (
-                            <div className="-translate-y-7 text-right w-[200px]">
+                            <div className="-translate-y-7 text-right w-[12rem]">
                                 {(votes.confirmed !== 0) &&
                                 <TooltipProvider>
                                     <Tooltip>
@@ -1713,7 +1713,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                     </p>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                    Jump to substation position
+                                    Jump to nearest substation position
                                 </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
