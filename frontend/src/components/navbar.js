@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react'; // icons from lucide-react (shadcn uses it)
-import { APP_BASE_URL } from '@/lib/config';
+import { APP_BASE_URL, CONTENT_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,10 +25,12 @@ export default function Navbar() {
 
       {/* Desktop links */}
       <div className="gap-6 hidden pr-2 md:flex items-right text-sm text-black font-medium tracking-wider pl-1" style={{ textShadow: '0 0px 30px rgba(255,255,255,1)' }}>
-        <a href={APP_BASE_URL} className="hover:underline">HOME</a>
+        <a href={APP_BASE_URL} className="hover:underline">START</a>
         <a href={APP_BASE_URL + "/map"} className="hover:underline">MAP</a>
         <a href={APP_BASE_URL + "/leaderboard"} className="hover:underline">LEADERBOARD</a>
-        <a href={APP_BASE_URL + "/about"} className="hover:underline">ABOUT</a>
+        <a href={CONTENT_BASE_URL + "/about"} className="hover:underline">ABOUT</a>
+        <a href={CONTENT_BASE_URL + "/resources"} className="hover:underline">RESOURCES</a>
+        <a href={CONTENT_BASE_URL + "/news"} className="hover:underline">NEWS</a>
       </div>
 
       {/* Mobile toggle button */}
@@ -48,7 +50,9 @@ export default function Navbar() {
           <a href={APP_BASE_URL} className="py-2 w-full hover:underline">Home</a>
           <a href={APP_BASE_URL + "/map"} className="py-2 w-full hover:underline">Map</a>
           <a href={APP_BASE_URL + "/leaderboard"} className="py-2 w-full hover:underline">Leaderboard</a>
-          <a href={APP_BASE_URL + "/about"} className="py-2 w-full hover:underline">About</a>
+          <a href={CONTENT_BASE_URL + "/about"} className="py-2 w-full hover:underline">About</a>
+          <a href={CONTENT_BASE_URL + "/resources"} className="py-2 w-full hover:underline">Resources</a>
+          <a href={CONTENT_BASE_URL + "/news"} className="py-2 w-full hover:underline">News</a>
         </div>
       )}
 

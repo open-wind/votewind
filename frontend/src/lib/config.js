@@ -12,10 +12,10 @@ export const API_BASE_URL = isDev
   ? 'http://localhost:8000'
   : 'https://votewind.org';
 
-//   // Base url of api server
-// export const API_BASE_URL = isDev
-//   ? 'http://localhost:8000'
-//   : 'http://localhost:8000';
+// Base url of content server
+export const CONTENT_BASE_URL = isDev
+  ? 'https://content.votewind.org'
+  : 'https://content.votewind.org';
 
 // Base url of tile server
 export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
