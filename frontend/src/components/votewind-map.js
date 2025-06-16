@@ -42,9 +42,8 @@ import {
     LAYERS_ALLCONSTRAINTS, 
     LAYERS_COLOR, 
     LAYERS_OPACITY,
-    TURBINE_AR_DEFAULT_HUBHEIGHT,
-    TURBINE_AR_DEFAULT_BLADERADIUS
 } from '@/lib/config';
+import { createQRCode } from '@/components/functions/helpers';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -1017,11 +1016,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return (offset * 0.025);
     };
 
-    const createQRCode = (parameters) => {
-        const qrcode_url = 'https://votewind.org/ar/' + String(parameters.longitude) + '/' + String(parameters.latitude) + '/' + String(TURBINE_AR_DEFAULT_HUBHEIGHT) + '/' + String(TURBINE_AR_DEFAULT_BLADERADIUS);
-        return qrcode_url;
-    }
-
     return (
     <div className="min-h-screen flex flex-col justify-between">
 
@@ -1533,7 +1527,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <img
                             src={`${assetPrefix}/icons/check-mark.svg`}
                             alt="Vote"
-                            className="hidden sm:block sm:w-60 sm:h-60 object-contain"
+                            className="hidden sm:block sm:w-60 sm:h-60 object-contain pb-4"
                         />
 
                         {(windspeed) && (
@@ -1543,7 +1537,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-0 left-0 -translate-x-5 sm:translate-x-0 sm:-translate-x-5 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
                                         <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                         <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
                                     </div>
@@ -1619,7 +1613,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </div>
                     </div>
 
-                    <div className="ml-0 sm:ml-4 flex flex-col justify-start mt-0 sm:mt-4">
+                    <div className="ml-0 sm:ml-4 flex flex-col justify-start mt-0 sm:mt-1">
                         <h2 className="text-lg sm:text-[24px] font-semibold mt-0 mb-0">
                             <TooltipProvider>
                                 <Tooltip>
@@ -1639,7 +1633,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <Tooltip>
                                 <TooltipTrigger asChild>
                                     {isMobile ? (
-                                    <a href={"intent://#Intent;S.data=" + QRurl + ";scheme=votewind-ar;package=org.votewind.viewer;end"}>
+                                    <a href={QRurl}>
                                     <button type="button" className="translate-y-1 inline-flex mr-1 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-7 sm:w-7 px-1 py-1 bg-white text-white sm:text-sm rounded-full">
                                         <ViewInArIcon className="fill-current text-blue-600" style={{ fontSize: isMobile? '20px': '28px' }}  />
                                     </button>
@@ -1689,22 +1683,41 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         </h2>
 
                         <div className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-0 mt-2 sm:mt-4">
-                        <p className="text-xs text-gray-700 m-0">
-                            <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">
-                            <b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E
-                            </a>
-                        </p>
-                        
-                        <p className="text-xs text-gray-700 m-0 whitespace-nowrap">
-                            {substation && (
-                            <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#">
-                                <b>Nearest substation</b>: {substation.distance_km} km
-                            </a>
-                            )}
-                            {windspeed && (
-                            <span>&nbsp;&nbsp;<b>Wind speed</b>: {windspeed} m/s</span>
-                            )}
-                        </p>
+                            <p className="text-xs text-gray-700 m-0">
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">
+                                        <b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E
+                                        </a>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                        Jump to turbine position
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </p>
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <p className="text-xs text-gray-700 m-0 whitespace-nowrap">
+                                    {substation && (
+                                    <a className="text-blue-700" onClick={mapCentreOnSubstation} href="#">
+                                        <b>Nearest substation</b>: {substation.distance_km} km
+                                    </a>
+                                    )}
+                                    {windspeed && (
+                                    <span>&nbsp;&nbsp;<b>Wind speed</b>: {windspeed} m/s</span>
+                                    )}
+                                    </p>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                                    Jump to substation position
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                         </div>
                         <div className="sm:hidden flex flex-wrap gap-1 mt-2 sm:mt-4">
                             <p className="text-xs text-gray-700 ">
@@ -1735,8 +1748,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         <div className="mt-1 hidden sm:block">
 
-                            <div className="mt-3">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label>
+                            <div className="mt-0">
+                                {/* <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label> */}
 
                                 <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
                                     <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer pr-6`}>
@@ -1762,7 +1775,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                     <div className="mt-3">
                         <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
-                            <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer pr-6`}>
+                            <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"}  whitespace-nowrap overflow-hidden cursor-pointer pr-6`}>
                                 {email || "Optional: Enter email to confirm vote"}
                             </p>
                             {email && (

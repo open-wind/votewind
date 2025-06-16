@@ -21,6 +21,11 @@ export const CONTENT_BASE_URL = isDev
 export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
 // export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
 
+// url of VoteWind mobile phone app download
+export const MOBILEAPP_URL = isDev
+  ? 'https://play.google.com/apps/testing/org.votewind.viewer'
+  : 'https://play.google.com/apps/testing/org.votewind.viewer';
+
 // Default map centre to use
 export const MAP_DEFAULT_CENTRE = 
 {

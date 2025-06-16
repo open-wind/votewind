@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import chroma from 'chroma-js';
+import { 
+    APP_BASE_URL,
+    TURBINE_AR_DEFAULT_HUBHEIGHT,
+    TURBINE_AR_DEFAULT_BLADERADIUS
+} from '@/lib/config';
 
 export function useIsMobile(bp = 640) {
 
@@ -58,3 +63,9 @@ export const windspeed2Classname = (windspeed) => {
     return 'text-white';
 }
 
+export const createQRCode = (parameters) => {
+    const hubheight = (parameters.hubheight) ? parameters.hubheight: TURBINE_AR_DEFAULT_HUBHEIGHT;
+    const bladeradius = (parameters.bladeradius) ? parameters.bladeradius: TURBINE_AR_DEFAULT_BLADERADIUS;
+    const qrcode_url = APP_BASE_URL + '/ar/' + String(parameters.longitude) + '/' + String(parameters.latitude) + '/' + String(hubheight) + '/' + String(bladeradius);
+    return qrcode_url;
+}

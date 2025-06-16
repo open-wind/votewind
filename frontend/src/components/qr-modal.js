@@ -1,6 +1,8 @@
 'use client';
 
 import QRCode from "react-qr-code";
+import PlayStoreButton from '@/components/play-store-button';
+import { MOBILEAPP_URL } from '@/lib/config';
 
 export default function QRModal({ url, isOpen, onClose }) {
   if (!isOpen) return null;
@@ -18,7 +20,12 @@ export default function QRModal({ url, isOpen, onClose }) {
         </button>
 
         <div className="w-full h-full flex flex-col justify-center items-center text-center">
-            <h2 className="text-lg font-semibold mb-8 text-center">Scan QR code to view in Augmented Reality</h2>
+            <div className="pb-4">
+              <h2>Download <b>VoteWind.org Mobile App</b> from:</h2>
+              <PlayStoreButton url={MOBILEAPP_URL} />
+            </div>
+
+            <h2 className="mb-8 text-center">From within app, scan QR code to view wind turbine in Augmented Reality:</h2>
             <div className="flex justify-center mb-4">
                 <QRCode value={url} size={256} level="H" />
             </div>

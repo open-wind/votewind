@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Default from '@/components/pages-dynamic/default';
 import LongitudeLatitudeZoomPage from '@/components/pages-dynamic/longitude-latitude-zoom';
 import LongitudeLatitude3DPage from '@/components/pages-dynamic/longitude-latitude-3d';
+import AndroidIntent from '@/components/pages-dynamic/android-intent';
 import LongitudeLatitudeVote from '@/components/pages-dynamic/longitude-latitude-vote';
 import Leaderboard from '@/components/pages-dynamic/leaderboard';
 import ConfirmationError from '@/components/pages-dynamic/confirmation-error';
@@ -39,6 +40,7 @@ export default function ClientRouter() {
   const isDefault = pathSegments?.length === 0;
   const isMapRoute = pathSegments?.length === 3 && pathSegments.every(seg => !isNaN(Number(seg)));
   const is3D = pathSegments?.length === 3 && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && pathSegments[2] === '3d';
+  const isAR = pathSegments?.length === 5 && pathSegments[0] === 'ar' && !isNaN(Number(pathSegments[1])) && !isNaN(Number(pathSegments[2])) && !isNaN(Number(pathSegments[3])) && !isNaN(Number(pathSegments[4]));
   const isVote = pathSegments?.length === 3 && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && pathSegments[2] === 'vote';
   const isOverviewMap = pathSegments?.[0] === 'map';
   const isLeaderboard = pathSegments?.length === 1 && pathSegments[0] === 'leaderboard';
@@ -58,6 +60,7 @@ export default function ClientRouter() {
   if (isDefault) return <Default/>;
   if (isMapRoute) return <LongitudeLatitudeZoomPage longitude={pathSegments[0]} latitude={pathSegments[1]} zoom={pathSegments[2]} />;
   if (is3D) return <LongitudeLatitude3DPage longitude={pathSegments[0]} latitude={pathSegments[1]} />;
+  if (isAR) return <AndroidIntent type="ar" longitude={pathSegments[1]} latitude={pathSegments[2]} hubheight={pathSegments[3]} bladeradius={pathSegments[4]} />;
   if (isVote) return <LongitudeLatitudeVote longitude={pathSegments[0]} latitude={pathSegments[1]} />;
   if (isLeaderboard) return <Leaderboard/>;
   if (isConfirmationError) return <ConfirmationError />;
