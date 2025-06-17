@@ -66,9 +66,9 @@ const CommandInput = React.forwardRef(({ showMagnifier = true, onLocate = null, 
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                     />
                   </svg>
-                  ) : (
+                ) : (
                   <LocateFixed className="w-5 h-5" />
-                  )}
+                )}
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" sideOffset={20} className="transform translate-x-12 font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">

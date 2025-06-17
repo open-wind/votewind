@@ -21,33 +21,38 @@ import {
   createGooglePhotorealistic3DTileset,
    } from 'cesium';
 import SunCalc from 'suncalc';
+import { LocateFixed } from "lucide-react"
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import 'cesium/Build/Cesium/Widgets/widgets.css';
-import { API_BASE_URL } from '@/lib/config';
+import { TURBINE_AR_DEFAULT_HUBHEIGHT, API_BASE_URL } from '@/lib/config';
 
 if (typeof window !== 'undefined') {
   window.CESIUM_BASE_URL = process.env.CESIUM_BASE_URL;
 }
 
+
 const NIGHTTIME_ENDS = 21.5;
 const MORNING_STARTS = 4.5;
+
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export default function CesiumViewer({longitude, latitude}) {
   const containerRef = useRef(null);
   const tickHandlerRef = useRef(null);
   const initializedRef = useRef(false);
-  const [error, setError] = useState(null);
-  const [isViewerReady, setIsViewerReady] = useState(false);
-  const [windspeed, setWindspeed] = useState(null);
-  const [hourFloat, setHourFloat] = useState(12.0); // default 12pm
-  const [isPlaying, setIsPlaying] = useState(false);  
   const intervalRef = useRef(null);
   const viewerRef = useRef(null);
   const bladesRef = useRef(null);
   const towerRef = useRef(null);
   const bladePositionRef = useRef(null);
   const animationStartTime = useRef(performance.now());
+  const [error, setError] = useState(null);
+  const [isViewerReady, setIsViewerReady] = useState(false);
+  const [windspeed, setWindspeed] = useState(null);
+  const [hourFloat, setHourFloat] = useState(12.0); // default 12pm
+  const [isPlaying, setIsPlaying] = useState(false);  
+  const [locating, setLocating] = useState(false);
 
   function windToRPM(windSpeed) {
     if (windSpeed < 3) return 0; // Below cut-in, no spin
@@ -128,6 +133,11 @@ export default function CesiumViewer({longitude, latitude}) {
       }, 100); // update every 100ms
     }
   };
+
+  const useCurrentPosition = () => {
+    if (!isViewerReady) return;
+
+  }
 
   useEffect(() => {
     if (!isViewerReady) return;
@@ -299,8 +309,8 @@ export default function CesiumViewer({longitude, latitude}) {
       const hpr = new HeadingPitchRoll(heading, pitch, roll);
 
       const basePosition = Cartesian3.fromDegrees(longitude, latitude, terrainHeight);
-      // We assume 100 hub height
-      const bladePosition = Cartesian3.fromDegrees(longitude, latitude, terrainHeight + 100);
+      // hub height = TURBINE_AR_DEFAULT_HUBHEIGHT
+      const bladePosition = Cartesian3.fromDegrees(longitude, latitude, terrainHeight + TURBINE_AR_DEFAULT_HUBHEIGHT);
       const offset = new Cartesian3(0.0, -1, 0.0);  // local offset
       const rotationMatrix = Transforms.headingPitchRollToFixedFrame(bladePosition, hpr);
       const worldOffset = Matrix4.multiplyByPointAsVector(rotationMatrix, offset, new Cartesian3());
@@ -313,7 +323,7 @@ export default function CesiumViewer({longitude, latitude}) {
         orientation: Transforms.headingPitchRollQuaternion(basePosition, hpr),
         model: {
           uri: `${assetPrefix}/3d/windturbine_tower.gltf`,
-          scale: 29.28,
+          scale: (TURBINE_AR_DEFAULT_HUBHEIGHT / 100) * 29.28,
           shadows: ShadowMode.ENABLED,
         }
       });
@@ -325,7 +335,7 @@ export default function CesiumViewer({longitude, latitude}) {
         // modelMatrix: finalMatrix,
         model: {
           uri: `${assetPrefix}/3d/windturbine_blades.gltf`,
-          scale: 38.48,
+          scale: (TURBINE_AR_DEFAULT_HUBHEIGHT / 100) * 38.48,
           shadows: ShadowMode.CAST_ONLY,
           color: Color.DARKGRAY.withAlpha(1), // or use RGB for finer control
           colorBlendMode: ColorBlendMode.MIX,
@@ -360,6 +370,110 @@ export default function CesiumViewer({longitude, latitude}) {
 
   }, []);
 
+  async function moveCameraFirstPerson(userPosition) {
+    if (!viewerRef.current) return;
+    const viewer = viewerRef.current;
+
+    const userLng = userPosition.longitude;
+    const userLat = userPosition.latitude;
+
+    try {
+      // Sample terrain heights
+      const [userCarto, turbineCarto] = await sampleTerrainMostDetailed(
+        viewer.terrainProvider,
+        [
+          Cartographic.fromDegrees(userLng, userLat),
+          Cartographic.fromDegrees(longitude, latitude),
+        ]
+      );
+
+      const userHeight = isFinite(userCarto.height) ? userCarto.height : 0;
+      const turbineHeight = isFinite(turbineCarto.height) ? turbineCarto.height : 0;
+
+      const userCartesian = Cartesian3.fromDegrees(
+        userLng,
+        userLat,
+        userHeight + 1.5 // Eye level
+      );
+      const turbineCartesian = Cartesian3.fromDegrees(
+        longitude,
+        latitude,
+        turbineHeight + 100 // Turbine hub height
+      );
+
+      // Compute direction from user to turbine hub
+      const direction = Cartesian3.subtract(
+        turbineCartesian,
+        userCartesian,
+        new Cartesian3()
+      );
+      const normalized = Cartesian3.normalize(direction, new Cartesian3());
+
+      // Convert world-space direction to ENU (local) frame at user position
+      const transform = Transforms.eastNorthUpToFixedFrame(userCartesian);
+      const inverse = Matrix4.inverse(transform, new Matrix4());
+      const localDirection = Matrix4.multiplyByPointAsVector(
+        inverse,
+        normalized,
+        new Cartesian3()
+      );
+
+      // Calculate heading/pitch from local vector
+      const heading = Math.atan2(localDirection.x, localDirection.y);
+      const pitch = Math.asin(localDirection.z); // look up/down
+      const roll = 0;
+
+      viewer.scene.camera.flyTo({
+        destination: userCartesian,
+        orientation: {
+          heading,
+          pitch,
+          roll,
+        },
+        duration: 2.5, // seconds
+        maximumHeight: 500, // optional: how high camera can arc if needed
+        complete: () => {
+          // console.log("Fly-to complete!");
+        },
+        cancel: () => {
+          // console.log("Fly-to cancelled.");
+        },
+      });
+
+    } catch (err) {
+      console.error("Failed to move camera to look at turbine hub:", err);
+    }
+  }
+
+  const handleUseMyLocation = () => {
+    setError("");
+    if (!navigator.geolocation) {
+      setError("Geolocation not supported by your browser.");
+      return;
+    }
+
+    setLocating(true);
+
+    const isDev = process.env.NODE_ENV === "development";
+
+    const runPositioning = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocating(false);
+          const { latitude, longitude } = position.coords;
+          moveCameraFirstPerson({latitude: latitude, longitude: longitude});
+        },
+        () => {
+          setLocating(false);
+          setError("Unable to retrieve your location.");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    isDev ? setTimeout(runPositioning, 5000) : runPositioning();
+  };
+
   return (
   <div style={{ width: "100%", height: "100%", position: "relative" }}>
     {error ? (
@@ -382,6 +496,41 @@ export default function CesiumViewer({longitude, latitude}) {
           )}
 
           {isViewerReady && (
+          <>
+          {/* View from current position Button */}
+          <TooltipProvider>
+              <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleUseMyLocation}
+                  className="absolute top-4 left-4 px-2 py-2 z-10 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
+                >
+                {locating ? (
+                  <svg
+                    className="animate-spin w-6 h-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                ) : (
+                  <LocateFixed className={`w-6 h-6`} />
+                )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={10} portalled={false} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                View turbine from your current position
+              </TooltipContent>
+              </Tooltip>
+          </TooltipProvider>
+
+          {/* Timelapse Button */}
           <button
             onClick={togglePlayback}
             className="absolute bottom-20 sm:bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-white/80 hover:bg-white text-gray-800 text-sm font-sm px-3 py-1 rounded-full shadow flex items-center gap-2"
@@ -397,6 +546,7 @@ export default function CesiumViewer({longitude, latitude}) {
             </span>
 
           </button>
+          </>
           )}
 
         </div>
