@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { 
-  buildModuleUrl,
   Viewer, 
   Ion, 
   createWorldTerrainAsync,
@@ -17,9 +16,24 @@ import {
   Color,
   ColorBlendMode,
   HeadingPitchRoll,
+  HeadingPitchRange, 
+  ScreenSpaceEventHandler,
   sampleTerrainMostDetailed,
   createGooglePhotorealistic3DTileset,
+  ScreenSpaceEventType,
+  Ray,
+  defined,
    } from 'cesium';
+import {
+  FaArrowUp,
+  FaArrowDown,
+  FaArrowLeft,
+  FaArrowRight,
+  FaSearchPlus,
+  FaSearchMinus,
+  FaUndoAlt,
+  FaRedoAlt,
+} from "react-icons/fa";
 import SunCalc from 'suncalc';
 import { LocateFixed } from "lucide-react"
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
@@ -31,7 +45,6 @@ if (typeof window !== 'undefined') {
   window.CESIUM_BASE_URL = process.env.CESIUM_BASE_URL;
 }
 
-
 const NIGHTTIME_ENDS = 21.5;
 const MORNING_STARTS = 4.5;
 
@@ -39,7 +52,6 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export default function CesiumViewer({longitude, latitude}) {
   const containerRef = useRef(null);
-  const tickHandlerRef = useRef(null);
   const initializedRef = useRef(false);
   const intervalRef = useRef(null);
   const viewerRef = useRef(null);
@@ -51,8 +63,60 @@ export default function CesiumViewer({longitude, latitude}) {
   const [isViewerReady, setIsViewerReady] = useState(false);
   const [windspeed, setWindspeed] = useState(null);
   const [hourFloat, setHourFloat] = useState(12.0); // default 12pm
-  const [isPlaying, setIsPlaying] = useState(false);  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const originalCameraRef = useRef(null);
   const [locating, setLocating] = useState(false);
+  const [useUserPosition, setUseUserPosition] = useState(false);
+  const interactionHandlerRef = useRef(null);
+  const wheelHandlerRef = useRef(null);
+  const touchStartHandlerRef = useRef(null);
+  const touchMoveHandlerRef = useRef(null);
+  const touchEndHandlerRef = useRef(null);
+
+  const moveCamera = (direction) => {
+    if (!viewerRef.current) return;
+    const camera = viewerRef.current.scene.camera;
+    const moveAmount = 1; // meters
+    const rotateAmount = 0.05; // radians
+
+    switch (direction) {
+      case "up":
+        camera.moveUp(moveAmount);
+        break;
+      case "down":
+        camera.moveDown(moveAmount);
+        break;
+      case "forward":
+        camera.moveForward(moveAmount);
+        break;
+      case "backward":
+        camera.moveBackward(moveAmount);
+        break;
+      case "left":
+        camera.moveLeft(moveAmount);
+        break;
+      case "right":
+        camera.moveRight(moveAmount);
+        break;
+      case "zoomIn":
+        camera.zoomIn(moveAmount);
+        break;
+      case "zoomOut":
+        camera.zoomOut(moveAmount);
+        break;
+      case "rotateLeft":
+        camera.rotateLeft(rotateAmount);
+        break;
+      case "rotateRight":
+        camera.rotateRight(rotateAmount);
+        break;
+    }
+
+    const cartographic = Cartographic.fromCartesian(camera.positionWC);
+    const newTransform = Transforms.eastNorthUpToFixedFrame(camera.positionWC);
+    camera.lookAtTransform(newTransform);
+
+  };
 
   function windToRPM(windSpeed) {
     if (windSpeed < 3) return 0; // Below cut-in, no spin
@@ -133,11 +197,6 @@ export default function CesiumViewer({longitude, latitude}) {
       }, 100); // update every 100ms
     }
   };
-
-  const useCurrentPosition = () => {
-    if (!isViewerReady) return;
-
-  }
 
   useEffect(() => {
     if (!isViewerReady) return;
@@ -370,8 +429,258 @@ export default function CesiumViewer({longitude, latitude}) {
 
   }, []);
 
+  function saveCameraState() {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    const camera = viewer.scene.camera;
+
+    originalCameraRef.current = {
+      position: camera.positionWC.clone(),
+      direction: camera.directionWC.clone(),
+      up: camera.upWC.clone(),
+      transform: Matrix4.clone(camera.transform), 
+      fov: viewer.camera.frustum.fov
+    };
+  }
+
+  function restoreCameraState() {
+    const viewer = viewerRef.current;
+    const saved = originalCameraRef.current;
+    if (!viewer || !saved) return;
+
+    const camera = viewer.scene.camera;
+    viewer.camera.frustum.fov = saved.fov;
+    camera.lookAtTransform(saved.transform || Matrix4.IDENTITY);
+    camera.flyTo({
+      destination: saved.position,
+      orientation: {
+        direction: saved.direction,
+        up: saved.up,
+      },
+      duration: 2.5, // seconds
+      maximumHeight: 500, // optional: how high camera can arc if needed
+      complete: () => {
+      },
+      cancel: () => {
+      },
+    });
+
+    // camera.setView({
+    //   destination: saved.position,
+    //   orientation: {
+    //     direction: saved.direction,
+    //     up: saved.up,
+    //   },
+    // });
+  }
+
+  function enableCesiumFirstPersonInteraction() {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    // Disable default interactions
+    const controller = viewer.scene.screenSpaceCameraController;
+    controller.enableRotate = false;
+    controller.enableTranslate = false;
+    controller.enableZoom = false;
+    controller.enableTilt = false;
+    controller.enableLook = false;
+
+    let isMouseDown = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const rotateCamera = (deltaX, deltaY) => {
+      viewer.camera.rotate(Cartesian3.UNIT_Z, deltaX * 0.005); // Yaw — turn left/right
+      viewer.camera.rotate(viewer.camera.right, deltaY * 0.005);      // relative pitch
+    };
+
+    interactionHandlerRef.current = new ScreenSpaceEventHandler(viewer.scene.canvas);
+
+    interactionHandlerRef.current.setInputAction((movement) => {
+      isMouseDown = true;
+      lastX = movement.position.x;
+      lastY = movement.position.y;
+    }, ScreenSpaceEventType.LEFT_DOWN);
+
+    interactionHandlerRef.current.setInputAction((movement) => {
+      if (!isMouseDown) return;
+      const deltaX = movement.endPosition.x - lastX;
+      const deltaY = movement.endPosition.y - lastY;
+      lastX = movement.endPosition.x;
+      lastY = movement.endPosition.y;
+      rotateCamera(deltaX, deltaY);
+    }, ScreenSpaceEventType.MOUSE_MOVE);
+
+    interactionHandlerRef.current.setInputAction(() => {
+      isMouseDown = false;
+    }, ScreenSpaceEventType.LEFT_UP);
+
+    const canvas = viewerRef.current?.scene.canvas;
+    if (!canvas) return;
+
+    wheelHandlerRef.current = (e) => {
+      e.preventDefault();
+      const delta = Math.sign(e.deltaY);
+      viewerRef.current.camera.frustum.fov += delta * 0.01;
+      viewerRef.current.camera.frustum.fov = Math.max(
+        CesiumMath.toRadians(5),
+        Math.min(CesiumMath.toRadians(150), viewerRef.current.camera.frustum.fov)
+      );
+    };
+
+    canvas.addEventListener("wheel", wheelHandlerRef.current, { passive: false });
+
+    // Pinch zoom handling
+    let lastPinchDistance = null;
+
+    touchStartHandlerRef.current = (e) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastPinchDistance = Math.sqrt(dx * dx + dy * dy);
+      }
+    };
+
+    touchMoveHandlerRef.current = (e) => {
+      if (e.touches.length === 2 && lastPinchDistance !== null) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDistance = Math.sqrt(dx * dx + dy * dy);
+        const zoomFactor = (lastPinchDistance - currentDistance) * 0.001;
+
+        viewerRef.current.camera.frustum.fov += zoomFactor;
+        viewerRef.current.camera.frustum.fov = Math.max(
+          CesiumMath.toRadians(10),
+          Math.min(CesiumMath.toRadians(80), viewerRef.current.camera.frustum.fov)
+        );
+
+        lastPinchDistance = currentDistance;
+      }
+    };
+
+    touchEndHandlerRef.current = () => {
+      lastPinchDistance = null;
+    };
+
+    canvas.addEventListener("touchstart", touchStartHandlerRef.current, { passive: false });
+    canvas.addEventListener("touchmove", touchMoveHandlerRef.current, { passive: false });
+    canvas.addEventListener("touchend", touchEndHandlerRef.current, { passive: false });
+  }
+
+  function disableCesiumFirstPersonInteraction() {
+    const canvas = viewerRef.current?.scene.canvas;
+    if (!canvas) return;
+
+    if (wheelHandlerRef.current) canvas.removeEventListener("wheel", wheelHandlerRef.current);
+    if (touchStartHandlerRef.current) canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
+    if (touchMoveHandlerRef.current) canvas.removeEventListener("touchmove", touchMoveHandlerRef.current);
+    if (touchEndHandlerRef.current) canvas.removeEventListener("touchend", touchEndHandlerRef.current);
+    
+    if (interactionHandlerRef.current) {
+      interactionHandlerRef.current.destroy();
+      interactionHandlerRef.current = null;
+    }
+
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    // Re-enable Cesium's controls
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+    viewer.scene.screenSpaceCameraController.enableTranslate = true;
+    viewer.scene.screenSpaceCameraController.enableZoom = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableLook = true;
+  }
+
+  async function findLowestNearbyPoint(longitude, latitude, viewer, radius = 50, step = 5) {
+    const scene = viewer.scene;
+    const positions = [];
+
+    // Build grid of positions around the user
+    for (let dx = -radius; dx <= radius; dx += step) {
+      for (let dy = -radius; dy <= radius; dy += step) {
+        const offsetLon = longitude + (dx / 111320); // meters to degrees approx
+        const offsetLat = latitude + (dy / 110540);
+        positions.push({ lon: offsetLon, lat: offsetLat });
+      }
+    }
+
+    let lowestPoint = null;
+
+    for (const pos of positions) {
+      const top = Cartesian3.fromDegrees(pos.lon, pos.lat, 100); // start above
+      const bottom = Cartesian3.fromDegrees(pos.lon, pos.lat, -100); // end below
+      const dir = Cartesian3.subtract(bottom, top, new Cartesian3());
+      const ray = new Ray(top, Cartesian3.normalize(dir, new Cartesian3()));
+      const hit = scene.pickFromRay(ray);
+      console.log(pos, hit);
+      if (hit?.position) {
+        const carto = Ellipsoid.WGS84.cartesianToCartographic(hit.position);
+        console.log(carto.height);
+        if (!lowestPoint || carto.height < lowestPoint.height) {
+          lowestPoint = {
+            longitude: CesiumMath.toDegrees(carto.longitude),
+            latitude: CesiumMath.toDegrees(carto.latitude),
+            height: carto.height,
+          };
+        }
+      }
+    }
+
+    // Fallback to terrain at central point if nothing hit
+    if (!lowestPoint) {
+      console.warn("No surface intersection found, falling back to terrain sampling");
+      const terrainSamples = await sampleTerrainMostDetailed(viewer.terrainProvider, [
+        Cartographic.fromDegrees(longitude, latitude),
+      ]);
+      const t = terrainSamples[0];
+      return {
+        longitude: CesiumMath.toDegrees(t.longitude),
+        latitude: CesiumMath.toDegrees(t.latitude),
+        height: t.height,
+      };
+    }
+
+    return lowestPoint;
+  }
+
+  // Detect if the camera is likely inside a building or terrain
+  function isInsideGeometry() {
+    const scene = viewerRef.current.scene;
+    const position = viewerRef.current.camera.positionWC;
+
+    const directions = [
+      Cartesian3.UNIT_X,
+      Cartesian3.UNIT_Y,
+      Cartesian3.UNIT_Z,
+      Cartesian3.negate(Cartesian3.UNIT_X, new Cartesian3()),
+      Cartesian3.negate(Cartesian3.UNIT_Y, new Cartesian3()),
+      Cartesian3.negate(Cartesian3.UNIT_Z, new Cartesian3()),
+    ];
+
+    const ray = new Ray();
+
+    for (const dir of directions) {
+      const clonedDirection = Cartesian3.clone(dir, new Cartesian3()); // ✅ make it mutable
+      ray.origin = Cartesian3.clone(position, new Cartesian3());
+      ray.direction = clonedDirection;
+
+      const hit = scene.pickFromRay(ray);
+      if (defined(hit)) {
+        return false;
+      }
+    }
+
+    return true; // All directions blocked — likely inside geometry
+  }
+
   async function moveCameraFirstPerson(userPosition) {
     if (!viewerRef.current) return;
+
+    saveCameraState();
+
     const viewer = viewerRef.current;
 
     const userLng = userPosition.longitude;
@@ -393,12 +702,14 @@ export default function CesiumViewer({longitude, latitude}) {
       const userCartesian = Cartesian3.fromDegrees(
         userLng,
         userLat,
-        userHeight + 1.5 // Eye level
+        userHeight + 1.5 // Clear of any potential buildings
       );
+      
+      const userTransform = Transforms.eastNorthUpToFixedFrame(userCartesian);
       const turbineCartesian = Cartesian3.fromDegrees(
         longitude,
         latitude,
-        turbineHeight + 100 // Turbine hub height
+        turbineHeight + TURBINE_AR_DEFAULT_HUBHEIGHT // Turbine hub height
       );
 
       // Compute direction from user to turbine hub
@@ -423,6 +734,9 @@ export default function CesiumViewer({longitude, latitude}) {
       const pitch = Math.asin(localDirection.z); // look up/down
       const roll = 0;
 
+      viewer.scene.screenSpaceCameraController.minimumZoomDistance = 0;
+      viewer.scene.screenSpaceCameraController.enableCollisionDetection = false; 
+
       viewer.scene.camera.flyTo({
         destination: userCartesian,
         orientation: {
@@ -433,19 +747,26 @@ export default function CesiumViewer({longitude, latitude}) {
         duration: 2.5, // seconds
         maximumHeight: 500, // optional: how high camera can arc if needed
         complete: () => {
-          // console.log("Fly-to complete!");
+          viewer.scene.camera.lookAtTransform(userTransform);
+          enableCesiumFirstPersonInteraction();
         },
         cancel: () => {
-          // console.log("Fly-to cancelled.");
         },
       });
-
     } catch (err) {
       console.error("Failed to move camera to look at turbine hub:", err);
     }
   }
 
   const handleUseMyLocation = () => {
+
+    if (useUserPosition) {
+      disableCesiumFirstPersonInteraction();
+      restoreCameraState();
+      setUseUserPosition(false);
+      return;
+    }
+
     setError("");
     if (!navigator.geolocation) {
       setError("Geolocation not supported by your browser.");
@@ -462,16 +783,18 @@ export default function CesiumViewer({longitude, latitude}) {
           setLocating(false);
           const { latitude, longitude } = position.coords;
           moveCameraFirstPerson({latitude: latitude, longitude: longitude});
+          setUseUserPosition(true);
         },
         () => {
           setLocating(false);
           setError("Unable to retrieve your location.");
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
       );
+
     }
 
-    isDev ? setTimeout(runPositioning, 5000) : runPositioning();
+    isDev ? setTimeout(runPositioning, 1000) : runPositioning();
   };
 
   return (
@@ -503,7 +826,7 @@ export default function CesiumViewer({longitude, latitude}) {
               <TooltipTrigger asChild>
                 <button
                   onClick={handleUseMyLocation}
-                  className="absolute top-4 left-4 px-2 py-2 z-10 w-10 h-10 text-gray-600 hover:bg-white bg-white bg-opacity-70 rounded-full p-1"
+                  className={`absolute top-4 left-4 px-2 py-2 z-10 w-10 h-10 ${useUserPosition ? 'bg-blue-700 text-white hover:bg-blue-500 ': 'bg-white text-gray-600 hover:bg-white '} bg-opacity-70 rounded-full p-1`}
                 >
                 {locating ? (
                   <svg
@@ -525,10 +848,30 @@ export default function CesiumViewer({longitude, latitude}) {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={10} portalled={false} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                View turbine from your current position
+                {useUserPosition ? 'Remove current position lock': 'View turbine from your current position'}
               </TooltipContent>
               </Tooltip>
           </TooltipProvider>
+
+          {/* Control panel */}
+          {useUserPosition &&
+          <div className="absolute bottom-16 sm:bottom-10 left-5 z-50 bg-white bg-opacity-70  p-2 rounded-full flex flex-col items-center space-y-1">
+            <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("up")}>
+              <FaArrowUp className="w-3 h-3"/>
+            </button>
+            <div className="flex space-x-2 space-y-1">
+              <button className="text-gray-600 rounded p-0 text-lg mr-4" onClick={() => moveCamera("left")}>
+                <FaArrowLeft className="w-3 h-3" />
+              </button>
+              <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("right")}>
+                <FaArrowRight className="w-3 h-3"/>
+              </button>
+            </div>
+            <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("down")}>
+              <FaArrowDown className="w-3 h-3"/>
+            </button>
+          </div>
+          }
 
           {/* Timelapse Button */}
           <button
@@ -544,8 +887,8 @@ export default function CesiumViewer({longitude, latitude}) {
               {(hourFloat < 13.0) ? String(Math.floor(hourFloat)).padStart(2, '0') : String(Math.floor(hourFloat- 12)).padStart(2, '0')}:
               {String(Math.round((hourFloat % 1) * 60)).padStart(2, '0') + ((hourFloat < 12.0) ? ' AM': ' PM')}
             </span>
-
           </button>
+
           </>
           )}
 
