@@ -798,7 +798,7 @@ export default function CesiumViewer({longitude, latitude}) {
   };
 
   return (
-  <div style={{ width: "100%", height: "100%", position: "relative" }}>
+  <div style={{ width: "100%", height: "100%", position: "relative", touchAction: 'manipulation' }}>
     {error ? (
       <div className="flex items-center justify-center h-full text-lg text-center px-4">
         {error}
@@ -855,39 +855,23 @@ export default function CesiumViewer({longitude, latitude}) {
 
           {/* Control panel */}
           {useUserPosition &&
-          <div className="absolute bottom-16 sm:bottom-10 left-5 z-50 bg-white bg-opacity-70  p-2 rounded-full flex flex-col items-center space-y-1">
+          <div className="absolute bottom-16 sm:bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-white bg-opacity-70 p-2 rounded-full flex flex-col items-center space-y-1">
             <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("up")}>
-              <FaArrowUp className="w-3 h-3"/>
+              <FaArrowUp className="w-7 h-7 sm:w-5 sm:h-5"/>
             </button>
             <div className="flex space-x-2 space-y-1">
-              <button className="text-gray-600 rounded p-0 text-lg mr-4" onClick={() => moveCamera("left")}>
-                <FaArrowLeft className="w-3 h-3" />
+              <button className="text-gray-600 rounded p-0 text-lg mr-8 sm:mr-6" onClick={() => moveCamera("left")}>
+                <FaArrowLeft className="w-7 h-7 sm:w-5 sm:h-5" />
               </button>
-              <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("right")}>
-                <FaArrowRight className="w-3 h-3"/>
+              <button className="text-gray-600 rounded p-0 text-lg ml-8 sm:ml-6" onClick={() => moveCamera("right")}>
+                <FaArrowRight className="w-7 h-7 sm:w-5 sm:h-5"/>
               </button>
             </div>
             <button className="text-gray-600 rounded p-0 text-lg" onClick={() => moveCamera("down")}>
-              <FaArrowDown className="w-3 h-3"/>
+              <FaArrowDown className="w-7 h-7 sm:w-5 sm:h-5"/>
             </button>
           </div>
           }
-
-          {/* Timelapse Button */}
-          <button
-            onClick={togglePlayback}
-            className="absolute bottom-20 sm:bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-white/80 hover:bg-white text-gray-800 text-sm font-sm px-3 py-1 rounded-full shadow flex items-center gap-2"
-          >
-              {isPlaying ? (
-                <PauseIcon className="w-5 h-5" />
-              ) : (
-                <PlayIcon className="w-5 h-5" />
-              )}
-              <span className="font-mono min-w-[70px]">
-              {(hourFloat < 13.0) ? String(Math.floor(hourFloat)).padStart(2, '0') : String(Math.floor(hourFloat- 12)).padStart(2, '0')}:
-              {String(Math.round((hourFloat % 1) * 60)).padStart(2, '0') + ((hourFloat < 12.0) ? ' AM': ' PM')}
-            </span>
-          </button>
 
           </>
           )}
@@ -902,17 +886,37 @@ export default function CesiumViewer({longitude, latitude}) {
           </div>
         )}
 
-        {isViewerReady && (windspeed !== null) && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
-            <div className="bg-gray-100 text-gray-700 hidden sm:block text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md">
-              Average Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
-            </div>
-            <div className="bg-gray-100 text-gray-700 sm:hidden text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md">
-              Avg Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
-            </div>
+        {isViewerReady &&
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center gap-2">
+          {(windspeed !== null) && 
+          <>
+          <div className="bg-gray-100 text-gray-700 hidden sm:inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md mx-2">
+            Average Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
+          </div>
+          <div className="bg-gray-100 text-gray-700 sm:hidden text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md">
+            Avg Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
+          </div>
+          </>
+          }
+          <div className="inline">
+            <button
+              onClick={togglePlayback}
+              className="max-w-[9rem] bg-white/80 hover:bg-white text-gray-800 text-sm font-sm px-3 py-1 rounded-full flex shadow"
+            >
+                {isPlaying ? (
+                  <PauseIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                ) : (
+                  <PlayIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                )}
+                <span className="font-mono min-w-[70px] text-xs sm:text-sm">
+                {(hourFloat < 13.0) ? String(Math.floor(hourFloat)).padStart(2, '0') : String(Math.floor(hourFloat- 12)).padStart(2, '0')}:
+                {String(Math.round((hourFloat % 1) * 60)).padStart(2, '0') + ((hourFloat < 12.0) ? ' AM': ' PM')}
+              </span>
+            </button>
 
           </div>
-        )}
+        </div>
+        }
 
       </>
     )}
