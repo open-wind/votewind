@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import maplibregl from 'maplibre-gl';
@@ -94,7 +94,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showQR, setShowQR] = useState(false);
     const [QRurl, setQRurl] = useState(false);
     const [isAREnabled, setAREnabled] = useState(false);
-    const [mapStyle, setMapStyle] = useState(false);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -601,10 +600,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         zoom: zoom
     };
 
-    useEffect(() => {
+    const mapStyle = useMemo(() => {
         const defaultStyle = require('./stylesheets/openmaptiles.json');
-        const map_style = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
-        setMapStyle(map_style);
+        return incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
     }, []);
 
     const onLoad = () => {

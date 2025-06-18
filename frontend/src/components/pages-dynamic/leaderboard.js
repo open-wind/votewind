@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import maplibregl from 'maplibre-gl';
 import Map, { Popup } from 'react-map-gl/maplibre';
@@ -25,7 +25,6 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 export default function Leaderboard({}) {
   const router = useRouter();
   const mapRef = useRef();
-  const [mapStyle, setMapStyle] = useState(false);
   const [popupInfo, setPopupInfo] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [data, setData] = useState(null);
@@ -77,10 +76,9 @@ export default function Leaderboard({}) {
       return newjson;
   }
 
-  useEffect(() => {
+  const mapStyle = useMemo(() => {
       const defaultStyle = require('../stylesheets/openmaptiles.json');
-      const map_style = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
-      setMapStyle(map_style);
+      return incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
   }, []);
 
   useEffect(() => {
