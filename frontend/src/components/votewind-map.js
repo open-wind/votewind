@@ -94,6 +94,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showQR, setShowQR] = useState(false);
     const [QRurl, setQRurl] = useState(false);
     const [isAREnabled, setAREnabled] = useState(false);
+    const [mapStyle, setMapStyle] = useState(false);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -600,6 +601,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         zoom: zoom
     };
 
+    useEffect(() => {
+        const defaultStyle = require('./stylesheets/openmaptiles.json');
+        const map_style = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
+        setMapStyle(map_style);
+    }, []);
+
     const onLoad = () => {
         const map = mapRef.current?.getMap();
         if (!map) return;
@@ -633,10 +640,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         }
 
-        const defaultStyle = require('./stylesheets/openmaptiles.json');
-        const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
-        map.setStyle(mapStyle);
-
         // If search -> organisation, enable organisations layer and select specific organisation
         if (type && (type.includes('organisation:'))) {
             toggleOrganisations();
@@ -647,7 +650,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         setMapLoaded(true);
     }
-        
+    
     const updateURL = debounce((view) => {
         const longitude = view.longitude.toFixed(5);
         const latitude = view.latitude.toFixed(5);
@@ -1281,6 +1284,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         onZoom={onZoom}
                         onClick={onClick}
                         style={{ width: '100%', height: '100%' }}
+                        mapStyle={mapStyle}
                         interactiveLayerIds={[
                             'water', 
                             'osm-substations-circle',

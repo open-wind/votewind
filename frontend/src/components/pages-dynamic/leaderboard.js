@@ -25,6 +25,7 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 export default function Leaderboard({}) {
   const router = useRouter();
   const mapRef = useRef();
+  const [mapStyle, setMapStyle] = useState(false);
   const [popupInfo, setPopupInfo] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [data, setData] = useState(null);
@@ -38,6 +39,49 @@ export default function Leaderboard({}) {
   const mapRefs = useRef({});
 
   const isMobile = useIsMobile();
+
+  const incorporateBaseDomain = (tileserver_baseurl, api_baseurl, json) => {
+
+      let newjson = JSON.parse(JSON.stringify(json));
+      const sources_keys = Object.keys(newjson['sources'])
+      for (let i = 0; i < sources_keys.length; i++) {
+          const sources_key = sources_keys[i];
+          if ('url' in newjson['sources'][sources_key]) {
+              if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
+                  newjson['sources'][sources_key]['url'] = tileserver_baseurl + newjson['sources'][sources_key]['url'];
+              }
+          }
+          if ('data' in newjson['sources'][sources_key]) {
+              if ((typeof newjson['sources'][sources_key]['data'] === 'string') && 
+                  (!(newjson['sources'][sources_key]['data'].startsWith('http')))) {
+                  newjson['sources'][sources_key]['data'] = api_baseurl + newjson['sources'][sources_key]['data'];
+              }
+          }
+      }  
+
+      newjson['sources']['votes-leaderboard'] = {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection", 
+          "features": []
+        }
+      }
+
+      // Add voting stylesheet
+      var votes_style = require('../stylesheets/leaderboard.json');
+      for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
+
+      newjson['glyphs'] = tileserver_baseurl + newjson['glyphs'];
+      newjson['sprite'] = tileserver_baseurl + newjson['sprite'];
+
+      return newjson;
+  }
+
+  useEffect(() => {
+      const defaultStyle = require('../stylesheets/openmaptiles.json');
+      const map_style = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
+      setMapStyle(map_style);
+  }, []);
 
   useEffect(() => {
     if (!page) return;
@@ -94,43 +138,6 @@ export default function Leaderboard({}) {
       zoom: isMobile ? 4.1 : MAP_DEFAULT_ZOOM
   };
 
-  const incorporateBaseDomain = (tileserver_baseurl, api_baseurl, json) => {
-
-      let newjson = JSON.parse(JSON.stringify(json));
-      const sources_keys = Object.keys(newjson['sources'])
-      for (let i = 0; i < sources_keys.length; i++) {
-          const sources_key = sources_keys[i];
-          if ('url' in newjson['sources'][sources_key]) {
-              if (!(newjson['sources'][sources_key]['url'].startsWith('http'))) {
-                  newjson['sources'][sources_key]['url'] = tileserver_baseurl + newjson['sources'][sources_key]['url'];
-              }
-          }
-          if ('data' in newjson['sources'][sources_key]) {
-              if ((typeof newjson['sources'][sources_key]['data'] === 'string') && 
-                  (!(newjson['sources'][sources_key]['data'].startsWith('http')))) {
-                  newjson['sources'][sources_key]['data'] = api_baseurl + newjson['sources'][sources_key]['data'];
-              }
-          }
-      }  
-
-      newjson['sources']['votes-leaderboard'] = {
-        "type": "geojson",
-        "data": {
-          "type": "FeatureCollection", 
-          "features": []
-        }
-      }
-
-      // Add voting stylesheet
-      var votes_style = require('../stylesheets/leaderboard.json');
-      for (let i = 0; i < votes_style.length; i++) newjson['layers'].push(votes_style[i]);
-
-      newjson['glyphs'] = tileserver_baseurl + newjson['glyphs'];
-      newjson['sprite'] = tileserver_baseurl + newjson['sprite'];
-
-      return newjson;
-  }
-  
   const onLoad = () => {
       const map = mapRef.current?.getMap();
       if (!map) return;
@@ -150,10 +157,6 @@ export default function Leaderboard({}) {
 
           }
       }
-
-      const defaultStyle = require('../stylesheets/openmaptiles.json');
-      const mapStyle = incorporateBaseDomain(TILESERVER_BASEURL, API_BASE_URL, defaultStyle);
-      map.setStyle(mapStyle);
 
       if (data) map.getSource('votes-leaderboard').setData(data);
   }
@@ -199,6 +202,7 @@ export default function Leaderboard({}) {
               onClick={onClick}
               onMouseMove={onMouseMove}
               style={{ width: '100%', height: '100%' }}
+              mapStyle={mapStyle}
               interactiveLayerIds={['votes-default', 'votes-leaderboard']}
               attributionControl={true}
               maxBounds={MAP_MAXBOUNDS}
