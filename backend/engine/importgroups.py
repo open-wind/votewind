@@ -15,6 +15,7 @@ import re
 import requests
 import cairosvg
 import io
+import random
 from PIL import Image
 from io import BytesIO
 from bs4 import BeautifulSoup
@@ -61,9 +62,32 @@ ORGANISATIONS_TO_IMPORT             = \
                                         }
                                     }
 
+# ORGANISATIONS_TO_IMPORT             = \
+#                                     {
+#                                         'england': {
+#                                             'source': 'community-energy-england'
+#                                         },
+#                                         'scotland': {
+#                                             'source': 'community-energy-scotland'
+#                                         },
+#                                     }
+
+# ORGANISATIONS_TO_IMPORT             = \
+#                                     {
+#                                         'england': {
+#                                             'source': 'community-energy-england'
+#                                         },
+#                                     }
+
 # ***********************************************************
 # ***************** General helper functions ****************
 # ***********************************************************
+
+def jitter_coords(lat, lng, max_offset=0.003):
+    return (
+        float(lat) + random.uniform(-max_offset, max_offset),
+        float(lng) + random.uniform(-max_offset, max_offset)
+    )
 
 def LogMessage(logtext):
     """
@@ -221,15 +245,18 @@ def main():
 
     initLogging()
 
-    Organisation.objects.all().delete()
+    # Organisation.objects.all().delete()
+
+    allpostcodes = set()
 
     file_keys = ORGANISATIONS_TO_IMPORT.keys()
     count = 0
     for file_key in file_keys:
         extrafields = ORGANISATIONS_TO_IMPORT[file_key]
+        Organisation.objects.filter(source=extrafields['source']).delete()
         file_path = GROUPS_FOLDER + file_key + ".csv"
         LogMessage("Importing: " + basename(file_path))
-        with open(file_path, 'r', newline='', encoding="utf-8") as csvfile:
+        with open(file_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader: 
                 for field in row.keys():
@@ -238,13 +265,22 @@ def main():
                 if row['Latitude'] == '': continue
                 if row['Website URL'] == '': continue
 
-                is_live = check_url_live(row['Website URL'])
-                if not is_live: continue
+                # If entry shares postcode with another organisation then 'jitter' coordinates slightly so map allows individual selection
+                if row['Postcode'] in allpostcodes:
+                    row['Latitude'], row['Longitude'] = jitter_coords(row['Latitude'], row['Longitude'])
 
-                logo_url = get_logo_url(row['Website URL'])
+                allpostcodes.add(row['Postcode'])
+
+                is_live = check_url_live(row['Website URL'])
+                # if not is_live: continue
+
+                logo_url = row['Logo URL']
+                if file_key not in ['england']:
+                    logo_url = get_logo_url(row['Website URL'])
+
                 logo_transparent = False
                 if logo_url:
-                    LogMessage("URL for logo of " + row['Website URL'] + " - " + logo_url) 
+                    # LogMessage("URL for logo of " + row['Website URL'] + " - " + logo_url) 
                     logo_transparent = is_image_transparent(logo_url)
                 else: logo_url = ''
 
@@ -252,6 +288,7 @@ def main():
 
                 geometry = Point(float(row['Longitude']), float(row['Latitude']), srid=4326)
 
+                LogMessage("Importing: " + row['Organisation Name'])
                 Organisation.objects.create(    name=row['Organisation Name'], 
                                                 source=source,
                                                 address=row['Address'],
@@ -262,7 +299,7 @@ def main():
                                                 logo_transparent=logo_transparent,
                                                 geometry=geometry)
 
-                if count % 10000 == 0: LogMessage("Importing organisation: " + str(count))
+                # if count % 10000 == 0: LogMessage("Importing organisation: " + str(count))
                 count += 1
 
         LogMessage("Number of organisations imported: " + str(count))

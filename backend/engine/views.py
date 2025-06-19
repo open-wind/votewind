@@ -827,7 +827,7 @@ def Organisations(request):
         properties = {  'id': organisation.pk, \
                         'name': organisation.name, \
                         'address': organisation.address, \
-                        'description': organisation.description, \
+                        'description': organisation.description.replace('\n', '<br/>'), \
                         'url': organisation.url, \
                         'logo_url': organisation.logo_url, \
                         'logo_transparent': organisation.logo_transparent, \

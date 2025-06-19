@@ -26,6 +26,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   const [error, setError] = useState("");
   const timeoutRef = useRef(null);
   const showDropdownRef = useRef(showDropdown);
+  const [showGPSError, setShowGPSError] = useState(false);
 
   if (placeholder === null) placeholder = "Enter postcode or location...";
 
@@ -129,7 +130,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
       const res = await fetch(`${API_BASE_URL}/api/locationget?query=${encodeURIComponent(query)}`);
       const data = await res.json();
       navigateToPosition(data.results);
-    } catch (err) {
+    } catch (err) {      
       setError("Unable to retrieve any information about that location");
     }
   };
@@ -137,7 +138,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   const handleUseMyLocation = () => {
     setError("");
     if (!navigator.geolocation) {
-      setError("Geolocation not supported by your browser.");
+      console.error("Geolocation not supported by your browser.");
       return;
     }
 
@@ -153,9 +154,10 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
           setQuery("");
           navigateToPosition({latitude: latitude, longitude: longitude, type: 'gps'})
         },
-        () => {
+        (err) => {
           setLocating(false);
-          setError("Unable to retrieve your location.");
+          setShowGPSError(true);
+          console.error("Geolocation error:", err);
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
@@ -201,7 +203,30 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
   
   >
 
+      {/* GPS error modal */}
+      {showGPSError && (
+      <div className="fixed inset-0 z-[1001] flex items-center justify-center">
+        <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
+            <div className="mb-3 text-center">
+                <strong className="font-bold block">GPS Error</strong>
+            </div>
+            <p className="text-sm text-gray-700">
+            There was an error retrieving your GPS position - please use your postcode instead.
+            </p>
+            <div className="mt-4 flex justify-center gap-2">
+                <button
+                    onClick={() => setShowGPSError(false)}
+                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                >
+                    OK
+                </button>
+            </div>
+        </div>
+      </div>
+      )}
+
     <div className="relative w-full">
+
 
       {/* Actual user input field */}
       <CommandInput

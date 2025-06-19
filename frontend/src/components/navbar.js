@@ -20,7 +20,7 @@ export default function Navbar() {
    <div className="absolute inset-x-0 top-0 h-14 flex items-center justify-between px-4 sm:px-6 font-bold pointer-events-auto">
   
       <div className="text-xl pl-1" style={{ textShadow: '0 0px 20px rgba(255,255,255,0)' }}>
-        <a href="/"><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org</span></a>
+        <a href={APP_BASE_URL}><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org</span></a>
       </div>
 
       {/* Desktop links */}

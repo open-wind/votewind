@@ -262,12 +262,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         const feature = e.features?.[0];
         if (!isMobile && feature && popupLayers.includes(feature.layer.id)) {
+            var type = null;
             var content = '';
             var heading = '';
             var logo = null;
             var logo_transparent = null;
             var offset = 40;
             if (feature.layer.id.startsWith('votes-')) {
+                type = 'vote';
                 heading = 'Votes';
                 offset = 600;
                 const votes_confirmed = parseInt(feature.properties.votes_confirmed);
@@ -276,13 +278,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 content = content.replaceAll(' votes', '').replaceAll(' vote', '').replaceAll(' and ', ', ');
             }
             if (feature.layer.id.startsWith('organisations-')) {
-                heading = 'Community Energy Organisation';
+                type = 'organisation';
+                heading = feature.properties.name;
                 offset = 500;
-                content = feature.properties.name;
                 logo = feature.properties.logo_url;
                 logo_transparent = feature.properties.logo_transparent;
             }
             if (feature.layer.id.startsWith('osm-substations-')) {
+                type = 'substation';
                 heading = 'Substation';
                 content = [];
                 const possible_elements = ['name', 'substation', 'voltage', 'operator']
@@ -298,6 +301,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             setPopupInfo({
                 offset: offset,
                 lngLat: {lng: feature.geometry.coordinates[0], lat: feature.geometry.coordinates[1]},
+                type: type,
                 properties: {heading: heading, content: content, logo: logo, logo_transparent: logo_transparent}
             });
         } else {
@@ -1238,19 +1242,19 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 {/*  Nearest organisations floating area */}
                 {showNearestOrganisations && (!organisation) && (!turbineAdded) && (
-                <div className="fixed z-50 bg-white rounded-2xl shadow-2xl px-4 py-2 inset-x-4 bottom-[52px] sm:bottom-4 max-h-[80vh] overflow-y-auto
+                <div className="fixed z-50 bg-white rounded shadow-2xl px-4 py-2 inset-x-4 bottom-[2.5rem] sm:bottom-16 max-h-[80vh] overflow-y-auto
                 sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
                 <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
                 {nearestOrganisations && (
                     (nearestOrganisations).map((item, index) => (
                         <a href="#" onClick={() => selectOrganisation(mapRef.current?.getMap(), item.properties)} key={index}>
-                            <div className="p-0 mt-0 mb-1 sm:mb-4 tracking-tight space-y-0">
+                            <div className="p-0 mt-0 mb-1 sm:mb-1 tracking-tight space-y-0">
 
                             {(item.properties.logo_url !== '') && (
                             <img
                                 src={item.properties.logo_url}
                                 alt={item.properties.name}
-                                className={`${item.properties.logo_transparent && "bg-gray-300"} hidden sm:block mt-0 mb-1 w-24 h:24 sm:w-60 object-contain p-4`}
+                                className={`${item.properties.logo_transparent && "bg-gray-300"} mx-auto hidden sm:block mt-0 mb-1 w-24 h:24 sm:w-60 object-contain p-4`}
                             /> 
                             )}
                             <p className="leading-snug text-xs">
@@ -1258,6 +1262,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <span className="font-light text-gray-600"> {item.properties.distance.toFixed(1)} km</span>
                             </p>
                             </div>
+                            <div className="hidden sm:block w-full border-t border-gray-200 my-3" />
 
                         </a>
                     )) 
@@ -1320,7 +1325,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             closeOnClick={false}
                             anchor="bottom"
                             offset={scalePopupOffset(popupInfo.offset, mapRef.current?.getMap()?.getZoom())}
-                            className="no-padding-popup px-0 py-0"
+                            className="no-padding-popup px-0 py-0" style={{maxWidth: '400px'}}
 
                         >
                             <div className="text-sm font-medium px-3 py-2 leading-normal">
@@ -1334,7 +1339,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 {(popupInfo.properties.logo) && (
                                     <img
                                         src={popupInfo.properties.logo}
-                                        className={`${popupInfo.properties.logo_transparent && "bg-gray-300"} mt-1 mb-1 max-w-[200px] h-auto object-contain p-4 m-0`}
+                                        className={`${popupInfo.properties.logo_transparent && "bg-gray-300"} mt-1 mb-1 mx-auto max-w-[200px] h-auto object-contain p-4 m-0`}
                                     />
                                 )}
                                 <p className="text-sm pt-0 pb-0">{popupInfo.properties.content}</p>
@@ -1480,13 +1485,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <img
                                 src={organisation.logo_url}
                                 alt={organisation.name}
-                                className={`${organisation.logo_transparent && "bg-gray-300"} w-full h:44 sm:w-80 max-h-40 object-contain p-4 m-0`}
+                                className={`${organisation.logo_transparent && "bg-gray-300"} w-full h:44 min-w-80 sm:w-80 max-h-40 object-contain p-4 m-0`}
                                 />
                             </div>
                             }
 
-                            <p className="text-xs text-gray-700 mb-8">
-                            {organisation.description}
+                            <p className="text-xs text-gray-700 mb-8" dangerouslySetInnerHTML={{ __html: organisation.description }}>
                             </p>
                         </div>
                     </div>
@@ -1539,7 +1543,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg`}>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-lg cursor-pointer`}>
                                         <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                         <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="font-extrabold">{windspeed}</span> m/s</div>
                                     </div>
@@ -1553,7 +1557,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                                    <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-0 sm:top-2 left-0 -translate-x-5 sm:-translate-x-6 -translate-y-7 sm:translate-y-0 w-14 h-14 sm:w-20 sm:h-20 border-2 sm:border-4 border-white rounded-full flex flex-col items-center justify-center shadow-lg cursor-pointer`}>
                                         <Wind className="w-5 h-5 sm:w-8 sm:h-8 mb-1 -translate-y-0.5" />
                                         <div className="text-[7pt] sm:text-[8pt] leading-none pl-1 -translate-y-0.5"><span className="sm:font-extrabold">{windspeed}</span> m/s</div>
                                     </div>
@@ -1568,7 +1572,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         )}
 
                         {(votes !== null) && (
-                            <div className="-translate-y-7 text-right w-[12rem]">
+                            <div className="absolute bottom-0 text-right w-[12rem]">
                                 {(votes.confirmed !== 0) &&
                                 <TooltipProvider>
                                     <Tooltip>

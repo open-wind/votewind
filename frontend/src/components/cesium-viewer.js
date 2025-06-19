@@ -826,7 +826,7 @@ export default function CesiumViewer({longitude, latitude}) {
               <TooltipTrigger asChild>
                 <button
                   onClick={handleUseMyLocation}
-                  className={`absolute top-4 left-4 px-2 py-2 z-10 w-10 h-10 ${useUserPosition ? 'bg-blue-700 text-white hover:bg-blue-500 ': 'bg-white text-gray-600 hover:bg-white '} bg-opacity-70 rounded-full p-1`}
+                  className={`absolute top-4 left-4 px-2 py-2 z-50 w-10 h-10 ${useUserPosition ? 'bg-blue-700 text-white hover:bg-blue-500 ': 'bg-white text-gray-600 hover:bg-white '} bg-opacity-70 rounded-full p-1`}
                 >
                 {locating ? (
                   <svg
