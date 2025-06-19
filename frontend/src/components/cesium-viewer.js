@@ -350,6 +350,10 @@ export default function CesiumViewer({longitude, latitude}) {
       try {
         tileset = await createGooglePhotorealistic3DTileset();
         viewer.scene.primitives.add(tileset);
+        setTimeout(() => {
+          viewer.scene.camera.lookAtTransform(transform, cameraOffset);
+          viewer.scene.camera.moveUp(yPan);
+        }, 500);      
       } catch (error) {
         console.log(`Failed to load tileset: ${error}`);
       }

@@ -345,7 +345,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                                 {/* Buttons: Side-by-side, full width combined */}
                                 <Button type="submit" variant="default" size="lg" className="flex-1 w-full text-lg mt-4 bg-blue-600 text-white px-4 py-6 rounded-lg hover:bg-blue-700 gap-2">
-                                <Image src="/icons/check-mark-blue.svg" alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
+                                <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
                                 Cast vote!
                                 </Button>
 

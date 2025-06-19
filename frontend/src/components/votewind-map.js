@@ -1190,7 +1190,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 </div>
     
                 {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
-                <div className="absolute bottom-24 sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
+                <div className="absolute bottom-[10rem] sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
                     <div
                         className="
                         inline-flex items-center
