@@ -1242,7 +1242,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 {/*  Nearest organisations floating area */}
                 {showNearestOrganisations && (!organisation) && (!turbineAdded) && (
-                <div className="fixed z-50 bg-white rounded shadow-2xl px-4 py-2 inset-x-4 bottom-[2.5rem] sm:bottom-16 max-h-[80vh] overflow-y-auto
+                <div className="fixed z-50 bg-white rounded shadow-2xl px-4 py-2 inset-x-4 bottom-[2.5rem] sm:bottom-[3rem] max-h-[80vh] overflow-y-auto
                 sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
                 <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
                 {nearestOrganisations && (

@@ -67,16 +67,6 @@ ORGANISATIONS_TO_IMPORT             = \
 #                                         'england': {
 #                                             'source': 'community-energy-england'
 #                                         },
-#                                         'scotland': {
-#                                             'source': 'community-energy-scotland'
-#                                         },
-#                                     }
-
-# ORGANISATIONS_TO_IMPORT             = \
-#                                     {
-#                                         'england': {
-#                                             'source': 'community-energy-england'
-#                                         },
 #                                     }
 
 # ***********************************************************
@@ -248,12 +238,15 @@ def main():
     # Organisation.objects.all().delete()
 
     allpostcodes = set()
+    deletedsources = set()
 
     file_keys = ORGANISATIONS_TO_IMPORT.keys()
     count = 0
     for file_key in file_keys:
         extrafields = ORGANISATIONS_TO_IMPORT[file_key]
-        Organisation.objects.filter(source=extrafields['source']).delete()
+        if extrafields['source'] not in deletedsources:
+            Organisation.objects.filter(source=extrafields['source']).delete()
+            deletedsources.add(extrafields['source'])
         file_path = GROUPS_FOLDER + file_key + ".csv"
         LogMessage("Importing: " + basename(file_path))
         with open(file_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
@@ -264,7 +257,7 @@ def main():
 
                 if row['Latitude'] == '': continue
                 if row['Website URL'] == '': continue
-
+                
                 # If entry shares postcode with another organisation then 'jitter' coordinates slightly so map allows individual selection
                 if row['Postcode'] in allpostcodes:
                     row['Latitude'], row['Longitude'] = jitter_coords(row['Latitude'], row['Longitude'])
