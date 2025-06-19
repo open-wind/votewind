@@ -733,6 +733,18 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         requestAnimationFrame(mapCentreOnOrganisation);
     }, [organisation]);
 
+    useEffect(() => {
+        // Give MapLibre a moment to render the popup
+        const timeout = setTimeout(() => {
+            const popupEl = document.querySelector('.maplibregl-popup-content');
+            if (popupEl) {
+                popupEl.style.pointerEvents = 'none';
+            }
+        }, 0); // Minimal delay after render
+
+        return () => clearTimeout(timeout);
+    }, [popupInfo]); 
+
     const deselectActiveItems = () => {
         setVotes(null);
         const map = mapRef.current?.getMap?.();
@@ -1325,7 +1337,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             closeOnClick={false}
                             anchor="bottom"
                             offset={scalePopupOffset(popupInfo.offset, mapRef.current?.getMap()?.getZoom())}
-                            className="no-padding-popup px-0 py-0" style={{maxWidth: '400px'}}
+                            className="no-padding-popup px-0 py-0 pointer-events-none" style={{maxWidth: '400px'}}
 
                         >
                             <div className="text-sm font-medium px-3 py-2 leading-normal">
