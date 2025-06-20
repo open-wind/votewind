@@ -23,7 +23,9 @@ import {
   ScreenSpaceEventType,
   Ray,
   defined,
-   } from 'cesium';
+  Cesium3DTileset,
+  GooglePhotorealistic3DTileset,
+} from 'cesium';
 import {
   FaArrowUp,
   FaArrowDown,
@@ -230,6 +232,9 @@ export default function CesiumViewer({longitude, latitude}) {
 
     let viewer;
     let tileset;
+    let initialEventListener;
+    let transform;
+    let cameraOffset;
 
     const initAnimation = async () => {
 
@@ -347,19 +352,8 @@ export default function CesiumViewer({longitude, latitude}) {
           }
       });
 
-      try {
-        tileset = await createGooglePhotorealistic3DTileset();
-        viewer.scene.primitives.add(tileset);
-        setTimeout(() => {
-          viewer.scene.camera.lookAtTransform(transform, cameraOffset);
-          viewer.scene.camera.moveUp(yPan);
-        }, 500);      
-      } catch (error) {
-        console.log(`Failed to load tileset: ${error}`);
-      }
-
       let angle = Math.PI / 2; 
-      const radius = 300;
+      const radius = 500;
       const yPan = 70;
       // Slightly incline our initial position above the base of the turbine
       // yPan will translate camera by a hubheight distance 
@@ -408,18 +402,28 @@ export default function CesiumViewer({longitude, latitude}) {
       bladesRef.current = bladesEntity;
 
       const center = Cartesian3.fromDegrees(longitude, latitude, terrainHeight); 
-      const transform = Transforms.eastNorthUpToFixedFrame(center);
-      const cameraOffset = new Cartesian3(-radius, (-radius / 4), heightAbove)
+      transform = Transforms.eastNorthUpToFixedFrame(center);
+      cameraOffset = new Cartesian3(-radius, (-radius / 4), heightAbove)
 
       viewer.scene.camera.lookAtTransform(transform, cameraOffset);
 
-      // Slide the camera upward in world coordinates (e.g. Y axis up)
-      viewer.scene.camera.moveUp(yPan);
-
-      setTimeout(() => {
-        setIsViewerReady(true);
-      }, 4000);
-
+      try {
+        tileset = await createGooglePhotorealistic3DTileset();
+        viewer.scene.primitives.add(tileset);
+        if (!isViewerReady) {
+          initialEventListener = tileset.allTilesLoaded.addEventListener(() => {
+            viewer.scene.camera.lookAtTransform(transform, cameraOffset);
+            viewer.scene.camera.moveUp(yPan);
+            if (initialEventListener) {
+              initialEventListener();
+              initialEventListener = undefined;
+            }
+            setIsViewerReady(true);
+          });
+        }
+      } catch (error) {
+        console.log(`Failed to load tileset: ${error}`);
+      }
     };
 
     initAnimation();
