@@ -57,7 +57,7 @@ export default function PlanningConstraints({ containingAreas = [], content=null
       </p>
   
       {open && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30">
+        <div className="fixed inset-0 top-0 left-0 w-full h-full z-[9999] flex items-center justify-center bg-black/30">
           <div className="relative bg-white w-[90%] max-w-md p-4 rounded-lg text-sm sm:text-md shadow-lg">
 
             {/* Close button */}

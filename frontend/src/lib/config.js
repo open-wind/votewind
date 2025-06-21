@@ -2,24 +2,38 @@
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// // Base url of main app
+// export const APP_BASE_URL = isDev
+//   ? 'http://localhost:3000'
+//   : 'https://votewind.org';
+
+// // Base url of api server
+// export const API_BASE_URL = isDev
+//   ? 'http://localhost:8000'
+//   : 'https://votewind.org';
+
+// // Base url of tile server
+// export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
+// // export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
+
 // Base url of main app
 export const APP_BASE_URL = isDev
-  ? 'http://localhost:3000'
+  ? 'http://bs-local.com:3000'
   : 'https://votewind.org';
 
 // Base url of api server
 export const API_BASE_URL = isDev
-  ? 'http://localhost:8000'
+  ? 'http://bs-local.com:8000'
   : 'https://votewind.org';
+
+// Base url of tile server
+export const TILESERVER_BASEURL = isDev ? "http://bs-local.com:8080" : "https://tiles.votewind.org";
+// export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
 
 // Base url of content server
 export const CONTENT_BASE_URL = isDev
   ? 'https://content.votewind.org'
   : 'https://content.votewind.org';
-
-// Base url of tile server
-export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://tiles.votewind.org";
-// export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
 
 // url of VoteWind mobile phone app download
 export const MOBILEAPP_URL = isDev

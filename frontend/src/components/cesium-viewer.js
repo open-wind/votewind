@@ -25,6 +25,9 @@ import {
   defined,
   Cesium3DTileset,
   GooglePhotorealistic3DTileset,
+  EllipsoidTerrainProvider,
+  IonImageryProvider,
+  OpenStreetMapImageryProvider,
 } from 'cesium';
 import {
   FaArrowUp,
@@ -224,6 +227,15 @@ export default function CesiumViewer({longitude, latitude}) {
     requestAnimationFrame(animate);
   }, [isViewerReady]);
 
+  const debugLog = (logtext) => {
+    // Try this if log is suppressed
+    console.error("[VoteWind]", logtext);
+
+    // Fallback to screen-based logging
+    const el = document.getElementById('debug-log');
+    if (el) el.innerText += logtext + "\n";
+  }
+
   useEffect(() => {
     let isCancelled = false;
 
@@ -315,11 +327,13 @@ export default function CesiumViewer({longitude, latitude}) {
       viewer.clock.shouldAnimate = true;
       viewer.scene.skyAtmosphere.show = true;
       viewer.scene.sun.show = true;
+
       viewer.shadows = true;
       viewer.scene.shadowMap.enabled = true;
       viewer.scene.shadowMap.softShadows = true;
       viewer.scene.shadowMap.size = 4096;
       viewer.scene.postProcessStages.fxaa.enabled = true;
+
       viewer.resolutionScale = window.devicePixelRatio;
       viewer.scene.light = new SunLight();
       viewer.scene.light.intensity = 0.8;
@@ -427,6 +441,54 @@ export default function CesiumViewer({longitude, latitude}) {
     };
 
     initAnimation();
+
+    const waitForContainerToHaveSize = () =>
+      new Promise((resolve) => {
+        const check = () => {
+          const el = containerRef.current;
+          if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+            resolve();
+          } else {
+            setTimeout(check, 100);
+          }
+        };
+        check();
+    });
+
+    const initSafeCesium = () => {
+      if (!containerRef.current || containerRef.current.hasChildNodes()) return;
+
+      setIsViewerReady(true);
+      const viewer = new Viewer(containerRef.current, {
+        terrainProvider: new EllipsoidTerrainProvider(), // no terrain server needed
+        imageryProvider: new OpenStreetMapImageryProvider(), // no Ion token needed
+        baseLayerPicker: false,
+        animation: false,
+        timeline: false,
+        fullscreenButton: false,
+        homeButton: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        geocoder: false
+      });
+
+
+      viewerRef.current = viewer;
+
+      viewer.scene.globe.show = true;
+      viewer.scene.globe.baseColor = Color.DARKGRAY;
+      viewer.scene.globe.enableLighting = false;
+      viewer.scene.backgroundColor = Color.DARKBLUE;
+
+      viewer.camera.setView({
+        destination: Cartesian3.fromDegrees(0, 45, 15000000), // Over Europe
+        orientation: {
+          heading: CesiumMath.toRadians(0),
+          pitch: CesiumMath.toRadians(-90),
+          roll: 0
+        }
+      });
+    };
 
     return () => {
       if (viewer && !viewer.isDestroyed()) {
@@ -834,7 +896,7 @@ export default function CesiumViewer({longitude, latitude}) {
               <TooltipTrigger asChild>
                 <button
                   onClick={handleUseMyLocation}
-                  className={`absolute top-4 left-4 px-2 py-2 z-50 w-10 h-10 ${useUserPosition ? 'bg-blue-700 text-white hover:bg-blue-500 ': 'bg-white text-gray-600 hover:bg-white '} bg-opacity-70 rounded-full p-1`}
+                  className={`absolute top-4 left-4 flex items-center justify-center z-50 w-10 h-10 ${useUserPosition ? 'bg-blue-700 text-white hover:bg-blue-500 ': 'border-2 border-gray-300 bg-white text-gray-600 hover:bg-white '} bg-opacity-70 rounded-full p-1`}
                 >
                 {locating ? (
                   <svg
@@ -887,15 +949,30 @@ export default function CesiumViewer({longitude, latitude}) {
         </div>
 
         {!isViewerReady && (
-          <div className="absolute inset-0 z-0 flex items-center justify-center bg-white">
+          <div className="absolute inset-0 z-0 w-full h-full top-0 left-0 flex items-center justify-center bg-white">
             <div className="text-gray-600 text-lg font-medium animate-pulse">
               Loading 3D visualisation…
+
+              {/* <pre id="debug-log" style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                zIndex: 99999,
+                background: '#fff',
+                color: '#000',
+                fontSize: '10px',
+                padding: '4px',
+                maxHeight: '100%',
+                overflowY: 'auto',
+                lineHeight: '1.2em'
+              }}></pre> */}
+
             </div>
           </div>
         )}
 
         {isViewerReady &&
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center gap-2">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center space-y-2 space-x-2">
           {(windspeed !== null) && 
           <>
           <div className="bg-gray-100 text-gray-700 hidden sm:inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md mx-2">

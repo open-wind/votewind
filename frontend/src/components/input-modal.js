@@ -17,7 +17,7 @@ export default function InputModal({ open, initialValue = "", onClose, onSubmit 
     {/* This is the grey overlay */}
   </div>
 
-  <div className="fixed inset-0 z-50 flex items-start justify-center pt-[25vh] px-4">
+  <div className="fixed top-[20vh] inset-0 z-50 flex items-start justify-center px-4 w-full w-max-[400px]">
     <div className="bg-white w-[90%] max-w-md p-4 rounded shadow-md">
       <form
         onSubmit={(e) => {
@@ -39,7 +39,7 @@ export default function InputModal({ open, initialValue = "", onClose, onSubmit 
           spellCheck={false}
         />
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end space-x-2">
           <button
             type="button"
             onClick={onClose}

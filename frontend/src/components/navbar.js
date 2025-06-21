@@ -8,13 +8,13 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-  <nav className="fixed top-0 h-20 left-0 w-full z-50 bg-gradient-to-b from-white/20 to-white/0 text-black px-4 py-2 flex justify-between items-center pointer-events-none">
+  <nav className="fixed top-0 h-20 left-0 w-full z-50 bg-gradient-to-b from-white/80 to-white/0 text-black px-4 py-2 flex justify-between items-center pointer-events-none">
 
     <div
-      className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-lg mask-fade-top" style={{
-      WebkitMaskImage: 'linear-gradient(black 50%, transparent 100%)',
-      maskImage:       'linear-gradient(black 50%, transparent 100%)',
-    }}
+      className="absolute left-0 top-0 w-full h-full p-0 inset-0 -z-10 pointer-events-none nav-fallback-bg backdrop-blur-lg mask-fade-top " style={{
+        WebkitMaskImage: 'linear-gradient(black 50%, transparent 100%)',
+        maskImage:       'linear-gradient(black 50%, transparent 100%)',
+      }}
     ></div>
 
    <div className="absolute inset-x-0 top-0 h-14 flex items-center justify-between px-4 sm:px-6 font-bold pointer-events-auto">

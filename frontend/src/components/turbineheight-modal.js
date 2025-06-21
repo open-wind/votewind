@@ -6,7 +6,7 @@ export const TurbineHeightModal = ({ open, onClose, selected, onSelect }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-40 isolate bg-black/40 flex items-center justify-center">
+    <div className="fixed w-full h-full top-0 left-0 inset-0 z-40 isolate bg-black/40 flex items-center justify-center">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-[250px] sm:max-w-[330px] p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-md sm:text-lg font-semibold">Select Turbine Height to Tip</h2>

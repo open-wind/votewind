@@ -181,12 +181,12 @@ export default function Leaderboard({}) {
   }
 
   return (
-    <div>
+    <div className="">
 
       {/* Main map */}
-      <ViewportHeightFixer />
+      {/* <ViewportHeightFixer /> */}
 
-      <div id="map-container" className="relative w-full" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+      <div id="map-container" className="relative w-full overflow-hidden" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
           <Map
               ref={mapRef}
               mapLib={maplibregl}
@@ -365,7 +365,7 @@ export default function Leaderboard({}) {
 
                 {(firstPage !== lastPage) &&
                 <div className="bg-gray-100">
-                  <div className="flex justify-center gap-3 sm:gap-6 items-center pt-1 pb-1 sm:pt-3 sm:pb-3">
+                  <div className="h-full flex justify-center space-x-3 sm:space-x-6 items-center pt-1 pb-1 sm:pt-3 sm:pb-3">
                     <button disabled={page === firstPage} onClick={() => setPage(firstPage)} className="p-2 rounded-full border bg-white border-gray-300 text-blue-600 disabled:text-gray-600 sm:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
                       <ChevronsLeft className="w-3 h-3" strokeWidth={3.5}/>
                     </button>

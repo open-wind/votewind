@@ -164,7 +164,7 @@ export default function LayerTogglePanel({ map }) {
 
   return (
   <>
-  <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/100 rounded-lg shadow-md p-2 sm:p-3 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
+  <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/100 rounded-lg shadow-md p-2 sm:p-3 max-h-[75vh] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
    
       <div className="flex items-center justify-between mb-0 cursor-pointer">
         <TooltipProvider>

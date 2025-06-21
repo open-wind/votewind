@@ -31,92 +31,94 @@ export default function Home() {
   }, []);
 
   return (
-  <div className="mx-auto mt-0">
+  <div className="min-h-screen flex flex-col bg-cover bg-center "
+    style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }}>
+    <main className="flex-grow overflow-auto">
 
-    <div className="w-full h-screen bg-cover bg-center"
-          style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
+        <div className="pt-[15vh] lg:mt-10 text-center w-full items-center">
 
-      <div className="fixed top-1/3 -translate-y-1/2 left-0 mt-20 lg:mt-10 text-center w-full items-center">
+          <header className="relative w-full sm:mt-0 text-center py-0">
+              <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-8 md:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
+              <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
+              </h1>
+          </header>
 
-        <header className="relative w-full sm:mt-0 text-center py-0">
-            <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-8 md:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
-            <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
-            </h1>
-        </header>
+          <div className="mx-auto w-full max-w-[640px]">
+            <p className="font-light text-zinc-600 pl-10 pr-10 mb-5 text-xl sm:text-2xl text-center leading-tight">
+              Vote for where you'd like a community wind turbine.
+            </p>
 
-        <div className="mx-auto w-full max-w-[640px]">
-          <p className="font-light text-zinc-600 pl-10 pr-10 mb-5 text-xl sm:text-2xl text-center leading-tight">
-            Vote for where you'd like a community wind turbine.
-          </p>
-
-          <p className="font-light text-zinc-600 pl-5 pr-5 mb-[7em] md:mb-10 text-medium sm:text-xl text-center leading-tight">
-            Community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change...
-          </p>
-        </div>
-
-      </div>
-
-      <div className="sm:relative fixed bottom-[238px] sm:top-2/3 sm:-translate-y-1/2 w-full flex justify-center pl-5 pr-5 z-[100]">
-
-          <div className="relative w-full max-w-[400px]">
-
-          <AutocompleteInput ref={inputRef} query={query} setQuery={setQuery} locating={locating} setLocating={setLocating} useLocate={false} />
-
-          {uselocation ? (
-            <button
-              key="userlocation"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              onClick={() => inputRef.current?.handleUseMyLocation()}
-              className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
-            >
-              {locating ? (
-                <>
-                <svg
-                  className="animate-spin w-5 h-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                <span>Finding your location</span>
-                </>
-                ) : (
-                <>
-                  <LocateFixed className="w-6 h-6 animate-pulse " />
-                  <span>Use my location</span>
-                </>
-                )}
-            </button>
-          ) : (
-            <button
-              key="inputlocation"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              onClick={() => inputRef.current?.handleSubmit()}
-              className="absolute top-full mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
-            >
-              Go to location
-            </button>
-          )}
+            <p className="font-light text-zinc-600 pl-5 pr-5 mb-[3em] md:mb-10 text-medium sm:text-xl text-center leading-tight">
+              Community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change...
+            </p>
 
           </div>
-        </div>
+
+          <div className="pl-5 pr-5 text-center mx-auto max-w-md">
+            <div className="relative">
+
+            <AutocompleteInput ref={inputRef} query={query} setQuery={setQuery} locating={locating} setLocating={setLocating} useLocate={false} />
+
+            </div>
+
+            {uselocation ? (
+              <button
+                key="userlocation"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => inputRef.current?.handleUseMyLocation()}
+                className="relative mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center space-x-2"
+              >
+                {locating ? (
+                  <>
+                  <svg
+                    className="animate-spin w-5 h-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span>Finding your location</span>
+                  </>
+                  ) : (
+                  <>
+                    <LocateFixed className="w-6 h-6 animate-pulse " />
+                    <span>Use my location</span>
+                  </>
+                  )}
+              </button>
+            ) : (
+              <button
+                key="inputlocation"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => inputRef.current?.handleSubmit()}
+                className="mt-[0.7rem] left-0 w-full bg-blue-600 text-white text-lg px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center justify-center gap-2"
+              >
+                Go to location
+              </button>
+            )}
+
+            </div>
 
       </div>
 
-      {showLogos && <PartnerLogos />}
+    </main>
 
-    </div>
-  );
+    <footer>
+      {showLogos && <PartnerLogos />}
+    </footer>
+  </div>
+  )
+
 }

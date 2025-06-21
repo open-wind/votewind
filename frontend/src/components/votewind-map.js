@@ -936,12 +936,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if ((email) && (email !== '')) voteparameters.email = email;
 
         setProcessing(true);
+        console.log("Step 1");
         const res = await fetch(API_BASE_URL + '/api/vote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(voteparameters),
             credentials: 'include',
         });
+        console.log("Step 2");
 
         const data = await res.json();
         if (!data.success) {
@@ -949,6 +951,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             setError("CAPTCHA verification failed. Please try again.");
             return;
         }
+        console.log("Step 3");
 
         resetSettings();
 
@@ -1034,7 +1037,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     };
 
     return (
-    <div className="min-h-screen flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between overflow-hidden">
 
         <div className="flex justify-center items-center w-screen h-screen">
 
@@ -1046,8 +1049,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <Toaster position="top-center" containerStyle={{top: 50}}/>
 
                 {/* Vertical toolbar */}
-                <div className="absolute left-2 sm:left-4 top-[30%] transform translate-y-[-25%] sm:translate-y-[-50%] z-40">
-                    <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+                <div className="absolute left-2 sm:left-4 top-[8.3rem] sm:top-[9.3rem] z-40">
+                    <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center space-y-1 sm:space-y-2">
 
                     <TooltipProvider>
                         <Tooltip>
@@ -1145,7 +1148,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 transition shadow">
+                            <button type="button" onClick={(e) => mapZoomIn(e)} className="hidden sm:block w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 transition shadow">
                             ➕
                             </button>
                         </TooltipTrigger>
@@ -1158,7 +1161,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button onClick={mapZoomOut} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full transition shadow">
+                            <button onClick={mapZoomOut} className="hidden sm:block w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full transition shadow">
                             ➖
                             </button>
                         </TooltipTrigger>
@@ -1172,11 +1175,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button onClick={mapCentreOnTurbine} className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
+                            <button onClick={mapCentreOnTurbine} className="hidden sm:block w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center">
                             <img
                                 alt="Wind turbine"
                                 src={`${assetPrefix}/icons/windturbine_black.png`}
-                                className="block w-5 h-6"
+                                className="block w-5 h-6 translate-x-2.5"
                             />
                             </button>
                         </TooltipTrigger>
@@ -1189,8 +1192,59 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </div>
                 </div>
     
+                {/* Vertical right-hand toolbar - only mobile */}
+                <div className="sm:hidden absolute right-2 top-[8.3rem] sm:top-[9.3rem] z-40">
+                    <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center space-y-1 sm:space-y-2">
+
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button type="button" onClick={(e) => mapZoomIn(e)} className="w-7 h-7 bg-white rounded-full active:bg-white focus:outline-none focus:ring-0 transition shadow">
+                            ➕
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Zoom into map
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button onClick={mapZoomOut} className="w-7 h-7 bg-white rounded-full transition shadow">
+                            ➖
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Zoom out of map
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
+                    {(turbineAdded) ? (
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button onClick={mapCentreOnTurbine} className="w-7 h-7 bg-white rounded-full flex items-center justify-center">
+                            <img
+                                alt="Wind turbine"
+                                src={`${assetPrefix}/icons/windturbine_black.png`}
+                                className="block w-4 h-5 translate-x-0.2"
+                            />
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
+                            Centre map on selected turbine position
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    ) : null}
+                    </div>
+                </div>
+
                 {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
-                <div className="absolute bottom-[10rem] sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
+                <div className="absolute bottom-[5rem] sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
                     <div
                         className="
                         inline-flex items-center
@@ -1214,9 +1268,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 )}
 
                 {/* Location search autosuggestion input box */}
-                <div className="absolute top-16 left-0 right-0 px-4 sm:px-0 z-40 pointer-events-none ">
+                <div className="absolute top-14 sm:top-16 left-0 right-0 px-2 sm:px-0 z-40 pointer-events-none ">
                     <div className="relative w-full sm:w-md max-w-md mx-auto">
-                        <div className="rounded-full shadow bg-white border border-gray-300 p-1 z-60 pointer-events-auto">
+                        <div className="rounded-full shadow bg-white border border-gray-300 p-0 sm:p-1 z-60 pointer-events-auto">
                             <AutocompleteInput
                                 ref={inputRef}
                                 query={query} setQuery={setQuery}
@@ -1232,7 +1286,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 {/* Constraint layers opacity slider */}
                 {(layersVisible && showToggleContraints) && ( 
-                <div className="absolute top-[6.5em] left-0 right-0 px-4 sm:px-0 z-30 pointer-events-none ">
+                <div className="absolute top-[5.5rem] sm:top-[6.5rem] left-0 right-0 px-2 sm:px-0 z-30 pointer-events-none ">
                     <div className="relative w-full sm:w-md max-w-md mx-auto">
                         <TooltipProvider>
                             <Tooltip>
@@ -1255,7 +1309,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 {/*  Nearest organisations floating area */}
                 {showNearestOrganisations && (!organisation) && (!turbineAdded) && (
                 <div className="fixed z-50 bg-white rounded shadow-2xl px-4 py-2 inset-x-4 bottom-[2.5rem] sm:bottom-[3rem] max-h-[80vh] overflow-y-auto
-                sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-80">
+                sm:right-8 sm:inset-x-auto sm:left-auto sm:top-40 sm:bottom-auto sm:w-60">
                 <h2 className="hidden sm:block text-lg font-semibold mb-2">Nearby organisations</h2>
                 {nearestOrganisations && (
                     (nearestOrganisations).map((item, index) => (
@@ -1451,9 +1505,17 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             </>
             )}
 
+            {/* Input email modal */}
+            <InputModal
+                open={inputOpen}
+                initialValue={email}
+                onClose={() => setInputOpen(false)}
+                onSubmit={(val) => setEmail(val)}
+            />
+
             {/*  Processing vote screen */}
             {processing && (
-            <div className="fixed inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-50">
+            <div className="fixed top-0 left-0 w-full h-full inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-[9999]">
                 <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
             </div>
@@ -1474,7 +1536,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     &times;
                     </button>
 
-                    <div className="mx-2 flex flex-col justify-start mt-2 sm:mt-8">
+                    <div className="mx-2 mt-2 mb-1 sm:mt-8">
                         {(organisation.url !== '') ? (
                         <a
                         href={organisation.url}
@@ -1751,7 +1813,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </p>
                         </div>
 
-                        <div className="min-h-[3em]">
+                        <div className="min-h-[3em] pb-0">
 
                         {layersClicked && (
                             <>
@@ -1766,7 +1828,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         <div className="mt-1 hidden sm:block">
 
-                            <div className="mt-0">
+                            <div className="mt-7">
                                 {/* <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label> */}
 
                                 <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
@@ -1780,7 +1842,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                     )}
                                 </div>
 
-                                <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                             </div>
 
                         </div>
@@ -1791,8 +1852,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 <div className="mt-0 sm:hidden">
 
-                    <div className="mt-3">
-                        <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
+                    <div className="mt-0">
+                        <div className="relative w-full bg-white border p-1 rounded shadow max-w-[600px]">
                             <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"}  whitespace-nowrap overflow-hidden cursor-pointer pr-6`}>
                                 {email || "Optional: Enter email to confirm vote"}
                             </p>
@@ -1803,30 +1864,40 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             )}
                         </div>
 
-                        <div className="w-full max-w-[600px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                     </div>
 
                 </div>
 
-                <div className="mt-2 flex justify-end gap-x-3 mb-[32px] sm:mb-4">
+                <div className="mt-2 flex flex-row justify-end space-x-3">
                     <Button type="button" onClick={closePanel} variant="default" className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
-                    Cancel
+                        Cancel
                     </Button>
 
-                    <Button type="submit" variant="default" className="flex-1 bg-blue-600 text-white px-4 py-4 rounded hover:bg-blue-700 gap-2">
-                    <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
-                    Cast vote!
+                    <Button
+                    type="submit"
+                    variant="default"
+                    className="flex-1 flex items-center justify-center bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 gap-2"
+                    >
+                        <div className="w-4 h-4 mr-2 flex items-center justify-center">
+                            <Image
+                            src={`${assetPrefix}/icons/check-mark-blue.svg`}
+                            alt=""
+                            width={16}
+                            height={16}
+                            className="w-full h-full"
+                            />
+                        </div>
+                        <span className="leading-none">Cast vote!</span>
                     </Button>
+
                 </div>
-                
-            </form>
 
-            <InputModal
-                open={inputOpen}
-                initialValue={email}
-                onClose={() => setInputOpen(false)}
-                onSubmit={(val) => setEmail(val)}
-            />
+                <div className="mb-[32px] pt-1 sm:mb-4">
+                        <div className="w-full text-[9px] leading-tight sm:text-xs text-gray-800 mt-1 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
+
+                </div>
+
+            </form>
 
             </div>
 

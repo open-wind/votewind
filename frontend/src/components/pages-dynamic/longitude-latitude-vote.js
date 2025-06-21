@@ -3,7 +3,6 @@
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import VoteCastMap from '@/components/votecast-map';
-import PartnerLogos from '@/components/partner-logos';
 
 export default function LongitudeLatitudeVote({longitude=null, latitude=null}) {
   const searchParams = useSearchParams();
@@ -21,10 +20,6 @@ export default function LongitudeLatitudeVote({longitude=null, latitude=null}) {
   }, [searchParams]);
 
   return (
-    <div>
-      <VoteCastMap longitude={longitude} latitude={latitude} type={type} emailused={emailused} />
-      <PartnerLogos />
-
-    </div>
+    <VoteCastMap longitude={longitude} latitude={latitude} type={type} emailused={emailused} />
   );
 }

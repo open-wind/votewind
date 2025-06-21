@@ -14,6 +14,7 @@ import SocialShareButtons from "@/components/social-share-buttons";
 import NumberedAction from './numbered-action';
 import ScrollHint from '@/components/scrollhint'
 import CesiumModal from './cesium-modal';
+import PartnerLogos from '@/components/partner-logos';
 import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -187,12 +188,14 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     }
 
     return (
-    <main ref={panelRef} className="pt-20 sm:pt-20 h-screen overflow-y-auto bg-cover bg-center"
-        style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
+
+    <div className="min-h-screen flex flex-col bg-cover bg-center "
+        style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }}>
+        <main className="flex-grow overflow-auto">
 
         <ScrollHint targetRef={panelRef} />
 
-        <section className="flex flex-col items-center px-3 mb-[180px]">
+        <section className="flex flex-col items-center pt-[7rem] px-3">
             {/* centred text above */}
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                 <>
@@ -241,7 +244,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
             <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-0">
 
-                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-8 pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
+                <CardContent className="flex flex-col sm:flex-row items-center sm:items-start space-x-0 sm:space-x-8 space-y-5 sm:space-y-0 pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
                 {/* Map thumbnail */}
                     <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
 
@@ -249,7 +252,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         <div id="map" className="w-full h-full relative" >
 
                             <div className="absolute left-2 top-2 z-40">
-                                <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center gap-1">
+                                <div className="bg-gray-100 rounded-md shadow p-1 flex flex-col items-center space-y-1">
 
                                     <button type="button" onClick={mapZoomIn} className="w-6 h-6 bg-white rounded active:bg-white focus:outline-none focus:ring-0">
                                     ➕
@@ -343,10 +346,21 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                     <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                                 </div>
 
-                                {/* Buttons: Side-by-side, full width combined */}
-                                <Button type="submit" variant="default" size="lg" className="flex-1 w-full text-lg mt-4 bg-blue-600 text-white px-4 py-6 rounded-lg hover:bg-blue-700 gap-2">
-                                <Image src={`${assetPrefix}/icons/check-mark-blue.svg`} alt="" width={30} height={30} className="inline-block bg-blue-600 w-4 h-4"/>
-                                Cast vote!
+                                <Button
+                                    type="submit"
+                                    variant="default"
+                                    className="w-full h-[3rem] flex items-center justify-center bg-blue-600 text-white text-lg px-4 mt-4 rounded-lg hover:bg-blue-700"
+                                    >
+                                    <div className="w-4 h-4 flex items-center justify-center">
+                                        <Image
+                                        src={`${assetPrefix}/icons/check-mark-blue.svg`}
+                                        alt=""
+                                        width={30}
+                                        height={30}
+                                        className="w-8 h-8 mr-4"
+                                        />
+                                    <span className="leading-none">Cast vote!</span>
+                                    </div>
                                 </Button>
 
                                 <p className="mt-1 font-light text-sm text-gray-600 mt-4">Don't want to vote for this site? <a className="font-bold text-blue-800" href="/">Choose your own site!</a></p>
@@ -531,10 +545,10 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         {showConsentBanner && (
         <>
             {/* Backdrop (prevents background interaction) */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            <div className="fixed w-full h-full top-0 left-0 inset-0 bg-black bg-opacity-50 z-[1000]"></div>
 
             {/* Modal */}
-            <div className="fixed inset-0 z-[1001] flex items-center justify-center">
+            <div className="fixed w-full h-full top-0 left-0 inset-0 z-[1001] flex items-center justify-center">
             <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
                 <div className="mb-3 text-center">
                     <strong className="font-bold block">Set cookie</strong>
@@ -573,6 +587,12 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
 
     </main>
+
+    <footer>
+          <PartnerLogos />
+    </footer>
+
+    </div>
 
   );
 }
