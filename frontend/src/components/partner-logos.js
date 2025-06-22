@@ -8,7 +8,7 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 export default function PartnerLogos () {
 
     return (
-    <div className="mt-5 w-full h-[118px] sm:h-[130px] bg-white z-9999 shadow-lg">
+    <div className="mt-5 w-full h-[168px] sm:h-[130px] bg-white z-9999 shadow-lg">
       <div className="relative bottom-0 w-full bg-white">
         <div className="w-full bg-white">
 
@@ -16,7 +16,7 @@ export default function PartnerLogos () {
               width="200px"
               duration={80}
               // pauseOnHover={true}
-              blurBorders={true}
+              blurBorders={false}
               blurBorderColor={'#fff'} 
             >
               <Slider.Slide className="mr-4">

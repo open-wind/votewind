@@ -10,14 +10,14 @@ export const TurbineHeightModal = ({ open, onClose, selected, onSelect }) => {
       <div className="bg-white rounded-xl shadow-lg w-full max-w-[250px] sm:max-w-[330px] p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-md sm:text-lg font-semibold">Select Turbine Height to Tip</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-black text-xl">&times;</button>
+          <button onClick={onClose} className="text-gray-600 hover:text-black text-xl bg-white">&times;</button>
         </div>
         <ul className="space-y-2">
           {heights.map((height) => (
             <li key={height}>
               <button
                 onClick={() => { onSelect(height); onClose(); }}
-                className={`w-full text-left px-4 py-2 rounded-md ${
+                className={`w-full text-left bg-white px-4 py-2 rounded-md ${
                   selected === height
                     ? 'bg-blue-100 text-blue-700 font-semibold'
                     : 'hover:bg-gray-100'

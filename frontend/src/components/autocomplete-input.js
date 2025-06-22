@@ -249,7 +249,7 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
           if (e.key !== 'Backspace')  setDeleting(false);
 
           if (e.key === 'Enter') {
-            if (showDropdown) return;
+            // if (showDropdown) return;
             handleSubmit(query);
           }
         }}
@@ -265,14 +265,14 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
           onClick={() => {
             resetInput();
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-white"
           aria-label="Clear search"
           tabIndex={-1} 
           onKeyDown={(e) => {
             if (e.key === 'Enter') resetInput();
           }}
         >
-          <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+          <X className="w-5 h-5 text-gray-400 hover:text-gray-600 bg-transparent" />
         </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={20} className="bg-white text-black text-sm border shadow px-3 py-1 rounded-md hidden sm:block">

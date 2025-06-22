@@ -246,7 +246,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
                 <CardContent className="flex flex-col sm:flex-row items-center sm:items-start space-x-0 sm:space-x-8 space-y-5 sm:space-y-0 pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
                 {/* Map thumbnail */}
-                    <div className="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
+                    <div className="w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
 
 
                         <div id="map" className="w-full h-full relative" >
@@ -299,7 +299,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     <div className="flex flex-col justify-between self-stretch text-center sm:text-left">
                         {/* Top-of-column text */}
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-bold leading-snug mt-0 mb-1">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}
+                            <h1 className="text-2xl sm:text-4xl font-bold leading-snug mt-0 mb-1 whitespace-nowrap">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}
                             <TooltipProvider>
                                 <Tooltip>
                                 <TooltipTrigger asChild>

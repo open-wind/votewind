@@ -383,7 +383,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
 
         {data && (
         <div 
-            className="absolute bottom-16 sm:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none" 
+            className="absolute bottom-16 sm:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none whitespace-nowrap" 
             style={{ boxShadow: '0 0px 15px rgba(255, 255, 255, 0.9)' }} 
             >
             {!mapReady && (<span>Loading... </span>)} <span className="font-bold whitespace-nowrap">{data.features[0].properties.boundary}</span>
@@ -416,7 +416,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                 <TooltipTrigger asChild>
                     <button
                     onClick={toggleWindspeeds}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) && ("bg-blue-100")} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? "bg-blue-100": "bg-white"} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
                     >
                         {showWindspeeds ? (
                             <Wind className="w-6 h-6" />
@@ -447,7 +447,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                 <TooltipTrigger asChild>
                     <button
                     onClick={() => setShowCesiumViewer(true)} 
-                    className={`${showWindspeeds && ("mt-6 sm:mt-3")} w-8 h-8 sm:w-10 sm:h-10 p-1 text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                    className={`${showWindspeeds && ("mt-6 sm:mt-3")} bg-white w-8 h-8 sm:w-10 sm:h-10 p-1 text-blue-700 rounded-full shadow transition flex items-center justify-center`}
                     >
                         <Video className="w-6 h-6 fill-current text-blue-700" />
                     </button>

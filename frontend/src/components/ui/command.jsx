@@ -49,7 +49,7 @@ const CommandInput = React.forwardRef(({ showMagnifier = true, onLocate = null, 
                   type="button"
                   onClick={() => onLocate?.()}
                   className="absolute top-1/2 -translate-y-1/2 flex items-center
-                              text-gray-600 hover:text-gray-800 focus:outline-none"
+                              text-gray-600 hover:text-gray-800 focus:outline-none bg-white"
                   aria-label="Use my location"
                 >
                 {locating ? (
@@ -67,7 +67,7 @@ const CommandInput = React.forwardRef(({ showMagnifier = true, onLocate = null, 
                     />
                   </svg>
                 ) : (
-                  <LocateFixed className="w-5 h-5" />
+                  <LocateFixed className="w-5 h-5 bg-white" />
                 )}
               </button>
             </TooltipTrigger>

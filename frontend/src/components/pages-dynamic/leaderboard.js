@@ -10,6 +10,7 @@ import { useIsMobile } from "@/components/functions/helpers"
 import SocialMediaModal from '../social-media-modal';
 import CesiumModal from '@/components/cesium-modal';
 import ViewportHeightFixer from "@/components/viewport-height-fixer";
+import BodyClassSetter from '@/components/body-class-setter';
 
 import { 
   API_BASE_URL, 
@@ -184,7 +185,8 @@ export default function Leaderboard({}) {
     <div className="">
 
       {/* Main map */}
-      {/* <ViewportHeightFixer /> */}
+      <ViewportHeightFixer />
+      <BodyClassSetter className="overflow-hidden" />
 
       <div id="map-container" className="relative w-full overflow-hidden" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
           <Map
@@ -235,7 +237,7 @@ export default function Leaderboard({}) {
 
           </Map>
 
-          <div className="absolute bottom-10 sm:top-10 w-full sm:right-0 lg:right-10 flex flex-col items-center justify-end sm:px-4 pb-[14px] sm:pb-0 sm:items-end sm:justify-start sm:pt-[50px] pointer-events-none">
+          <div className="absolute bottom-10 sm:top-10 w-full h-full sm:right-0 lg:right-10 flex flex-col items-center justify-end sm:px-4 pb-[14px] sm:pb-0 sm:items-end sm:justify-start sm:pt-[50px] pointer-events-none">
             <div className="w-full max-w-md sm:max-w-3xl sm:w-[400px] p-2 overflow-x-auto">
 
               <div className="sm:border-4 w-full overflow-hidden rounded-lg border border-white shadow-md pointer-events-auto">
@@ -300,7 +302,7 @@ export default function Leaderboard({}) {
                                   onClick={() => onZoomTo(item)}
                                   type="button"
                                 >
-                                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 bg-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent
@@ -321,7 +323,7 @@ export default function Leaderboard({}) {
                                   onClick={() => setViewerData({longitude: item.geometry.coordinates[0], latitude: item.geometry.coordinates[1]})}
                                   type="button"
                                 >
-                                  <Video className="w-5 h-5 sm:w-5 sm:h-5 fill-current text-blue-600" />
+                                  <Video className="w-5 h-5 sm:w-5 sm:h-5 fill-current text-blue-600 bg-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent
@@ -342,7 +344,7 @@ export default function Leaderboard({}) {
                                   onClick={() => setSocialmedia(item)}
                                   type="button"
                                 >
-                                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-blue-600" />
+                                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-blue-600 bg-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent

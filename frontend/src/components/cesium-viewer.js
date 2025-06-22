@@ -978,7 +978,7 @@ export default function CesiumViewer({longitude, latitude}) {
           <div className="bg-gray-100 text-gray-700 hidden sm:inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md mx-2">
             Average Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
           </div>
-          <div className="bg-gray-100 text-gray-700 sm:hidden text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md">
+          <div className="bg-gray-100 text-gray-700 sm:hidden text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md whitespace-nowrap">
             Avg Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
           </div>
           </>

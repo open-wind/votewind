@@ -53,15 +53,15 @@ export default function SocialShareButtons({ title = '', showstrap=true, supplie
     }
   }
 
-  const btnCls = 'h-7 w-7 sm:h-10 sm:w-10'
-  const iconCls = 'w-4 h-4 sm:w-5 sm:h-5'
+  const btnCls = 'h-6 w-6 sm:h-10 sm:w-10'
+  const iconCls = 'w-3 h-3 sm:w-5 sm:h-5'
 
   return (
     <div className="rounded-lg p-0">
       {showstrap && (
       <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Share on social media</p>
       )}
-      <div className="flex flex-wrap gap-1 justify-center sm:justify-start">
+      <div className="flex gap-1 justify-center sm:justify-start whitespace-nowrap">
         <Button variant="outline" size="icon" aria-label="Share on X" onClick={() => popup(links.x)} className={btnCls}><SiX className={iconCls} /></Button>
         <Button variant="outline" size="icon" aria-label="Share on Facebook" onClick={() => popup(links.facebook)} className={btnCls}><SiFacebook className={iconCls} /></Button>
         <Button variant="outline" size="icon" aria-label="Share on LinkedIn" onClick={() => popup(links.linkedin)} className={btnCls}><SiLinkedin className={iconCls} /></Button>

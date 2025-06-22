@@ -31,7 +31,7 @@ export default function Home() {
   }, []);
 
   return (
-  <div className="min-h-screen flex flex-col bg-cover bg-center "
+  <div className="min-h-screen flex flex-col bg-cover bg-center"
     style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }}>
     <main className="flex-grow overflow-auto">
 

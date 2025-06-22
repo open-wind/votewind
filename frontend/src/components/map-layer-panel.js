@@ -170,7 +170,7 @@ export default function LayerTogglePanel({ map }) {
         <TooltipProvider>
             <Tooltip>
             <TooltipTrigger asChild>
-            <button onClick={toggleAllLayersVisibility} className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle visibility">
+            <button onClick={toggleAllLayersVisibility} className="text-black bg-white hover:bg-gray-200 rounded-full p-0" aria-label="Toggle visibility">
               {layersVisible ? <EyeIcon className="w-4 h-4 text-blue-600" /> : <EyeSlashIcon className="w-4 h-4 text-gray-400" />}
             </button>
             </TooltipTrigger>
@@ -183,7 +183,7 @@ export default function LayerTogglePanel({ map }) {
         <TooltipProvider>
             <Tooltip>
             <TooltipTrigger asChild>
-            <button onClick={() => setIsOpen(prev => !prev)} className="text-black hover:bg-gray-200 rounded-full p-0" aria-label="Toggle layer panel">
+            <button onClick={() => setIsOpen(prev => !prev)} className="text-black bg-white hover:bg-gray-200 rounded-full p-0" aria-label="Toggle layer panel">
               {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </button>
             </TooltipTrigger>
@@ -204,7 +204,7 @@ export default function LayerTogglePanel({ map }) {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setModalOpen(true)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 bg-white"
                 aria-label="Change turbine height"
               >
                 <Settings className="w-4 h-4" />
