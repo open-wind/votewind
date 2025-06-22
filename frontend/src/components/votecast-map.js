@@ -424,7 +424,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         Join local community energy group
                         </h2>
                         <p className="font-light mb-2">
-                        Community energy groups rely on motivated volunteers to make projects happen - and are positive fun places too! 
+                        Community energy groups rely on motivated volunteers to make projects happen - and are positive and fun places too! 
                         Reach out to your local community energy group and help make a community wind project happen in your area.</p>
                         <p className="font-light mb-4">The following community energy groups are close to the turbine you voted for:
                         </p>

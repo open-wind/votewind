@@ -89,7 +89,7 @@ export default function PlanningConstraints({ containingAreas = [], content=null
       )}
 
       {isOverflowing && !atBottom && (
-        <div className="pointer-events-none absolute bottom-0 left-0 w-full h-6 bg-gradient-to-b from-transparent to-white" />
+        <div className="pointer-events-none absolute bottom-0 left-0 w-full h-6 bg-gradient-to-b from-[rgba(255,255,255,0)] to-white" />
       )}
 
     </div>

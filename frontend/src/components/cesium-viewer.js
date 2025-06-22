@@ -972,18 +972,18 @@ export default function CesiumViewer({longitude, latitude}) {
         )}
 
         {isViewerReady &&
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center space-y-2 space-x-2">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center space-x-2">
           {(windspeed !== null) && 
           <>
-          <div className="bg-gray-100 text-gray-700 hidden sm:inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md mx-2">
+          <div className="mt-1 mb-1 bg-gray-100 text-gray-700 hidden sm:inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md whitespace-nowrap mx-2">
             Average Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
           </div>
-          <div className="bg-gray-100 text-gray-700 sm:hidden text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md whitespace-nowrap">
+          <div className="mt-1 mb-1 bg-gray-100 text-gray-700 sm:hidden inline text-xs sm:text-sm px-4 py-1 rounded-full shadow-sm backdrop-blur-md whitespace-nowrap">
             Avg Wind Speed: <span className="font-semibold">{windspeed.toFixed(1)} m/s</span>
           </div>
           </>
           }
-          <div className="inline">
+          <div className="inline mt-1 mb-1">
             <button
               onClick={togglePlayback}
               className="max-w-[9rem] bg-white/80 hover:bg-white text-gray-800 text-sm font-sm px-3 py-1 rounded-full flex shadow"

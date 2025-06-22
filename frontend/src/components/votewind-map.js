@@ -334,6 +334,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             map.setLayoutProperty('windspeed', 'visibility', new_windspeed_visibility);
         }
 
+        if (showWindspeeds) setPositionWindspeed(null);
         setShowWindspeeds(!showWindspeeds);
     }
 
@@ -549,7 +550,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 const voteLongitude = String(votefeatures[i].properties.lng.toFixed(5));
                 const voteLatitude = String(votefeatures[i].properties.lat.toFixed(5));
                 if ((turbineLongitude === voteLongitude) && (turbineLatitude === voteLatitude)) {
-                    selectVote(map, votefeatures[0].properties);
+                    selectVote(map, votefeatures[i].properties);
                     break;
                 }
             }
@@ -948,14 +949,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         if ((email) && (email !== '')) voteparameters.email = email;
 
         setProcessing(true);
-        console.log("Step 1");
         const res = await fetch(API_BASE_URL + '/api/vote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(voteparameters),
             credentials: 'include',
         });
-        console.log("Step 2");
 
         const data = await res.json();
         if (!data.success) {
@@ -963,7 +962,6 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             setError("CAPTCHA verification failed. Please try again.");
             return;
         }
-        console.log("Step 3");
 
         resetSettings();
 
@@ -1083,7 +1081,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 )}
 
                                 {showWindspeeds && positionWindspeed && (
-                                <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-3 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
+                                <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`absolute top-0 left-0 translate-x-8 sm:translate-x-8 -translate-y-1 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full ${windspeed2Classname(positionWindspeed)} flex flex-col items-center justify-center shadow-lg`}>
                                     <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
                                 </div>
                                 )}
