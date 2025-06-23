@@ -6,7 +6,7 @@ import maplibregl from 'maplibre-gl';
 import Map, { Popup } from 'react-map-gl/maplibre';
 import { Share2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Video } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/components/functions/helpers"
+import { useIsMobile, isIOS } from "@/components/functions/helpers"
 import SocialMediaModal from '../social-media-modal';
 import CesiumModal from '@/components/cesium-modal';
 import ViewportHeightFixer from "@/components/viewport-height-fixer";
@@ -20,6 +20,7 @@ import {
   MAP_DEFAULT_ZOOM,
   TILESERVER_BASEURL
 } from '@/lib/config';
+import TempUserAgentDisplay from '../user-agent';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
@@ -115,6 +116,18 @@ export default function Leaderboard({}) {
     setPage(1);
   }, []);
 
+  useEffect(() => {
+      // Give MapLibre a moment to render the popup
+      const timeout = setTimeout(() => {
+          const popupEl = document.querySelector('.maplibregl-popup-content');
+          if (popupEl) {
+              popupEl.style.pointerEvents = 'none';
+          }
+      }, 0); // Minimal delay after render
+
+      return () => clearTimeout(timeout);
+  }, [popupInfo]); 
+
   if (!isReady) return null;
 
   const topPadding = 100;
@@ -142,7 +155,7 @@ export default function Leaderboard({}) {
       if (!map) return;
 
       map.touchZoomRotate.disableRotation();
-      if (isMobile) map.setMaxZoom(12); // To deal with some mobile browsers not displaying layers > 12
+      if (isIOS(14)) map.setMaxZoom(12); // iOS14 stops rendering custom layers when zoom > 12
 
       // Load any images that are too fiddly to incorporate into default images
       const images_to_load = [    'mappin-badge',
@@ -227,7 +240,7 @@ export default function Leaderboard({}) {
                   closeOnClick={false}
                   anchor="bottom"
                   offset={50}
-                  className="no-padding-popup px-0 py-0 m-0"
+                  className="no-padding-popup px-0 py-0 m-0 pointer-events-none"
 
               >
                   <div className="text-sm font-medium px-2 py-2 leading-normal">

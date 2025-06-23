@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import maplibregl from 'maplibre-gl';
@@ -17,7 +17,7 @@ import { UserGroupIcon } from '@heroicons/react/24/solid'; // or `/outline`
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 const querystring = require('querystring');
 import { Button } from "@/components/ui/button";
-import { useIsMobile, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
+import { useIsMobile, isIOS, windspeed2Classname, windspeedToInterpolatedColor } from "@/components/functions/helpers"
 import CesiumModal from './cesium-modal';
 import QRModal from './qr-modal';
 import AutocompleteInput from './autocomplete-input';
@@ -97,10 +97,33 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [showQR, setShowQR] = useState(false);
     const [QRurl, setQRurl] = useState(false);
     const [isAREnabled, setAREnabled] = useState(false);
+    const [currentZoom, setCurrentZoom] = useState(0);
+    const [minZoom, setMinZoom] = useState(0);
+    const [maxZoom, setMaxZoom] = useState(22);
 
     const isMobile = useIsMobile();
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     const popupLayers = ['osm-substations-circle', 'votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
+
+    // **********************************************************************
+    // Functions relating to tracking zoom level
+    // **********************************************************************
+
+    // This callback will be triggered by map.on('zoomend')
+    const updateZoomStates = useCallback((mapInstance) => { 
+        setCurrentZoom(mapInstance.getZoom());
+        setMinZoom(mapInstance.getMinZoom());
+        setMaxZoom(mapInstance.getMaxZoom());
+
+        const maxBounds = mapInstance.getMaxBounds();
+        const visibleBounds = mapInstance.getBounds();
+        const visibleWidth = visibleBounds.getEast() - visibleBounds.getWest();
+        const visibleHeight = visibleBounds.getNorth() - visibleBounds.getSouth();
+        const maxWidth = maxBounds.getEast() - maxBounds.getWest();
+        const maxHeight = maxBounds.getNorth() - maxBounds.getSouth();
+        if ((visibleWidth >= maxWidth) || (visibleHeight >= maxHeight)) setMinZoom(mapInstance.getZoom());
+        
+    }, []); 
 
     // **********************************************************************
     // Functions relating to showing/hiding planning constraint layers
@@ -638,7 +661,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
 
         map.touchZoomRotate.disableRotation();
-        if (isMobile) map.setMaxZoom(12); // To deal with some mobile browsers not displaying layers > 12
+        if (isIOS(14)) map.setMaxZoom(12); // iOS14 stops rendering custom layers when zoom > 12
+
+        map.on('zoomend', () => updateZoomStates(map)); // Pass the map instance to the updater
+
+        // Perform initial state update immediately after load
+        updateZoomStates(map);
 
         // Load any images that are too fiddly to incorporate into default images
         const images_to_load = [    'check-mark-circle-dropshadow',
@@ -866,6 +894,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         setError("");
         setEmail("");
         setVotes(null);
+        setPopupInfo(null);
         setOrganisation(null);
         setLayersClicked(null);
         setWindspeed(null);
@@ -1071,7 +1100,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <Toaster position="top-center" containerStyle={{top: 50}}/>
 
                 {/* Vertical toolbar */}
-                <div className="absolute left-4 sm:left-4 top-[8.3rem] sm:top-[9.3rem] z-40">
+                <div className="absolute left-4 sm:left-4 top-[8.3rem] sm:top-[9.3rem] z-40 select-none">
                     <div className="bg-gray-100 rounded-full shadow-lg p-2 sm:p-2 flex flex-col items-center space-y-2 sm:space-y-2">
 
                     <TooltipProvider>
@@ -1079,13 +1108,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleWindspeeds}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center noselect`}
                             >
                                 {showWindspeeds ? (
-                                    <Wind className="w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
+                                    <Wind className="noselect w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
                                     <div className="relative w-6 h-6 flex items-center justify-center rounded-full">
-                                        <Wind className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                                        <Wind className="noselect w-6 h-6 text-gray-400" strokeWidth={1.5} />
                                     </div>
                                 )}
 
@@ -1108,11 +1137,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleOrganisations}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showOrganisations) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center noselect`}
                             >
                                 {showOrganisations 
-                                ? <UserGroupIcon className="w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
-                                : <UserGroupIcon className="w-6 h-6 text-gray-400" />
+                                ? <UserGroupIcon className="noselect w-6 h-6 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
+                                : <UserGroupIcon className="noselect w-6 h-6 text-gray-400" />
                                 }
                             </button>
                         </TooltipTrigger>
@@ -1128,12 +1157,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleViewshed}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showViewshed) ? ("bg-blue-600") : ("bg-white")} text-blue-700 rounded-full shadow transition flex items-center justify-center noselect`}
                             >
                                 {showViewshed ? (
-                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
+                                    <FontAwesomeIcon icon={faBinoculars} className="noselect w-5 h-5 text-white" style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
-                                    <FontAwesomeIcon icon={faBinoculars} className="w-5 h-5 text-gray-400" />
+                                    <FontAwesomeIcon icon={faBinoculars} className="noselect w-5 h-5 text-gray-400" />
                                 )}
 
                             </button>
@@ -1151,12 +1180,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         <TooltipTrigger asChild>
                             <button
                             onClick={toggleLayersVisibility}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-600") : ("bg-white")}  rounded-full shadow transition flex items-center justify-center`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(layersVisible) ? ("bg-blue-600") : ("bg-white")}  rounded-full shadow transition flex items-center justify-center noselect`}
                             >
                                 {layersVisible ? (
-                                    <Layers className="w-5 h-5 text-white" strokeWidth={2} style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
+                                    <Layers className="noselect w-5 h-5 text-white" strokeWidth={2} style={{ filter: "drop-shadow(1px 1px 2px rgba(0,0,0,0.5))" }}/>
                                 ) : (
-                                    <Layers className="w-5 h-5 text-gray-400" strokeWidth={1.5}/>
+                                    <Layers className="noselect w-5 h-5 text-gray-400" strokeWidth={1.5}/>
                                 )}
                             </button>
                         </TooltipTrigger>
@@ -1171,14 +1200,14 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 </div>
     
                 {/* Vertical right-hand toolbar */}
-                <div className="absolute right-4 sm:right-4 top-[8.3rem] sm:top-[9.3rem] z-40">
+                <div className="absolute right-4 sm:right-4 top-[8.3rem] sm:top-[9.3rem] z-40 select-none">
                     <div className="bg-gray-100 rounded-full shadow-lg p-2 sm:p-2 flex flex-col items-center space-y-2 sm:space-y-2">
 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-9 sm:h-9 bg-white text-sm shadow rounded-full active:bg-white focus:outline-none focus:ring-0">
-                             <Plus className="w-5 h-5 sm:w-7 sm:h-7 text-black translate-x-1.5 sm:translate-x-1" strokeWidth={2}/>
+                            <button type="button" onClick={(e) => mapZoomIn(e)} className="w-8 h-8 sm:w-9 sm:h-9 bg-white text-sm shadow rounded-full active:bg-white focus:outline-none focus:ring-0 noselect">
+                             <Plus className={`noselect w-5 h-5 sm:w-7 sm:h-7 ${(currentZoom >= maxZoom) ? "text-gray-200" : "text-black"} translate-x-1.5 sm:translate-x-1`} strokeWidth={2}/>
                             </button>
                         </TooltipTrigger>
                         <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
@@ -1190,8 +1219,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button onClick={mapZoomOut} className="w-8 h-8 sm:w-9 sm:h-9 bg-white text-sm shadow rounded-full active:bg-white focus:outline-none focus:ring-0">
-                             <Minus className="w-5 h-5 sm:w-7 sm:h-7 text-black translate-x-1.5 sm:translate-x-1" strokeWidth={2}/>
+                            <button onClick={mapZoomOut} className="w-8 h-8 sm:w-9 sm:h-9 bg-white text-sm shadow rounded-full active:bg-white focus:outline-none focus:ring-0 noselect">
+                             <Minus className={`noselect w-5 h-5 sm:w-7 sm:h-7 ${(currentZoom <= minZoom) ? "text-gray-200" : "text-black"} translate-x-1.5 sm:translate-x-1`} strokeWidth={2}/>
                             </button>
                         </TooltipTrigger>
                         <TooltipContent side="right" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
@@ -1204,11 +1233,11 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
-                            <button onClick={mapCentreOnTurbine} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex bg-white shadow items-center justify-center">
+                            <button onClick={mapCentreOnTurbine} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex bg-white shadow items-center justify-center noselect">
                             <img
                                 alt="Wind turbine"
                                 src={`${assetPrefix}/icons/windturbine_black.png`}
-                                className="block w-4 h-5 sm:w-5 sm:h-6 translate-x-0.2"
+                                className="block w-4 h-5 sm:w-5 sm:h-6 translate-x-0.2 noselect"
                             />
                             </button>
                         </TooltipTrigger>
@@ -1535,7 +1564,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             {(organisation !== null) && (
             <div className="fixed bottom-0 left-0 w-full h-1/3 overflow-y-auto bg-white sm:bg-white/95 shadow-lg border-t z-50 flex flex-col justify-between px-2 pt-1 pb-2 sm:px-10 sm:pt-0 sm:pb-6">
 
-                <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-start px-0 sm:px-4 pb-4">
+                <div className="max-w-screen-xl mx-auto h-full flex flex-col justify-start px-0 sm:px-4 pb-4 select-text">
 
                     {/* Close button */}
                     <button
@@ -1588,7 +1617,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         {/* Voting panel */}
         {turbineAdded && (
-        <section style={{ height: 'calc(var(--vh, 1vh) * 36)', minHeight: '16rem' }} className="w-full z-50 bg-white sm:bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 overflow-y-auto fixed bottom-0 left-0">
+        <section style={{ height: 'calc(var(--vh, 1vh) * 36)', minHeight: '16.5rem' }} className="w-full z-50 bg-white sm:bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 overflow-y-auto fixed bottom-0 left-0">
 
             <div className="w-full max-w-[1000px] mx-auto">
                 
@@ -1772,7 +1801,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         </h2>
 
-                        <div className="hidden sm:flex flex-wrap items-center space-y-0 mt-2 sm:mt-4">
+                        <div className="hidden sm:flex flex-wrap items-center space-y-0 mt-2 sm:mt-4 select-text">
                             <p className="text-xs text-gray-700 m-0">
                                 <TooltipProvider>
                                     <Tooltip>
@@ -1809,7 +1838,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </TooltipProvider>
 
                         </div>
-                        <div className="sm:hidden flex flex-wrap gap-1 mt-2 sm:mt-4">
+                        <div className="sm:hidden flex flex-wrap gap-1 mt-2 sm:mt-4 select-text">
                             <p className="text-xs text-gray-700 ">
                                 <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E</a>&nbsp;&nbsp;
                             </p>
@@ -1903,8 +1932,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 </div>
 
                 <div className="pt-1">
-                        <div className="w-full text-[9px] leading-tight sm:text-xs text-gray-800 mt-1 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
-
+                    <div className="w-full text-[10px] leading-tight text-gray-500 sm:text-xs mt-1 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                 </div>
 
             </form>

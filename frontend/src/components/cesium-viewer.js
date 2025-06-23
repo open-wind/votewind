@@ -434,7 +434,7 @@ export default function CesiumViewer({longitude, latitude}) {
               initialEventListener();
               initialEventListener = undefined;
             }
-            // setIsViewerReady(true);
+            setIsViewerReady(true);
           });
         }
       } catch (error) {

@@ -85,7 +85,7 @@
         "text-size": 11,
         "text-anchor": "center",
         "text-offset": [0, -3.5],
-        "text-allow-overlap": true
+        "text-allow-overlap": false
       },
       "paint": {
         "icon-color": "#000000",
