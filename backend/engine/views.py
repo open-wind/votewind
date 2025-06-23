@@ -82,7 +82,7 @@ def LocationSearch(request):
     results_returned = sorted(list(results_returned))
     results_returned = results_returned[:NUMBER_RESULTS_RETURNED]
 
-    return OutputJson({'results': results_returned})
+    return OutputJson({'query': query, 'results': results_returned})
 
 def addPlaceExtent(place, results):
     """

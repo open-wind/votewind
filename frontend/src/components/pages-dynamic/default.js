@@ -52,6 +52,7 @@ export default function Default() {
     const host = window.location.hostname;
     const parts = host.split('.');
     if (parts.length > 2) {
+      if (!isNaN(parts[0])) return null;
       return parts[0]; // e.g., 'east-sussex'
     }
     return null;

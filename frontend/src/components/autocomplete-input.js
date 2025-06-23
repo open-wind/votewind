@@ -96,11 +96,18 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
 
     timeoutRef.current = setTimeout(async () => {
       try {
-        // const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const res = await fetch(`${API_BASE_URL}/api/locationsearch?query=${encodeURIComponent(query)}`);
         const data = await res.json();
-        setResults(data.results || []);
-        setShowDropdown(data.results.length > 0);
+        // To avoid slow query results coming back after user has changed their input,
+        // compare latest user input with user input that triggered current query
+        if (data.query) {
+          const queryinput = query.toUpperCase();
+          const queryoutput = data.query.toUpperCase();
+          if (queryinput === queryoutput) {
+            setResults(data.results || []);
+            setShowDropdown(data.results.length > 0);
+          }
+        }
       } catch (err) {
         console.error('fetch error:', err);
         setResults([]);

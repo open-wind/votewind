@@ -16,7 +16,7 @@ echo -e ""
 echo -e ""
 
 cd tileserver/app/
-python3 -m http.server 
+python3 -m http.server 8001
 cd ../
 
 # Stop tileserver-gl

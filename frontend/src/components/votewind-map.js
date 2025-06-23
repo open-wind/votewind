@@ -638,6 +638,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         }
 
         map.touchZoomRotate.disableRotation();
+        if (isMobile) map.setMaxZoom(12); // To deal with some mobile browsers not displaying layers > 12
 
         // Load any images that are too fiddly to incorporate into default images
         const images_to_load = [    'check-mark-circle-dropshadow',

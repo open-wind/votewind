@@ -43,6 +43,7 @@ import SunCalc from 'suncalc';
 import { LocateFixed } from "lucide-react"
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { useIsMobile } from "@/components/functions/helpers"
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { TURBINE_AR_DEFAULT_HUBHEIGHT, API_BASE_URL } from '@/lib/config';
 
@@ -77,6 +78,7 @@ export default function CesiumViewer({longitude, latitude}) {
   const touchStartHandlerRef = useRef(null);
   const touchMoveHandlerRef = useRef(null);
   const touchEndHandlerRef = useRef(null);
+  const isMobile = useIsMobile();
 
   const moveCamera = (direction) => {
     if (!viewerRef.current) return;
@@ -432,7 +434,7 @@ export default function CesiumViewer({longitude, latitude}) {
               initialEventListener();
               initialEventListener = undefined;
             }
-            setIsViewerReady(true);
+            // setIsViewerReady(true);
           });
         }
       } catch (error) {
@@ -951,22 +953,16 @@ export default function CesiumViewer({longitude, latitude}) {
         {!isViewerReady && (
           <div className="absolute inset-0 z-0 w-full h-full top-0 left-0 flex items-center justify-center bg-white">
             <div className="text-gray-600 text-lg font-medium animate-pulse">
+              <div className="w-[60vw] flex flex-wrap justify-center ">
+
+              <div className="text-center">
               Loading 3D visualisation…
+              </div>
 
-              {/* <pre id="debug-log" style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                zIndex: 99999,
-                background: '#fff',
-                color: '#000',
-                fontSize: '10px',
-                padding: '4px',
-                maxHeight: '100%',
-                overflowY: 'auto',
-                lineHeight: '1.2em'
-              }}></pre> */}
-
+              {isMobile && 
+                <div className="pt-10 text-xs text-center">Please note 3D visualisation requires a recent mobile phone/tablet and may not work on older devices</div>
+              }
+              </div>
             </div>
           </div>
         )}
