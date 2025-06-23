@@ -24,7 +24,7 @@ export default function Navbar() {
       </div>
 
       {/* Desktop links */}
-      <div className="gap-6 hidden pr-2 md:flex items-right text-sm text-black font-medium tracking-wider pl-1" style={{ textShadow: '0 0px 30px rgba(255,255,255,1)' }}>
+      <div className="space-x-6 hidden pr-2 md:flex items-right text-sm text-black font-medium tracking-wider pl-1" style={{ textShadow: '0 0px 30px rgba(255,255,255,1)' }}>
         <a href={APP_BASE_URL} className="hover:underline">START</a>
         <a href={APP_BASE_URL + "/map"} className="hover:underline">MAP</a>
         <a href={APP_BASE_URL + "/leaderboard"} className="hover:underline">LEADERBOARD</a>

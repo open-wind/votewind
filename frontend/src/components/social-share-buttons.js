@@ -53,8 +53,8 @@ export default function SocialShareButtons({ title = '', showstrap=true, supplie
     }
   }
 
-  const btnCls = 'h-6 w-6 sm:h-10 sm:w-10'
-  const iconCls = 'w-3 h-3 sm:w-5 sm:h-5'
+  const btnCls = 'h-7 w-7 sm:h-10 sm:w-10'
+  const iconCls = 'w-4 h-4 sm:w-5 sm:h-5'
 
   return (
     <div className="rounded-lg p-0">

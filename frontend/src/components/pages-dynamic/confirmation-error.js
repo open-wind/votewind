@@ -7,12 +7,11 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 export default function ConfirmationError() {
 
   return (
-  <div className="mx-auto mt-0">
+  <div className="min-h-screen flex flex-col bg-cover bg-center"
+    style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }}>
+    <main className="flex-grow overflow-auto">
 
-    <div className="w-full h-screen bg-cover bg-center"
-          style={{ backgroundImage: `url('${assetPrefix}/images/sunrise-3579931_1920.jpg')` }} >
-
-      <div className="fixed top-1/3 -translate-y-1/2 left-0 text-center w-full items-center">
+        <div className="pt-[15vh] lg:mt-10 text-center w-full items-center">
 
         <header className="relative w-full sm:mt-0 text-center py-3">
             <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
@@ -30,12 +29,13 @@ export default function ConfirmationError() {
           </p>
         </div>
 
-
       </div>
-        <PartnerLogos />
 
-    </div>
+    </main>
 
+    <footer>
+      <PartnerLogos />
+    </footer>
   </div>
 
   );

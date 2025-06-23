@@ -164,6 +164,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
             map.setLayoutProperty('windspeed', 'visibility', new_windspeed_visibility);
         }
 
+        if (showWindspeeds) setPositionWindspeed(null);
         setShowWindspeeds(!showWindspeeds);
     }
 
@@ -409,14 +410,14 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
 
         {/* Vertical toolbar */}
         <div className="absolute right-4 sm:right-8 top-16 z-40">
-            <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center gap-1 sm:gap-2">
+            <div className="bg-gray-100 rounded-full shadow p-2 sm:p-2 flex flex-col items-center space-y-2 sm:space-y-2">
 
             <TooltipProvider>
                 <Tooltip>
                 <TooltipTrigger asChild>
                     <button
                     onClick={toggleWindspeeds}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? "bg-blue-100": "bg-white"} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 p-1 ${(showWindspeeds) ? "mb-5 sm:mb-3 bg-blue-100": "bg-white"} text-blue-700 rounded-full shadow transition flex items-center justify-center`}
                     >
                         {showWindspeeds ? (
                             <Wind className="w-6 h-6" />
@@ -447,7 +448,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                 <TooltipTrigger asChild>
                     <button
                     onClick={() => setShowCesiumViewer(true)} 
-                    className={`${showWindspeeds && ("mt-6 sm:mt-3")} bg-white w-8 h-8 sm:w-10 sm:h-10 p-1 text-blue-700 rounded-full shadow transition flex items-center justify-center`}
+                    className={`bg-white w-8 h-8 sm:w-10 sm:h-10 p-1 text-blue-700 rounded-full shadow transition flex items-center justify-center`}
                     >
                         <Video className="w-6 h-6 fill-current text-blue-700" />
                     </button>

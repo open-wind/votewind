@@ -9,7 +9,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import Map, { AttributionControl, Marker, Popup } from 'react-map-gl/maplibre';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { Plus, Minus, ZoomIn, ZoomOut, Layers, ExternalLink, Wind, Video, Check } from 'lucide-react'
+import { Plus, Minus, ZoomIn, ZoomOut, Layers, ExternalLink, Wind, Video, Check } from 'lucide-react';
+import { IoMdClose } from 'react-icons/io'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
 import { UserGroupIcon } from '@heroicons/react/24/solid'; // or `/outline`
@@ -77,6 +78,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const [inputOpen, setInputOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [showConsentBanner, setShowConsentBanner] = useState(false);
+    const [showPlanningConstraintAreas, setShowPlanningConstraintAreas] = useState(false);
     const [error, setError] = useState('');
     const [popupInfo, setPopupInfo] = useState(null);
     const [locating, setLocating] = useState(false);
@@ -1046,13 +1048,19 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         return (offset * 0.025);
     };
 
+    const createURL = (areaname, areaslug) => {
+        return (
+        <a className="font-bold text-blue-600 hover:underline" target="_new" href={`https://${areaslug}.votewind.org?longitude=${turbinePosition.longitude.toFixed(5)}&latitude=${turbinePosition.latitude.toFixed(5)}`}>{areaname}</a>
+        )
+    }
+
     return (
-    <div className="min-h-screen flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between" style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
 
         <ViewportHeightFixer />
         <BodyClassSetter className="overflow-hidden" />
 
-        <div className="flex justify-center items-center w-screen h-screen">
+        <div className="flex justify-center items-center w-screen">
 
             {(!turbineAtCentre) && (!showOrganisations) && (showInstructions) && 
             (<SessionInstructionPopup />)
@@ -1213,13 +1221,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 </div>
 
                 {!turbineAdded && showInfo && (organisation === null) && !showNearestOrganisations && (
-                <div className="absolute bottom-[7rem] sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
+                <div className="absolute bottom-[8rem] sm:bottom-12 inset-x-0 flex justify-center px-4 z-30">
                     <div
                         className="
                         inline-flex items-center
                         bg-blue-600 text-white
                         py-2 px-4 rounded-3xl
-                        shadow-[0_-4px_12px_rgba(255,255,255,0.2)]
+                        shadow-[0_4px_12px_rgba(255,255,255,0.9)]
                         "
                     >
                         <p className="text-sm sm:text-base font-light animate-fade-loop mr-4">
@@ -1481,6 +1489,39 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 onSubmit={(val) => setEmail(val)}
             />
 
+            {/* Planning constraints modal */}
+            {showPlanningConstraintAreas && (
+                <div className="fixed inset-0 top-0 left-0 w-full h-full z-[9999] flex items-center justify-center bg-black/30">
+                <div className="relative bg-white w-[90%] max-w-md p-4 rounded-lg text-sm sm:text-md shadow-lg">
+
+                    {/* Close button */}
+                    <button
+                    onClick={() => setShowPlanningConstraintAreas(false)}
+                    className="absolute top-2 right-2 text-gray-600 hover:text-black"
+                    aria-label="Close"
+                    >
+                    <IoMdClose className="w-5 h-5" />
+                    </button>
+
+                <div className="font-semibold text-gray-800 mb-1">Detailed constraint maps available:</div>
+
+                {containingAreas.length > 0 ? (
+                <ul className="list-disc list-inside space-y-0 max-h-64 overflow-y-auto">
+
+                    {containingAreas.map((item, index) => (
+                        <li key={index}>
+                        {createURL(item.name, item.slug)}
+                        </li>
+                    ))}
+                </ul>
+                ) : (
+                    <div className="text-gray-500">No boundaries found at this location.</div>
+                )}
+                </div>
+
+                </div>
+            )}
+            
             {/*  Processing vote screen */}
             {processing && (
             <div className="fixed top-0 left-0 w-full h-full inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-[9999]">
@@ -1546,7 +1587,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
         {/* Voting panel */}
         {turbineAdded && (
-        <section className="w-full z-50 bg-white sm:bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 overflow-y-auto absolute bottom-0 left-0">
+        <section style={{ height: 'calc(var(--vh, 1vh) * 36)', minHeight: '16rem' }} className="w-full z-50 bg-white sm:bg-white/95 shadow-lg border-t px-4 py-2 sm:py-0 sm:fixed sm:bottom-0 sm:left-0 sm:h-1/3 mobile-h-1-3-plus-48 overflow-y-auto fixed bottom-0 left-0">
 
             <div className="w-full max-w-[1000px] mx-auto">
                 
@@ -1730,12 +1771,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         </h2>
 
-                        <div className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-0 mt-2 sm:mt-4">
+                        <div className="hidden sm:flex flex-wrap items-center space-y-0 mt-2 sm:mt-4">
                             <p className="text-xs text-gray-700 m-0">
                                 <TooltipProvider>
                                     <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <a className="text-blue-700" onClick={mapCentreOnTurbine} href="#">
+                                        <a className="text-blue-700 pr-2" onClick={mapCentreOnTurbine} href="#">
                                         <b>Position: </b>{turbinePosition.latitude.toFixed(5)}° N {turbinePosition.longitude.toFixed(5)}° E
                                         </a>
                                     </TooltipTrigger>
@@ -1786,9 +1827,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         {layersClicked && (
                             <>
                             {containingAreas && (
-                            <PlanningConstraints containingAreas={containingAreas} content={layersClicked.length === 0 
+                            <PlanningConstraints setOpen={setShowPlanningConstraintAreas} content={layersClicked.length === 0 
                             ? <i>No planning constraints found</i>
-                            : layersClicked.join(", ")} longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} />
+                            : layersClicked.join(", ")}/>
                             )}
                             </>
                         )}

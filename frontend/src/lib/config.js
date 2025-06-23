@@ -18,6 +18,20 @@ export const TILESERVER_BASEURL = isDev ? "http://localhost:8080" : "https://til
 
 // // Base url of main app
 // export const APP_BASE_URL = isDev
+//   ? 'http://10.0.2.2:3000'
+//   : 'https://votewind.org';
+
+// // Base url of api server
+// export const API_BASE_URL = isDev
+//   ? 'http://10.0.2.2:8000'
+//   : 'https://votewind.org';
+
+// // Base url of tile server
+// export const TILESERVER_BASEURL = isDev ? "http://10.0.2.2:8080" : "https://tiles.votewind.org";
+// // export const TILESERVER_BASEURL = isDev ? "https://tiles.votewind.org" : "https://tiles.votewind.org";
+
+// // Base url of main app
+// export const APP_BASE_URL = isDev
 //   ? 'http://bs-local.com:3000'
 //   : 'https://votewind.org';
 
