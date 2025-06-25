@@ -56,7 +56,7 @@ const MORNING_STARTS = 4.5;
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
-export default function CesiumViewer({longitude, latitude}) {
+export default function CesiumViewer({longitude, latitude, showui=true, animate=false}) {
   const containerRef = useRef(null);
   const initializedRef = useRef(false);
   const intervalRef = useRef(null);
@@ -67,6 +67,7 @@ export default function CesiumViewer({longitude, latitude}) {
   const animationStartTime = useRef(performance.now());
   const [error, setError] = useState(null);
   const [isViewerReady, setIsViewerReady] = useState(false);
+  const [status, setStatus] = useState({prefix: null, body: null});
   const [windspeed, setWindspeed] = useState(null);
   const [hourFloat, setHourFloat] = useState(12.0); // default 12pm
   const [isPlaying, setIsPlaying] = useState(false);
@@ -79,6 +80,10 @@ export default function CesiumViewer({longitude, latitude}) {
   const touchMoveHandlerRef = useRef(null);
   const touchEndHandlerRef = useRef(null);
   const isMobile = useIsMobile();
+
+  const updateStatus = (prefix = null, body = null) => {
+    setStatus({prefix: prefix, body: body})
+  }
 
   const moveCamera = (direction) => {
     if (!viewerRef.current) return;
@@ -125,10 +130,14 @@ export default function CesiumViewer({longitude, latitude}) {
 
   };
 
-  function windToRPM(windSpeed) {
-    if (windSpeed < 3) return 0; // Below cut-in, no spin
-    if (windSpeed >= 12) return 20; // Max capped RPM
-    return ((windSpeed - 3) / (12 - 3)) * (20 - 6) + 6; 
+  function windToRPM(windSpeed, rotorRadius = 48, tsr = 6) {
+    if (rotorRadius <= 0) {
+      throw new Error("Rotor radius must be greater than zero.");
+    }
+
+    const tipSpeed = tsr * windSpeed; // meters per second
+    const rpm = (tipSpeed / (2 * Math.PI * rotorRadius)) * 60;
+    return rpm;
   }
 
   useEffect(() => {
@@ -207,11 +216,14 @@ export default function CesiumViewer({longitude, latitude}) {
 
   useEffect(() => {
     if (!isViewerReady) return;
+    if (animate) return;
 
-    const animate = () => {
+    const animateBlades = () => {
       const now = performance.now();
       const elapsed = (now - animationStartTime.current) / 1000;
-      const angle = elapsed * (Math.PI * 2 / 10); // 1 rotation every 10 seconds
+      var windrpm = windToRPM(5);
+      if (windspeed) windrpm = windToRPM(windspeed);
+      const angle = (windrpm / 60) * elapsed * (Math.PI * 2); // 1 rotation every 10 seconds
       const baseHeading = CesiumMath.toRadians(220);
 
       const hpr = new HeadingPitchRoll(baseHeading, angle, 0);
@@ -222,20 +234,32 @@ export default function CesiumViewer({longitude, latitude}) {
         bladesRef.current.orientation = quat;
       }
 
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateBlades);
     };
 
     animationStartTime.current = performance.now();
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animateBlades);
   }, [isViewerReady]);
 
-  const debugLog = (logtext) => {
-    // Try this if log is suppressed
-    console.error("[VoteWind]", logtext);
+  let startTime = 0;
 
-    // Fallback to screen-based logging
-    const el = document.getElementById('debug-log');
-    if (el) el.innerText += logtext + "\n";
+  window.rotateStepByStep = function(totalFrames = 150) {
+    const fullRotationSeconds = 80;
+    const frameRate = 24;
+    const angle = (2 * Math.PI) / (frameRate * fullRotationSeconds);  
+    viewerRef.current.camera.rotate(Cartesian3.UNIT_Z, angle);
+    var windrpm = windToRPM(5);
+    if (windspeed) windrpm = windToRPM(windspeed);
+    const bladeAngle = (windrpm / 60) * startTime * (Math.PI * 2); 
+    const baseHeading = CesiumMath.toRadians(220);
+    const hpr = new HeadingPitchRoll(baseHeading, bladeAngle, 0);
+    startTime += (1/frameRate);
+
+    if ((bladesRef.current) && (bladePositionRef.current)) {
+      const bladePosition = bladePositionRef.current;
+      const quat = Transforms.headingPitchRollQuaternion(bladePosition, hpr);
+      bladesRef.current.orientation = quat;
+    }
   }
 
   useEffect(() => {
@@ -272,6 +296,8 @@ export default function CesiumViewer({longitude, latitude}) {
 
       let windspeed_local = 5;
 
+      updateStatus("1/9", "Retrieving windspeed");
+
       try {
         const res = await fetch(API_BASE_URL + "/api/windspeed", {
           method: "POST",
@@ -289,6 +315,8 @@ export default function CesiumViewer({longitude, latitude}) {
         console.error("Failed to retrieve windspeed", err);
       }
 
+      updateStatus("2/9", "Creating basic terrain");
+
       let terrainProvider;
       try {
         terrainProvider = await createWorldTerrainAsync();
@@ -296,6 +324,8 @@ export default function CesiumViewer({longitude, latitude}) {
         setError("Invalid API Cesium token, please contact VoteWind sysadmin: support@votewind.org");
         return;
       }
+
+      updateStatus("3/9", "Initializing Cesium viewer");
 
       // Initialize the viewer once the component mounts
       viewer = new Viewer(containerRef.current, {
@@ -352,13 +382,20 @@ export default function CesiumViewer({longitude, latitude}) {
       now.setUTCHours(hour, minutes, 0, 0);
       viewer.clock.currentTime = JulianDate.fromDate(now);
 
+      updateStatus("4/9", "Waiting for scene to become ready");
+
       await viewer.terrainProvider.readyPromise;
       await viewer.scene.globe.readyPromise;
+
       await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1s for LOD refinement
+
+      updateStatus("5/9", "Sampling terrain height at turbine");
 
       const positions = [Cartographic.fromDegrees(longitude, latitude)];
       const updatedPositions = await sampleTerrainMostDetailed(viewer.terrainProvider, positions);
       const terrainHeight = updatedPositions[0].height - 5;
+
+      updateStatus("6/9", "Setting camera position");
 
       viewer.camera.setView({
           destination: Cartesian3.fromDegrees(longitude, latitude, 100 + terrainHeight),
@@ -390,6 +427,8 @@ export default function CesiumViewer({longitude, latitude}) {
       const offsetBladePosition = Cartesian3.add(bladePosition, worldOffset, new Cartesian3());
       bladePositionRef.current = offsetBladePosition;
 
+      updateStatus("7/9", "Adding turbine model to scene");
+
       towerRef.current = viewer.entities.add({
         name: "Turbine Tower",
         position: basePosition,
@@ -420,13 +459,27 @@ export default function CesiumViewer({longitude, latitude}) {
       const center = Cartesian3.fromDegrees(longitude, latitude, terrainHeight); 
       transform = Transforms.eastNorthUpToFixedFrame(center);
       cameraOffset = new Cartesian3(-radius, (-radius / 4), heightAbove)
+      if (animate) cameraOffset = new Cartesian3(-0, (-radius), heightAbove)
 
       viewer.scene.camera.lookAtTransform(transform, cameraOffset);
 
       try {
+        updateStatus("8/9", "Waiting for Google 3D tiles to start loading");
+
         tileset = await createGooglePhotorealistic3DTileset();
+
+        if (animate) {
+          // Try and use best possible render settings for animations
+          // viewer.scene.useWebVR = false;
+          // viewer.scene.requestRenderMode = false;
+          // viewer.scene.maximumRenderTimeChange = Infinity;
+          // tileset.maximumScreenSpaceError = 10; // Or even lower, like 0.5 for more aggressive detail
+        }
+
         viewer.scene.primitives.add(tileset);
         if (!isViewerReady) {
+          updateStatus("9/9", "Waiting for Google 3D tiles to finish loading");
+
           initialEventListener = tileset.allTilesLoaded.addEventListener(() => {
             viewer.scene.camera.lookAtTransform(transform, cameraOffset);
             viewer.scene.camera.moveUp(yPan);
@@ -435,6 +488,7 @@ export default function CesiumViewer({longitude, latitude}) {
               initialEventListener = undefined;
             }
             setIsViewerReady(true);
+            window.renderingReady = true;
           });
         }
       } catch (error) {
@@ -880,17 +934,17 @@ export default function CesiumViewer({longitude, latitude}) {
         <div
           ref={containerRef}
           id="cesiumContainer"
-          className={`w-full h-full transition-opacity duration-1000 ease-in ${isViewerReady ? "opacity-100" : "opacity-0"}`}
+          className={`w-full h-full ${(!animate) && "transition-opacity duration-1000 ease-in"} ${isViewerReady ? "opacity-100" : "opacity-0"}`}
         >
 
-          {isViewerReady && (
+          {isViewerReady && showui && (
             <div
               className="absolute inset-0 bg-black pointer-events-none z-40"
               style={{ opacity: nightOpacity }}
             />
           )}
 
-          {isViewerReady && (
+          {isViewerReady && showui && (
           <>
           {/* View from current position Button */}
           <TooltipProvider>
@@ -952,22 +1006,28 @@ export default function CesiumViewer({longitude, latitude}) {
 
         {!isViewerReady && (
           <div className="absolute inset-0 z-0 w-full h-full top-0 left-0 flex items-center justify-center bg-white">
-            <div className="text-gray-600 text-lg font-medium animate-pulse">
-              <div className="w-[60vw] flex flex-wrap justify-center ">
+            <div className="text-gray-600 text-lg font-medium">
+              <div className="max-w-[30rem] p-12 text-center">
 
-              <div className="text-center">
-              Loading 3D visualisation…
-              </div>
+                <div className="animate-pulse">
+                Loading 3D visualisation…
+                </div>
 
-              {isMobile && 
-                <div className="pt-10 text-xs text-center">Please note 3D visualisation requires a recent mobile phone/tablet and may not work on older devices</div>
-              }
+                <div className="pt-5 text-xs text-gray-400">
+                  {(status.prefix) && (<><b>{status.prefix}</b>: </>)} 
+                  {(status.body) && (<>{status.body}</>)}
+                </div>
+
+                <div className="pt-5 text-sm text-gray-500">
+                  Please note 3D visualisation requires a recent version of a mobile phone, tablet or computer and may not work on older devices
+                </div>
+
               </div>
             </div>
           </div>
         )}
 
-        {isViewerReady &&
+        {isViewerReady && showui &&
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-wrap justify-center space-x-2">
           {(windspeed !== null) && 
           <>

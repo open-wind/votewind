@@ -1,11 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react'; // icons from lucide-react (shadcn uses it)
 import { APP_BASE_URL, CONTENT_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  // List or pattern of routes where Navbar should be hidden
+  const hideNavbarOn = [
+    /^\/-?\d+(\.\d+)?\/-?\d+(\.\d+)?\/animation\/?$/
+  ];
+
+  const shouldHide = hideNavbarOn.some((pattern) =>
+    typeof pattern === 'string' ? pattern === pathname : pattern.test(pathname)
+  );
+
+  if (shouldHide) return null;
 
   return (
   <nav className="fixed top-0 h-20 left-0 w-full z-50 bg-gradient-to-b from-white/80 to-white/0 text-black px-4 py-2 flex justify-between items-center pointer-events-none">

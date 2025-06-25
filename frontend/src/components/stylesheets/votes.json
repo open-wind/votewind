@@ -4,7 +4,7 @@
       "type": "symbol",
       "source": "votes",
       "layout": {
-          "icon-image": "check-mark-circle-outline-sdf", 
+          "icon-image": "check-mark-circle-outline-blue", 
           "icon-size": [
             "interpolate", ["exponential", 2], ["zoom"],
             5, 0.0325,
@@ -17,18 +17,11 @@
           "icon-offset": [0, 190]
         },
       "paint": {
-        "icon-color": "deepskyblue",
         "icon-opacity": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          5, 0,
-          6, [
             "case",
             ["boolean", ["feature-state", "selected"], false],
             1,
             0
-          ]
         ]
       }
     },

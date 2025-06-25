@@ -672,7 +672,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const images_to_load = [    'check-mark-circle-dropshadow',
                                     'check-mark-circle-desaturated-dropshadow', 
                                     'check-mark-circle-outline', 
-                                    'check-mark-circle-outline-sdf', 
+                                    'check-mark-circle-outline-blue', 
                                     'check-mark-blue',
                                     'check-mark-person'];
 
@@ -1865,9 +1865,9 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         )}
                         </div>
 
-                        <div className="mt-1 hidden sm:block">
+                        <div className="mt-0 hidden sm:block">
 
-                            <div className="mt-4">
+                            <div className="mt-0">
                                 {/* <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label> */}
 
                                 <div className="relative w-full bg-white border p-2 rounded shadow max-w-[600px]">
@@ -1882,6 +1882,8 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 </div>
 
                             </div>
+
+                            <div className="w-full text-[10px] leading-tight text-gray-500 sm:text-xs mt-2 mb-0" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
 
                         </div>
 
@@ -1931,7 +1933,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                 </div>
 
-                <div className="pt-1">
+                <div className="pt-1 sm:hidden">
                     <div className="w-full text-[10px] leading-tight text-gray-500 sm:text-xs mt-1 mb-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }}/>
                 </div>
 

@@ -30,7 +30,7 @@ export default function PlanningConstraints({ setOpen=null, content=null }) {
 
     <div ref={ref} className="relative inline-block text-left mt-1 max-h-[2.2em] overflow-y-auto">
 
-      <p className="text-xs whitespace-normal font-medium text-gray-700 truncate select-text">
+      <p className="text-xs whitespace-normal text-gray-700 truncate select-text">
 
       <TooltipProvider>
           <Tooltip>
