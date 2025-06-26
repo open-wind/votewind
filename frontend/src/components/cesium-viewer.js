@@ -1058,7 +1058,7 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
                 </div>
 
                 <div className="pt-5 text-sm text-gray-500">
-                  Please note 3D visualisation requires a recent version of a mobile phone, tablet or computer and may not work on older devices
+                  Note: 3D visualisation requires a modern mobile phone, tablet or computer and may not work on older devices
                 </div>
 
               </div>
