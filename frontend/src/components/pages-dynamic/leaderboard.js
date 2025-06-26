@@ -379,6 +379,12 @@ export default function Leaderboard({}) {
                   </tbody>
                 </table>
 
+                <div className="bg-white text-gray-500">
+                  <div className="h-full flex text-[8pt] justify-center sm:text-xs space-x-3 sm:space-x-6 items-center pt-0 sm:pt-1 pb-2 sm:pb-3">
+                    <i>Earlier votes have higher ranking</i>
+                  </div>
+                </div>
+
                 {(firstPage !== lastPage) &&
                 <div className="bg-gray-100">
                   <div className="h-full flex justify-center space-x-3 sm:space-x-6 items-center pt-1 pb-1 sm:pt-3 sm:pb-3">

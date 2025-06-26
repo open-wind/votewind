@@ -14,7 +14,7 @@ from django.contrib.gis.db.models.functions import Distance, Area
 from django.contrib.gis.geos import GEOSGeometry, Point, Polygon, MultiPolygon
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Min
 from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string, get_template
@@ -739,8 +739,9 @@ def Leaderboard(request):
             total_votes=Count('id'),
             confirmed_true=Count('id', filter=Q(confirmed=True)),
             confirmed_false=Count('id', filter=Q(confirmed=False)),
+            first_vote_date=Min('created'),  # ← add this line
         )
-        .order_by('-total_votes', '-confirmed_true', 'geometry')
+        .order_by('-total_votes', '-confirmed_true', 'first_vote_date', 'geometry')
     )
     totalitems = votes.count()
     lastpage = int((totalitems - 1) / pagesize) + 1

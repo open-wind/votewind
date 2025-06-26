@@ -81,6 +81,9 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
   const touchEndHandlerRef = useRef(null);
   const isMobile = useIsMobile();
 
+  const initialLoadTimeoutMs = 20000;       // Time (in ms) before considering it slow (e.g., 15 seconds)
+  const fallbackMaxScreenSpaceError = 32;   // Adjust to this quality if slow
+
   const updateStatus = (prefix = null, body = null) => {
     setStatus({prefix: prefix, body: body})
   }
@@ -270,7 +273,8 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
 
     let viewer;
     let tileset;
-    let initialEventListener;
+    let initialEventListener = null;
+    let initialRenderProgressListener = null; 
     let transform;
     let cameraOffset;
 
@@ -327,29 +331,34 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
 
       updateStatus("3/9", "Initializing Cesium viewer");
 
-      // Initialize the viewer once the component mounts
-      viewer = new Viewer(containerRef.current, {
-        contextOptions: {
-          webgl: {
-            alpha: false,
-            antialias: true
-          }
-        },
-        terrainProvider: terrainProvider,
-        geocoder: false,
-        animation: false,
-        baseLayerPicker: false,
-        fullscreenButton: false,
-        geocoder: false,
-        homeButton: false,
-        infoBox: false,
-        sceneModePicker: false,
-        selectionIndicator: false,
-        timeline: false,
-        navigationHelpButton: false,
-        navigationInstructionsInitiallyVisible: false,
-        shouldAnimate: false
-      });
+      try {
+        // Initialize the viewer once the component mounts
+        viewer = new Viewer(containerRef.current, {
+          contextOptions: {
+            webgl: {
+              alpha: false,
+              antialias: true
+            }
+          },
+          terrainProvider: terrainProvider,
+          geocoder: false,
+          animation: false,
+          baseLayerPicker: false,
+          fullscreenButton: false,
+          geocoder: false,
+          homeButton: false,
+          infoBox: false,
+          sceneModePicker: false,
+          selectionIndicator: false,
+          timeline: false,
+          navigationHelpButton: false,
+          navigationInstructionsInitiallyVisible: false,
+          shouldAnimate: false
+        });
+      } catch (e) {
+        updateStatus("ERROR", "There was a problem initializing Cesium 3D - you may need to switch to a more up to date platform")
+        return;
+      }
 
       viewerRef.current = viewer; 
       viewer.scene.moon.show = false;
@@ -468,21 +477,50 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
 
         tileset = await createGooglePhotorealistic3DTileset();
 
-        if (animate) {
-          // Try and use best possible render settings for animations
-          // viewer.scene.useWebVR = false;
-          // viewer.scene.requestRenderMode = false;
-          // viewer.scene.maximumRenderTimeChange = Infinity;
-          // tileset.maximumScreenSpaceError = 10; // Or even lower, like 0.5 for more aggressive detail
-        }
-
         viewer.scene.primitives.add(tileset);
         if (!isViewerReady) {
           updateStatus("9/9", "Waiting for Google 3D tiles to finish loading");
 
+          let loadStartTime = Date.now(); // Records when this loading phase started
+          let hasQualityBeenAdjusted = false; // Flag to ensure quality is adjusted only once
+
+          // Listen for postRender and allTilesLoaded events
+          initialRenderProgressListener = viewer.scene.postRender.addEventListener(() => {
+            const currentTime = Date.now(); // Get the current time for both checks
+            const currentPendingRequests = tileset._statistics.numberOfPendingRequests;
+            const currentTilesProcessing = tileset._statistics.numberOfTilesProcessing;
+            const totalActiveLoading = currentPendingRequests + currentTilesProcessing;
+            const elapsedTime = currentTime - loadStartTime;
+
+            if (!hasQualityBeenAdjusted && totalActiveLoading > 0) {
+                const elapsedTime = currentTime - loadStartTime;
+
+                if (elapsedTime > initialLoadTimeoutMs) {
+                    console.warn(`Initial 3D Tiles load active for over ${initialLoadTimeoutMs / 1000} seconds. Adjusting quality.`);
+                    tileset.maximumScreenSpaceError = fallbackMaxScreenSpaceError; // <-- This is where the magic happens!
+                    hasQualityBeenAdjusted = true; // Mark as adjusted to prevent repeated changes
+
+                    updateStatus("9/9", "Loading slowly, adjusting detail for better performance.");
+                }
+            }
+            
+            if (totalActiveLoading > 0) {
+                updateStatus("9/9", `3D Tiles: ${currentPendingRequests} requests pending, ${currentTilesProcessing} tiles processing.`);
+            } else {
+                // No active loading, but allTilesLoaded hasn't fired yet (e.g., waiting for browser render)
+                updateStatus("9/9", "Initial tiles processed, awaiting scene completion.");
+            }
+          })
+
           initialEventListener = tileset.allTilesLoaded.addEventListener(() => {
             viewer.scene.camera.lookAtTransform(transform, cameraOffset);
             viewer.scene.camera.moveUp(yPan);
+
+            if (initialRenderProgressListener) {
+                initialRenderProgressListener(); 
+                initialRenderProgressListener = null;
+            }
+
             if (initialEventListener) {
               initialEventListener();
               initialEventListener = undefined;
@@ -490,6 +528,7 @@ export default function CesiumViewer({longitude, latitude, showui=true, animate=
             setIsViewerReady(true);
             window.renderingReady = true;
           });
+
         }
       } catch (error) {
         console.log(`Failed to load tileset: ${error}`);
