@@ -432,7 +432,8 @@ class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMix
         'source',
         'email',
         'description',
-        'url'
+        'url',
+        'logo_url',
     )
 
 class WindSpeed(models.Model):

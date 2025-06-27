@@ -270,6 +270,7 @@ def main():
                 logo_url = row['Logo URL']
                 if file_key not in ['england']:
                     logo_url = get_logo_url(row['Website URL'])
+                    if logo_url.startswith('data:image'): logo_url = ''
 
                 logo_transparent = False
                 if logo_url:
