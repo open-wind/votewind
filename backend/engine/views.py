@@ -67,7 +67,7 @@ def LocationSearch(request):
     results_returned        = set()
     results_postcode        = Postcode.objects.filter(search__istartswith=query_postcode).distinct()
     results_boundary        = Boundary.objects.exclude(name__iendswith='ED').filter(name__istartswith=query).distinct()
-    results_organisations   = Organisation.objects.filter(name__icontains=query).distinct()
+    results_organisations   = Organisation.objects.filter(type__in=['community-energy-group', 'community-energy-related']).filter(name__icontains=query).distinct()
 
     if len(query_elements) == 2:
         results_place = Place.objects.filter(name__iexact=query_elements[0]).filter(county__istartswith=query_elements[1]).distinct()
@@ -804,9 +804,9 @@ def CesiumJIT(request):
     return JsonResponse({"token": token})
 
 @csrf_exempt
-def Organisations(request):
+def Organisations(request, typefilter = ['community-energy-group', 'community-energy-related']):
     """
-    Get organisations orderd by proximity to supplied position
+    Get organisations ordered by proximity to supplied position
     """
 
     try:
@@ -814,14 +814,12 @@ def Organisations(request):
     except (ValueError, KeyError):
         data = {}
 
-    typefilter = 'community-energy-group'
-
     if 'position' in data:
         centre = Point(float(data['position']['longitude']), float(data['position']['latitude']), srid=4326)    
         firstcutsize = 5
-        organisations = Organisation.objects.filter(type=typefilter).annotate(distance=Distance('geometry' , centre )).order_by('distance')[:firstcutsize]
+        organisations = Organisation.objects.filter(type__in=typefilter).annotate(distance=Distance('geometry' , centre )).order_by('distance')[:firstcutsize]
     else:
-        organisations = Organisation.objects.filter(type=typefilter).order_by('name')
+        organisations = Organisation.objects.filter(type__in=typefilter).order_by('name')
 
     features = []
     for organisation in organisations:
@@ -850,3 +848,11 @@ def Organisations(request):
 
     geojson = { "type": "FeatureCollection", "features": features }
     return OutputJson(geojson)
+
+@csrf_exempt
+def CommunityEnergyGroups(request):
+    """
+    Get community energy groups ordered by proximity to supplied position
+    """
+
+    return Organisations(request, ['community-energy-group'])

@@ -60,7 +60,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(API_BASE_URL + '/organisations', {
+                const response = await fetch(API_BASE_URL + '/communityenergygroups', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({position: {longitude: longitude, latitude: latitude} }),
@@ -426,7 +426,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         <p className="font-light mb-2">
                         Community energy groups rely on motivated volunteers to make projects happen - and are positive and fun places too! 
                         Reach out to your local community energy group and help make a community wind project happen in your area.</p>
-                        <p className="font-light mb-4">The following community energy groups are close to the turbine you voted for:
+                        <p className="font-light mb-4">The following community energy groups are closest to the turbine you voted for:
                         </p>
 
                         <div className="hidden sm:block space-y-4">

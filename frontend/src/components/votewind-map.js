@@ -1146,7 +1146,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             </button>
                         </TooltipTrigger>
                         <TooltipContent side="left" sideOffset={20} className="font-light text-sm bg-white text-black border shadow px-3 py-1 rounded-md hidden sm:block">
-                            {showOrganisations ? <div>Hide community energy groups</div> : <div>Show community energy groups</div>}
+                            {showOrganisations ? <div>Hide community-energy-related organisations</div> : <div>Show community-energy-related organisations</div>}
                         </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -1401,7 +1401,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
                         >
                             <div className="text-sm font-medium px-3 py-2 leading-normal">
-                                <h1 className="font-extrabold text-medium w-full text-center px-0 py-0 whitespace-nowrap">{popupInfo.properties.heading}</h1>
+                                <h1 className="font-extrabold text-medium w-full text-center px-0 py-0 whitespace-nowrap overflow-hidden text-ellipsis">{popupInfo.properties.heading}</h1>
                                 {(Array.isArray(popupInfo.properties.content)) 
                                 ?   (popupInfo.properties.content).map((item, index) => (
                                     <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
@@ -1738,7 +1738,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button type="button" onClick={() => setShowCesiumViewer(true)} className="translate-y-2 sm:translate-y-2 inline-flex mr-2 sm:mr-3 relative items-center justify-center sm:bottom-0 h-6 w-6 sm:h-8 sm:w-8 px-0 py-0 sm:text-sm rounded-full">
-                                        <Video className="w-7 h-7 sm:w-8 sm:h-8 fill-current text-blue-600 bg-white" />
+                                        <Video className="w-7 h-7 sm:w-8 sm:h-8 fill-current text-blue-600 bg-transparent" />
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="left" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">

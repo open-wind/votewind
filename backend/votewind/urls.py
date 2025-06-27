@@ -40,7 +40,7 @@ def serve_react_index(request):
     return HttpResponse(REACT_INDEX_CONTENT)
     
 urlpatterns = [
-    re_path(r'^(?!admin|api|votes|organisation).*$', serve_react_index),
+    re_path(r'^(?!admin|api|votes|organisations|communityenergygroups).*$', serve_react_index),
     path('admin/', admin.site.urls),
     path('api/boundary', views.BoundaryGet, name='boundary'),
     path('api/locationsearch', views.LocationSearch, name='locationsearch'),
@@ -56,5 +56,6 @@ urlpatterns = [
     path('api/cesium-jit', views.CesiumJIT, name='cesiumjit'),
     path('votes', views.Votes, name='votes'),
     path('organisations', views.Organisations, name='organisations'),
+    path('communityenergygroups', views.CommunityEnergyGroups, name='communityenergygroups'),
     re_path(r'^api/confirmvote/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9a-f]{1,32})/$', views.ConfirmVote, name='confirmvote'),
 ]

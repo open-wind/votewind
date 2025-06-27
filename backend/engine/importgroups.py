@@ -283,6 +283,7 @@ def main():
 
                 LogMessage("Importing: " + row['Organisation Name'])
                 Organisation.objects.create(    name=row['Organisation Name'], 
+                                                type=row['Type'],
                                                 source=source,
                                                 address=row['Address'],
                                                 postcode=row['Postcode'],

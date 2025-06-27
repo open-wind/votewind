@@ -15,6 +15,8 @@ ORGANISATION_TYPE_CHOICES = (
     ("community-energy-group", "Community Energy Group"),
     ("ngo", "National / Regional NGO"),
     ("electricity", "Elecricity Company"),
+    ("community-energy-related", "Community Energy Related Organisation"),
+    ("community-energy-member", "Community Energy Member"),
 )
 
 ORGANISATION_SOURCE_CHOICES = (
