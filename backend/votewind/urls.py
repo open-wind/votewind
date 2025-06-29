@@ -21,7 +21,7 @@ from django.http import HttpResponse
 from engine import views
 
 REACT_MODERN_BROWSER_INDEX_PATH = '/usr/src/votewind/static-frontend/index.html'
-REACT_LEGACY_BROWSER_INDEX_PATH = '/usr/src/votewind/legacy-frontend/index.html'
+REACT_LEGACY_BROWSER_INDEX_PATH = '/usr/src/votewind/static-frontend-legacy/index.html'
 REACT_MODERN_BROWSER_INDEX_CONTENT = None
 REACT_LEGACY_BROWSER_INDEX_CONTENT = None
 
