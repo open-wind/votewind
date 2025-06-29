@@ -59,19 +59,17 @@ export default function ClientRouter() {
 
   if (!hydrated || pathSegments === null) return null;
 
-  return (
-    <>
-    {isDefault && <Default/>}
-    {isMapRoute && <LongitudeLatitudeZoomPage longitude={pathSegments[0]} latitude={pathSegments[1]} zoom={pathSegments[2]} />}
-    {is3D && <LongitudeLatitude3DPage longitude={pathSegments[0]} latitude={pathSegments[1]} />}
-    {isAR && <AndroidIntent type="ar" longitude={pathSegments[1]} latitude={pathSegments[2]} hubheight={pathSegments[3]} bladeradius={pathSegments[4]} />}
-    {isVote && <LongitudeLatitudeVote longitude={pathSegments[0]} latitude={pathSegments[1]} />}
-    {isAnimation && <LongitudeLatitudeAnimation longitude={pathSegments[0]} latitude={pathSegments[1]} />}
-    {isLeaderboard && <Leaderboard/>}
-    {isConfirmationError && <ConfirmationError />}
-    {isEnableAR && <EnableAR/>}
-    {isOverviewMap && <p>Redirecting to overview map…</p>} 
-    </>
-  )
+  if (isDefault) return <Default/>;
+  if (isMapRoute) return <LongitudeLatitudeZoomPage longitude={pathSegments[0]} latitude={pathSegments[1]} zoom={pathSegments[2]} />;
+  if (is3D) return <LongitudeLatitude3DPage longitude={pathSegments[0]} latitude={pathSegments[1]} />;
+  if (isAR) return <AndroidIntent type="ar" longitude={pathSegments[1]} latitude={pathSegments[2]} hubheight={pathSegments[3]} bladeradius={pathSegments[4]} />;
+  if (isVote) return <LongitudeLatitudeVote longitude={pathSegments[0]} latitude={pathSegments[1]} />;
+  if (isAnimation) return <LongitudeLatitudeAnimation longitude={pathSegments[0]} latitude={pathSegments[1]} />;
+  if (isLeaderboard) return <Leaderboard/>;
+  if (isConfirmationError) return <ConfirmationError />;
+  if (isEnableAR) return <EnableAR/>;
+  if (isOverviewMap) return <p>Redirecting to overview map…</p>; 
+
+  return <NotFound />;
 
 }
