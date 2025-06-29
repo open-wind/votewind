@@ -24,11 +24,20 @@ const Map = forwardRef(function Map({
     const mapOptions = {
       container: mapContainerRef.current,
       style: mapStyle,
-      center: [initialViewState.longitude, initialViewState.latitude],
-      zoom: initialViewState.zoom,
-      bearing: initialViewState.bearing || 0,
-      pitch: initialViewState.pitch || 0
+      bearing: initialViewState?.bearing || 0,
+      pitch: initialViewState?.pitch || 0
     };
+
+    // If longitude/latitude provided, set center + zoom
+    if (
+      initialViewState?.longitude !== undefined &&
+      initialViewState?.latitude !== undefined
+    ) {
+      mapOptions.center = [initialViewState.longitude, initialViewState.latitude];
+      if (initialViewState?.zoom !== undefined) {
+        mapOptions.zoom = initialViewState.zoom;
+      }
+    }
 
     if (maxBounds) {
       mapOptions.maxBounds = maxBounds;

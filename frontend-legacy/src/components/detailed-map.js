@@ -5,7 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import debounce from 'lodash.debounce';
 import maplibregl from 'maplibre-gl';
-import MapGL, { AttributionControl, Marker } from 'react-map-gl';
+import Map from '@/components/react-map-gl/map';
+import Marker from '@/components/react-map-gl/marker';
+import Popup from '@/components/react-map-gl/popup';
 import { Wind, Video, SquaresIntersect } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBinoculars } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +33,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
     const [markerDragging, setMarkerDragging] = useState(false);
     const [showOverlay, setShowOverlay] = useState(true);
     const [showWindspeeds, setShowWindspeeds] = useState(false);
+    const showWindspeedsRef = useRef(showWindspeeds);
     const [turbinePosition, setTurbinePosition] = useState({longitude: longitude, latitude: latitude});
     const [turbineAdded, setTurbineAdded] = useState(false);
     const [windspeed, setWindspeed] = useState(null);
@@ -100,6 +103,8 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
         if (map) {
             map.touchZoomRotate.disableRotation();
             setMapInstance(map);
+                setMapReady(true);
+
             map.on('idle', () => {
                 setMapReady(true);
             });
@@ -168,6 +173,10 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
         setShowWindspeeds(!showWindspeeds);
     }
 
+    useEffect(() => {
+        showWindspeedsRef.current = showWindspeeds;
+    }, [showWindspeeds]);
+
     const toastOnshoreOnly = () => {
         toast.dismiss();
         toast.error('Onshore wind only');
@@ -231,7 +240,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
     }
 
     const onMouseMove = (event) => {
-        if (!showWindspeeds) return;
+        if (!showWindspeedsRef.current) return;
         const map = mapRef.current?.getMap?.();
         if (map) {
             const features = map.queryRenderedFeatures(event.point, {layers: ['windspeed']});
@@ -320,16 +329,14 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
             style={{ width: '100%', height: '100%' }}
             interactiveLayerIds={[
                 'water' ]}
-            attributionControl={false}
             >
-            <AttributionControl compact position="bottom-right" style={{ right: isMobile ? 4 : 20}}/>
 
             {mapInstance && (
                 <LayerTogglePanel map={mapInstance} />
             )}
 
-            {(turbinePosition !== null) && (turbinePosition.longitude !== null) && (turbinePosition.latitude !== null) && (
-                <Marker title="Click to cast vote for this position" onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude.toFixed(5)} latitude={turbinePosition.latitude.toFixed(5)} draggable={true} anchor="bottom" offset={[0, 0]}>
+            {mapRef?.current && (turbinePosition !== null) && (turbinePosition.longitude !== null) && (turbinePosition.latitude !== null) && (
+                <Marker map={mapRef?.current.getMap()} title="Click to cast vote for this position" onDragStart={onTurbineMarkerDragStart} onDragEnd={onTurbineMarkerDragEnd} longitude={turbinePosition.longitude.toFixed(5)} latitude={turbinePosition.latitude.toFixed(5)} draggable={true} anchor="bottom" offset={[0, 0]}>
                     <TooltipProvider>
                         <Tooltip>
                         <TooltipTrigger asChild>
