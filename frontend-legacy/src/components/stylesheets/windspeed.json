@@ -1,0 +1,49 @@
+[
+    {
+        "source": "windspeed",
+        "source-layer": "windspeed",
+        "type": "fill",
+        "id": "windspeed",
+        "filter": [
+            "all",
+            [
+                "==",
+                "$type",
+                "Polygon"
+            ]
+        ],
+        "layout": {
+            "visibility": "none"
+        },
+        "paint": {
+            "fill-color": [
+                "let",
+                "relativespeed",
+                ["/", ["get", "DN"], 158],
+                [
+                "interpolate",
+                ["linear"],
+                ["var", "relativespeed"],
+                0.0,
+                ["to-color", "purple"],
+                0.31645,
+                ["to-color", "red"],
+                0.31646,
+                ["to-color", "darkorange"],
+                0.37975,
+                ["to-color", "orange"],
+                0.535,
+                ["to-color", "yellow"],
+                0.69,
+                ["to-color", "lightgreen"],
+                0.845,
+                ["to-color", "green"],
+                1.0,
+                ["to-color", "darkgreen"]
+            ]
+            ],
+            "fill-opacity": 0.8,
+            "fill-outline-color": "transparent"
+        }
+    }
+]

@@ -13,31 +13,65 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import re
 from django.contrib import admin
 from django.urls import path, re_path
 from django.http import HttpResponse
 
 from engine import views
 
-REACT_INDEX_PATH = '/usr/src/votewind/static-frontend/index.html'
-REACT_INDEX_CONTENT = None
+REACT_MODERN_BROWSER_INDEX_PATH = '/usr/src/votewind/static-frontend/index.html'
+REACT_LEGACY_BROWSER_INDEX_PATH = '/usr/src/votewind/legacy-frontend/index.html'
+REACT_MODERN_BROWSER_INDEX_CONTENT = None
+REACT_LEGACY_BROWSER_INDEX_CONTENT = None
+
+LEGACY_PATTERNS = [
+    re.compile(r"CPU (iPhone )?OS 12_\d", re.I),         # iOS 12.x
+    re.compile(r"CPU (iPhone )?OS 13_\d", re.I),         # iOS 13.x
+    re.compile(r"Windows NT 6\.1.*Trident", re.I),       # Windows 7 + IE
+    re.compile(r"Windows NT 6\.2.*Trident", re.I),       # Windows 8 + IE
+    re.compile(r"Windows NT 6\.3.*Trident", re.I),       # Windows 8.1 + IE
+    re.compile(r"Windows NT 10\.0.*Trident", re.I),      # Windows 10 + IE
+    re.compile(r"Version/(5|6|7|8|9|10|11)\.\d.*Safari", re.I)   # Safari 5-11
+]
+
+def is_legacy_browser(request):
+    """
+    Detect whether legacy browser
+    """
+
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    for pattern in LEGACY_PATTERNS:
+        if pattern.search(user_agent):
+            return True
+    return False
 
 def serve_react_index(request):
     """
     Serves up main REACT app
     """
 
-    global REACT_INDEX_PATH, REACT_INDEX_CONTENT
+    global REACT_MODERN_BROWSER_INDEX_PATH, REACT_LEGACY_BROWSER_INDEX_PATH
+    global REACT_MODERN_BROWSER_INDEX_CONTENT, REACT_LEGACY_BROWSER_INDEX_CONTENT
 
-    if REACT_INDEX_CONTENT is None:
+    if (REACT_MODERN_BROWSER_INDEX_CONTENT is None) or (REACT_LEGACY_BROWSER_INDEX_CONTENT is None):
 
         try:
-            with open(REACT_INDEX_PATH, encoding='utf-8') as f:
-                REACT_INDEX_CONTENT = f.read()
+            with open(REACT_MODERN_BROWSER_INDEX_PATH, encoding='utf-8') as f:
+                REACT_MODERN_BROWSER_INDEX_CONTENT = f.read()
         except FileNotFoundError:
-            return HttpResponse("index.html not found", status=404)
+            return HttpResponse("index.html (modern browsers) not found", status=404)
 
-    return HttpResponse(REACT_INDEX_CONTENT)
+        try:
+            with open(REACT_LEGACY_BROWSER_INDEX_PATH, encoding='utf-8') as f:
+                REACT_LEGACY_BROWSER_INDEX_CONTENT = f.read()
+        except FileNotFoundError:
+            return HttpResponse("index.html (legacy browsers) not found", status=404)
+
+    index_content = REACT_MODERN_BROWSER_INDEX_CONTENT
+    if is_legacy_browser(request): index_content = REACT_LEGACY_BROWSER_INDEX_CONTENT
+
+    return HttpResponse(index_content)
     
 urlpatterns = [
     re_path(r'^(?!admin|api|votes|organisations|communityenergygroups).*$', serve_react_index),

@@ -1,0 +1,50 @@
+[
+    {
+      "id": "organisations-halo",
+      "type": "symbol",
+      "source": "organisations",
+      "layout": {
+          "icon-image": "check-mark-circle-outline-blue", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            5, 0.017,
+            6, 0.035,
+            10, 0.1
+          ],
+
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "icon-offset": [0, 220],
+          "visibility": "none"
+        },
+      "paint": {
+        "icon-opacity": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            1,
+            0
+        ]
+      }
+    },
+    {
+      "id": "organisations-default",
+      "type": "symbol",
+      "source": "organisations",
+      "paint": {
+          "icon-opacity": 1
+      },
+      "layout": {
+          "icon-image": "check-mark-blue", 
+          "icon-size": [
+            "interpolate", ["exponential", 2], ["zoom"],
+            4, 0.0125,
+            5, 0.0125,
+            6, 0.025,
+            10, 0.07
+          ],
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "visibility": "none"
+      }
+    }
+]

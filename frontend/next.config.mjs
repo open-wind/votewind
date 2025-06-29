@@ -17,6 +17,24 @@ const assetPrefix = isProd ? '/static-frontend' : '';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: [
+    '@radix-ui/primitive',
+    '@radix-ui/react-context',
+    '@radix-ui/react-id',
+    '@radix-ui/react-use-layout-effect',
+    '@radix-ui/react-use-controllable-state',
+    '@radix-ui/react-use-effect-event',
+    '@radix-ui/react-slot',
+    '@radix-ui/react-use-callback-ref',
+    '@radix-ui/react-use-escape-keydown',
+    '@radix-ui/react-dialog',
+    'cmdk',
+    'tailwind-merge',
+    '@vis.gl/react-maplibre',
+    '@cesium/engine',
+    '@cesium/widgets',
+    '@mui/system',
+  ],
   webpack(config) {
     config.plugins.push(
       new CopyWebpackPlugin({

@@ -61,8 +61,10 @@
   },
   "browserslist": {
     "production": [
-      "chrome >= 90",
-      "ios >= 13"
+      "Chrome >= 38",
+      "Safari >= 6",
+      "ios >= 12",
+      "not dead"
     ],
     "development": [
       "last 1 chrome version"

@@ -651,6 +651,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
         const map = mapRef.current?.getMap();
         if (!map) return;
 
+        map.on('error', (e) => {
+            console.error('MapLibre GL JS Error:', e.error);
+        });
+
         if (turbineAtCentre && (longitude !== null) && (latitude !== null)) {
             // Wait for map to go idle before setting turbine position as this relies 
             // on queryRenderedFeatures to get planning constraints for turbine position
