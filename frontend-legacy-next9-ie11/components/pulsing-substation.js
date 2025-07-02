@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
-import maplibregl from 'maplibre-gl';
 
 export default function PulsingSubstationMarker({ map, longitude, latitude }) {
   useEffect(() => {
     if (!map || longitude === undefined || latitude === undefined) return;
+    if (!window.maplibregl) {
+      console.error('MapLibre GL is not loaded');
+      return;
+    }
 
     // Create wrapper div
     const container = document.createElement('div');
@@ -21,7 +24,6 @@ export default function PulsingSubstationMarker({ map, longitude, latitude }) {
     ring.style.borderRadius = '50%';
     ring.style.backgroundColor = '#f97316';
     ring.style.opacity = '0.5';
-    ring.style.animation = 'pulse 1.5s infinite ease-in-out';
 
     // Create solid center dot
     const core = document.createElement('div');
@@ -54,8 +56,8 @@ export default function PulsingSubstationMarker({ map, longitude, latitude }) {
     `;
     document.head.appendChild(style);
 
-    // Add to map
-    const marker = new maplibregl.Marker({
+    // Create marker using window.maplibregl
+    const marker = new window.maplibregl.Marker({
       element: container,
       anchor: 'center'
     })

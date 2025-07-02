@@ -40,7 +40,7 @@ export default function Navbar() {
    <div className="absolute inset-x-0 top-0 h-14 flex items-center justify-between px-4 sm:px-6 font-bold pointer-events-auto">
   
       <div className="text-xl pl-1" style={{ textShadow: '0 0px 20px rgba(255,255,255,0)' }}>
-        <a href={APP_BASE_URL}><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org v1.0</span></a>
+        <a href={APP_BASE_URL}><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org</span></a>
       </div>
 
       {/* Desktop links */}
@@ -51,6 +51,7 @@ export default function Navbar() {
         <a href={CONTENT_BASE_URL + "/about"} className="hover:underline">ABOUT</a>
         <a href={CONTENT_BASE_URL + "/resources"} className="hover:underline">RESOURCES</a>
         <a href={CONTENT_BASE_URL + "/news"} className="hover:underline">NEWS</a>
+        <span style={{fontSize: "7px", color: "#333333", textAlign: "center"}}>LEGACY<br/>VERSION</span>
       </div>
 
       {/* Mobile toggle button */}

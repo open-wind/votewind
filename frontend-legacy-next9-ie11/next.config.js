@@ -2,7 +2,7 @@ const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const assetPrefix = isProd ? '/static-frontend' : '';
+const assetPrefix = isProd ? '/static-frontend-legacy' : '';
 
 module.exports = {
   assetPrefix,
@@ -50,7 +50,7 @@ module.exports = {
           presets: [
             ['@babel/preset-env', {
               targets: { 
-                ie: '11' 
+                ie: '11'
               },
               useBuiltIns: 'entry',
               corejs: 3

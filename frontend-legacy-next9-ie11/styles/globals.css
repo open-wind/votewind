@@ -5,6 +5,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* styles/rc-tooltip-overrides.css */
+
+/* Hide the tooltip arrow (the 'tick') */
+.rc-tooltip-arrow {
+  display: none !important; /* !important ensures it overrides default styles */
+}
+
+/* Make the tooltip's inner background transparent */
+/* Your Tailwind classes on the content div will then provide the desired background */
+.rc-tooltip-inner {
+  background-color: transparent !important;
+  border: none !important; /* Remove any default border */
+  box-shadow: none !important; /* Remove any default box-shadow */
+  padding: 0 !important; /* Ensure padding doesn't affect your content styling */
+}
+
+/* Optional: If the main tooltip wrapper itself has any unwanted styling */
+.rc-tooltip {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    white-space: nowrap;
+}
+
 .hot-toast-style {
   background: #fff !important;
   color: #000 !important;
@@ -41,7 +64,8 @@ input::-ms-clear {
 }
 
 p {
-  margin: 5px;
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
 }
 
 .z-1001 {

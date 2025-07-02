@@ -26,15 +26,16 @@ REACT_MODERN_BROWSER_INDEX_CONTENT = None
 REACT_LEGACY_BROWSER_INDEX_CONTENT = None
 
 LEGACY_PATTERNS = [
-    re.compile(r"CPU (iPhone )?OS 12_\d", re.I),                 # iOS 12.x (iPhone)
-    re.compile(r"CPU OS 12_\d", re.I),                           # iOS 12.x (iPad)
-    re.compile(r"CPU (iPhone )?OS 13_\d", re.I),                 # iOS 13.x (iPhone)
-    re.compile(r"CPU OS 13_\d", re.I),                           # iOS 13.x (iPad)
-    re.compile(r"Windows NT 6\.1.*Trident", re.I),               # Windows 7 + IE
-    re.compile(r"Windows NT 6\.2.*Trident", re.I),               # Windows 8 + IE
-    re.compile(r"Windows NT 6\.3.*Trident", re.I),               # Windows 8.1 + IE
-    re.compile(r"Windows NT 10\.0.*Trident", re.I),              # Windows 10 + IE
-    re.compile(r"Version/(5|6|7|8|9|10|11)\.\d.*Safari", re.I),  # Safari 5-11
+    re.compile(r"CPU (iPhone )?OS 12_\d", re.I),                # iOS 12.x (iPhone)
+    re.compile(r"CPU OS 12_\d", re.I),                          # iOS 12.x (iPad)
+    re.compile(r"CPU (iPhone )?OS 13_\d", re.I),                # iOS 13.x (iPhone)
+    re.compile(r"CPU OS 13_\d", re.I),                          # iOS 13.x (iPad)
+    re.compile(r"Windows NT 6\.1.*Trident", re.I),              # Windows 7 + IE
+    re.compile(r"Windows NT 6\.2.*Trident", re.I),              # Windows 8 + IE
+    re.compile(r"Windows NT 6\.3.*Trident", re.I),              # Windows 8.1 + IE
+    re.compile(r"Windows NT 10\.0.*Trident", re.I),             # Windows 10 + IE
+    re.compile(r"Version/(5|6|7|8|9|10|11)\.\d.*Safari", re.I), # Safari 5-11
+    re.compile(r"YaBrowser/14\.", re.I),                        # Yandex Browser 14.x
 ]
 
 def is_legacy_browser(request):

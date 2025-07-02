@@ -24,7 +24,7 @@ import AutocompleteInput from './autocomplete-input';
 import PlanningConstraints from './planningconstraints';
 import PercentageSlider from "@/components/percentage-slider";
 import SessionInstructionPopup from '@/components/session-instruction-popup';
-// // import PulsingSubstationMarker from '@/components/pulsing-substation';
+import PulsingSubstationMarker from '@/components/pulsing-substation';
 import ViewportHeightFixer from "@/components/viewport-height-fixer";
 import InputModal from "@/components/input-modal";
 import BodyClassSetter from '@/components/body-class-setter';
@@ -1356,7 +1356,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 {/*  Nearest organisations floating area */}
                 {showNearestOrganisations && (!organisation) && (!turbineAdded) && (
                 <div className="fixed z-50 bg-white rounded shadow-2xl px-4 py-2 w-[135px] bottom-2-5rem sm-bottom-3rem max-h-60vh overflow-y-auto
-                left-4 right-4 sm:right-4 sm:left-unset sm:top-64 sm:bottom-auto sm:w-52">
+                left-4 right-4 sm:right-4 sm:left-auto sm:top-64 sm:bottom-auto sm:w-52">
                 <h2 className="hidden sm:block text-sm font-semibold mb-2">Nearby organisations</h2>
                 {nearestOrganisations && (
                     (nearestOrganisations).map((item, index) => (
@@ -1462,13 +1462,13 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                     </Map>
                 </div>
 
-                {/* {mapRef.current?.getMap() && (substation) && (
+                {mapRef.current?.getMap() && (substation) && (
                 <PulsingSubstationMarker
                     map={mapRef.current?.getMap()}
                     longitude={substation.position.longitude}
                     latitude={substation.position.latitude}
                 />
-                )} */}
+                )}
 
                 {(QRurl !== null) &&
                 <QRModal isOpen={showQR} onClose={()=>setShowQR(false)} url={QRurl} />

@@ -1,55 +1,100 @@
-import React, { useState } from 'react';
+"use client";
 
-// TooltipProvider is just a passthrough (no context needed)
-export const TooltipProvider = ({ children }) => children;
+import * as React from "react";
+import Tooltip from 'rc-tooltip';
+import 'rc-tooltip/assets/bootstrap.css';
+import { cn } from "@/lib/utils";
 
-// Tooltip manages the hover state
-export const Tooltip = ({ children }) => {
-  const [visible, setVisible] = useState(false);
+const TooltipProvider = ({ children }) => <>{children}</>;
+TooltipProvider.displayName = 'TooltipProvider';
 
-  // Enhance children to pass visibility and handlers
-  return React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) return child;
-    return React.cloneElement(child, {
-      tooltipVisible: visible,
-      setTooltipVisible: setVisible
-    });
-  });
+// TooltipTrigger is no longer needed as a wrapper
+// But if you want to keep it for API consistency:
+const TooltipTrigger = ({ children }) => {
+  return React.Children.only(children);
 };
+TooltipTrigger.displayName = 'TooltipTrigger';
 
-// TooltipTrigger attaches event handlers
-export const TooltipTrigger = ({ children, setTooltipVisible }) => {
-  const onMouseEnter = () => setTooltipVisible(true);
-  const onMouseLeave = () => setTooltipVisible(false);
+const TooltipContent = React.forwardRef(
+  ({ className, sideOffset = 4, portalled = true, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+TooltipContent.displayName = 'TooltipContent';
 
-  return React.cloneElement(children, {
-    onMouseEnter,
-    onMouseLeave
+const TooltipRoot = ({ children, ...props }) => {
+  let triggerNode = null;
+  let contentComponent = null;
+
+  React.Children.forEach(children, child => {
+    if (React.isValidElement(child)) {
+      if (child.type.displayName === 'TooltipTrigger') {
+        triggerNode = React.Children.only(child.props.children);
+      } else if (child.type.displayName === 'TooltipContent') {
+        contentComponent = child;
+      }
+    }
   });
-};
 
-// TooltipContent renders conditionally
-export const TooltipContent = ({
-  children,
-  tooltipVisible,
-  side = 'top',
-  sideOffset = 4,
-  className = ''
-}) => {
-  if (!tooltipVisible) return null;
+  if (!triggerNode || !contentComponent) {
+    console.warn("Tooltip: Must have exactly one TooltipTrigger and one TooltipContent child.");
+    return null;
+  }
 
-  const style = {
-    position: 'absolute',
-    whiteSpace: 'nowrap',
-    zIndex: 1000,
-    // crude side positioning (can enhance as needed)
-    marginTop: side === 'top' ? -sideOffset : sideOffset,
-    marginLeft: side === 'left' ? -sideOffset : sideOffset
+  const tooltipSide = contentComponent.props.side || props.side || "top";
+  const tooltipSideOffset = contentComponent.props.sideOffset || props.sideOffset || 0;
+
+  const calculateRcTooltipOffset = (side, offsetValue) => {
+    if (typeof offsetValue !== 'number' || offsetValue === 0) {
+      return [0, 0];
+    }
+
+    switch (side) {
+      case 'top':
+        return [0, -offsetValue];
+      case 'bottom':
+        return [0, offsetValue];
+      case 'left':
+        return [-offsetValue, 0];
+      case 'right':
+        return [offsetValue, 0];
+      default:
+        return [0, 0];
+    }
   };
 
+  const rcTooltipOffset = calculateRcTooltipOffset(tooltipSide, tooltipSideOffset);
+
+  const tooltipOverlay = (
+    <TooltipContent
+      ref={contentComponent.ref}
+      {...contentComponent.props}
+    />
+  );
+
   return (
-    <div className={className} style={style}>
-      {children}
-    </div>
+    <Tooltip
+      overlay={tooltipOverlay}
+      placement={tooltipSide}
+      offset={rcTooltipOffset}
+      trigger={props.trigger || ['hover', 'focus']}
+      destroyTooltipOnHide
+      mouseEnterDelay={0.1}
+      {...props}
+    >
+      {triggerNode}
+    </Tooltip>
   );
 };
+TooltipRoot.displayName = 'Tooltip';
+
+export { TooltipRoot as Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
