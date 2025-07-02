@@ -1,13 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Menu, X } from 'lucide-react'; // icons from lucide-react (shadcn uses it)
 import { APP_BASE_URL, CONTENT_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+  const [pathname, setPathname] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router && router.asPath) {
+      setPathname(router.asPath.split('?')[0]);
+    }
+  }, []);
 
   // List or pattern of routes where Navbar should be hidden
   const hideNavbarOn = [
@@ -33,7 +40,7 @@ export default function Navbar() {
    <div className="absolute inset-x-0 top-0 h-14 flex items-center justify-between px-4 sm:px-6 font-bold pointer-events-auto">
   
       <div className="text-xl pl-1" style={{ textShadow: '0 0px 20px rgba(255,255,255,0)' }}>
-        <a href={APP_BASE_URL}><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org (legacy browsers)</span></a>
+        <a href={APP_BASE_URL}><span className="text-black font-light sm:font-light tracking-wide sm:tracking-normal pr-[1px]">VoteWind.org v1.0</span></a>
       </div>
 
       {/* Desktop links */}

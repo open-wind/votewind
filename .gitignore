@@ -106,6 +106,9 @@ log.txt
 /frontend-legacy/out/
 /frontend-legacy/node_modules
 /frontend-legacy/.next
+/frontend-legacy-next9-ie11/out/
+/frontend-legacy-next9-ie11/node_modules
+/frontend-legacy-next9-ie11/.next
 
 # dependencies
 /node_modules

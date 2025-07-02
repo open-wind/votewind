@@ -1,15 +1,12 @@
-'use client';
-
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 import Home from "@/components/home";
 import DetailedMap from "@/components/detailed-map";
 import { API_BASE_URL } from '@/lib/config';
 
-export const dynamic = 'force-static';
-
 export default function Default() {
-  const searchParams = useSearchParams();
+  const router = useRouter();
+  const searchParams = router.query;
   const [isReady, setIsReady] = useState(false);
   const [data, setData] = useState(null);
   const [subdomain, setSubdomain] = useState(null);
@@ -17,49 +14,42 @@ export default function Default() {
   useEffect(() => {
     const sd = getSubdomain();
 
-    if (sd === null ) {
+    if (sd === null) {
       setIsReady(true);
-      return;
-    }
-    
-    if (sd === 'mobile') {
-      setIsReady(true);
-      sessionStorage.setItem('votewind-use-ar', 'true');
       return;
     }
 
-    fetch(API_BASE_URL + `/api/boundary?query=${sd}`)
+    fetch(`${API_BASE_URL}/api/boundary?query=${sd}`)
       .then(res => res.json())
       .then((data) => {
         setData(data);
         setSubdomain(sd);
         setIsReady(true);
       })
-      .catch((error) => {
+      .catch(() => {
         setIsReady(true);
-        // console.error;
-      }
-    );
+      });
   }, []);
 
   const longitude = useMemo(() => {
-      const raw = searchParams.get('longitude');
-      if (!raw) return null;
-      return parseFloat(raw);
-  }, [searchParams]);
+    const raw = searchParams.longitude;
+    if (!raw) return null;
+    return parseFloat(Array.isArray(raw) ? raw[0] : raw);
+  }, [searchParams.longitude]);
 
   const latitude = useMemo(() => {
-      const raw = searchParams.get('latitude');
-      if (!raw) return null;
-      return parseFloat(raw);
-  }, [searchParams]);
+    const raw = searchParams.latitude;
+    if (!raw) return null;
+    return parseFloat(Array.isArray(raw) ? raw[0] : raw);
+  }, [searchParams.latitude]);
 
   const getSubdomain = () => {
+    if (typeof window === 'undefined') return null;
     const host = window.location.hostname;
     const parts = host.split('.');
     if (parts.length > 2) {
       if (!isNaN(parts[0])) return null;
-      return parts[0]; // e.g., 'east-sussex'
+      return parts[0]; // e.g. 'east-sussex'
     }
     return null;
   };
@@ -67,7 +57,6 @@ export default function Default() {
   if (!isReady) return null;
 
   return subdomain !== null
-  ? <DetailedMap longitude={longitude} latitude={latitude} subdomain={subdomain} data={data} />
-  : <Home />;
-
+    ? <DetailedMap longitude={longitude} latitude={latitude} subdomain={subdomain} data={data} />
+    : <Home />;
 }

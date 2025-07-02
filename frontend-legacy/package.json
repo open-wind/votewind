@@ -65,6 +65,7 @@
       "Chrome >= 38",
       "Safari >= 6",
       "ios >= 12",
+      "IE 11",
       "not dead"
     ],
     "development": [

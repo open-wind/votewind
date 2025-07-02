@@ -1,0 +1,67 @@
+{
+  "name": "frontend-legacy-next9-ie11",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@babel/plugin-transform-regenerator": "^7.27.5",
+    "@babel/plugin-transform-runtime": "^7.27.4",
+    "@dnd-kit/core": "^6.3.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@heroicons/react": "^2.2.0",
+    "@juggle/resize-observer": "^3.4.0",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@turf/turf": "^7.2.0",
+    "autoprefixer": "^9.8.6",
+    "chroma-js": "^3.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "core-js": "^3.43.0",
+    "downshift": "^5.2.1",
+    "lodash.debounce": "^4.0.8",
+    "lucide-react": "^0.525.0",
+    "next": "^9.5.5",
+    "postcss": "^7.0.32",
+    "postcss-preset-env": "^6.7.0",
+    "rc-slider": "^9.3.0",
+    "rc-tooltip": "^4.0.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-icons": "^5.5.0",
+    "react-qr-code": "^2.0.16",
+    "react-toastify": "^5.5.0",
+    "regenerator-runtime": "^0.14.1",
+    "suncalc": "^1.9.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^1.9.6"
+  },
+  "browserslist": {
+    "production": [
+      "ie 11",
+      "chrome >= 39",
+      "firefox >= 34",
+      "safari >= 8",
+      "opera >= 26",
+      "android >= 4.4"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "babel-loader": "^8.1.0"
+  }
+}

@@ -1,22 +1,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 const querystring = require('querystring');
-import Image from "next/image";
-import maplibregl from 'maplibre-gl';
-import Map, { AttributionControl, Marker } from 'react-map-gl/maplibre';
-import { Video } from 'lucide-react'
+import Map from '@/components/react-map-gl/map';
+import Marker from '@/components/react-map-gl/marker';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import SocialShareButtons from "@/components/social-share-buttons";
 import NumberedAction from './numbered-action';
 import ScrollHint from '@/components/scrollhint'
-import CesiumModal from './cesium-modal';
 import PartnerLogos from '@/components/partner-logos';
 import { VOTEWIND_MAPSTYLE, EMAIL_EXPLANATION, MAP_PLACE_ZOOM, API_BASE_URL } from '@/lib/config';
-import 'maplibre-gl/dist/maplibre-gl.css';
 
 const assetPrefix = process.env.ASSET_PREFIX || '';
 
@@ -267,7 +263,6 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                             {/* Main map */}
                             <Map
                                 ref={mapRef}
-                                mapLib={maplibregl}
                                 dragPan={false}
                                 dragRotate={false}
                                 scrollZoom={false}
@@ -284,9 +279,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 mapStyle={VOTEWIND_MAPSTYLE}
                                 attributionControl={false}
                             >
-                                <AttributionControl compact position="bottom-right" />
-
-                                <Marker longitude={initialViewState.longitude} latitude={initialViewState.latitude} draggable={false} anchor="bottom" offset={[0, 0]}>
+                                <Marker map={mapRef.current.getMap()} longitude={initialViewState.longitude} latitude={initialViewState.latitude} draggable={false} anchor="bottom" offset={[0, 0]}>
                                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                                 </Marker>
                             </Map>
@@ -300,18 +293,6 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         {/* Top-of-column text */}
                         <div>
                             <h1 className="text-2xl sm:text-4xl font-bold leading-snug mt-0 mb-1 whitespace-nowrap">{(type === null) ? (<span>Vote for Turbine</span>): (<span>Turbine Position</span>)}
-                            <TooltipProvider>
-                                <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <button onClick={() => setShowCesiumViewer(true)} type="button" className="inline-flex ml-4 -translate-y-[2px] relative items-center justify-center sm:bottom-0 h-8 w-8 sm:h-10 sm:w-10 px-1 py-1 bg-blue-600 text-white sm:text-sm rounded-full shadow-lg">
-                                        <Video className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
-                                    </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                                    3D view of turbine
-                                </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
                             </h1>
 
                             <h2 className="text-2xl font-light leading-snug">{turbinePosition.latitude.toFixed(5)}° N, {turbinePosition.longitude.toFixed(5)}° E</h2>
@@ -352,11 +333,11 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                     className="w-full h-[3rem] flex items-center justify-center bg-blue-600 text-white text-lg px-4 mt-4 rounded-lg hover:bg-blue-700"
                                     >
                                     <div className="w-4 h-4 flex items-center justify-center">
-                                        <Image
+                                        <img
                                         src={`${assetPrefix}/icons/check-mark-blue.svg`}
                                         alt=""
-                                        width={30}
-                                        height={30}
+                                        width="30"
+                                        height="30"
                                         className="w-8 h-8 mr-4"
                                         />
                                     <span className="leading-none">Cast vote!</span>
@@ -491,7 +472,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         <p className="font-bold mb-2">
                             Warning: you may make friends for life!
                         </p>
-                        <a className="hidden sm:block" target="_new" href="https://content.votewind.org/guide/">
+                        <a className="hidden sm:block" href="https://openwind.energy">
                             <Button className="text-md mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 inline-flex items-center justify-center gap-2">
                             Guide to creating community energy group
                             </Button>
@@ -500,7 +481,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     </div>
                 </div>
 
-                <a className="sm:hidden" target="_new" href="https://content.votewind.org/guide/">
+                <a className="sm:hidden" href="https://openwind.energy">
                     <Button className="w-full sm:w-auto text-xs mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 gap-2">
                     Guide to creating community energy group
                     </Button>
@@ -582,9 +563,6 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
             </div>
         </>
         )}
-
-    {/* Cesium viewer */}
-    <CesiumModal longitude={turbinePosition.longitude} latitude={turbinePosition.latitude} isOpen={showCesiumViewer} onClose={()=>setShowCesiumViewer(false)} />
 
     </main>
 
