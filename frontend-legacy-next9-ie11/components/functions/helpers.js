@@ -40,6 +40,16 @@ export const isLowEndGPU = () => {
   return gpuInfo && gpuInfo.maxTextureSize < 4096; // very rough threshold
 }
 
+export function isWebGLSupported() {
+  try {
+    var canvas = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  * Checks if the current device is an iOS device and optionally matches a specific version.
  * @param {number} [majorVersion] - Optional. The major iOS version to check for (e.g., 14).

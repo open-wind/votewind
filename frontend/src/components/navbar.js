@@ -7,6 +7,7 @@ import { APP_BASE_URL, CONTENT_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const [baseDomain, setBaseDomain] = useState(APP_BASE_URL);
 
@@ -21,11 +22,15 @@ export default function Navbar() {
       }
     }
     setBaseDomain(calculatedDomain);
+    setMounted(true);
   }, []); 
+
+  if (!mounted) return null;
 
   // List or pattern of routes where Navbar should be hidden
   const hideNavbarOn = [
-    /^\/-?\d+(\.\d+)?\/-?\d+(\.\d+)?\/animation\/?$/
+    /^\/-?\d+(\.\d+)?\/-?\d+(\.\d+)?\/animation\/?$/,
+    /^\/mobileapp\/?$/,
   ];
 
   const shouldHide = hideNavbarOn.some((pattern) =>
@@ -33,7 +38,6 @@ export default function Navbar() {
   );
 
   if (shouldHide) return null;
-
 
   return (
   <nav className="fixed top-0 h-20 left-0 w-full z-50 bg-gradient-to-b from-white/80 to-white/0 text-black px-4 py-2 flex justify-between items-center pointer-events-none">

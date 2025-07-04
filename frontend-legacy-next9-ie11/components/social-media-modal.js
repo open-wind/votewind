@@ -11,9 +11,9 @@ export default function SocialMediaModal({ open, data = null, onClose }) {
 
   return (
   <>
-  <div className="fixed inset-0 top-0 left-0 w-full h-full z-[9998] bg-black/40"></div>
+  <div className="fixed inset-0 top-0 left-0 w-full h-full z-9998 bg-black/40"></div>
 
-  <div className="fixed inset-0 top-0 left-0 w-full h-full z-[9999] flex items-center justify-center px-4 pointer-events-auto">
+  <div className="fixed inset-0 top-0 left-0 w-full h-full z-9999 flex items-center justify-center px-4 pointer-events-auto">
     <div className="bg-white w-[90%] max-w-md p-4 rounded shadow-md">
       <div className="flex justify-center mb-4">
         <h1 className="text-xs sm:text-lg font-bold">Share turbine vote on social media</h1>

@@ -70,6 +70,9 @@ public class ViewPosition : MonoBehaviour
     [SerializeField]
     public List<Turbine> turbines = new List<Turbine>();
 
+    public float TURBINE_AR_DEFAULT_HUBHEIGHT = 124.2f;
+    public float TURBINE_AR_DEFAULT_BLADERADIUS = 47.8f;
+
     public float verticalOffset = 0f;
 
     private bool elementsInitialized = false;
@@ -96,7 +99,7 @@ public class ViewPosition : MonoBehaviour
         Application.targetFrameRate = 60;
     }
 
-    public void Init(string url)
+    public void InitURL(string url)
     {
         VoteWindURL result = VoteWindURLParser.Parse(url);
 
@@ -109,11 +112,15 @@ public class ViewPosition : MonoBehaviour
         turbines.Clear();
         turbines.Add(new Turbine(result.Longitude, result.Latitude, (float)result.HubHeight, (float)result.BladeRadius, "Active"));
 
-        // turbines.Add(new Turbine(-0.14359252016597532, 50.823712477326076, 100.0f, 50.0f, "Active"));
-        // turbines.Add(new Turbine(-0.14337522872008043, 50.83293314146307, 200.0f, 100.0f, "Active"));
-        // turbines.Add(new Turbine(-0.14963254172811633, 50.82730051459017, 300.0f, 150.0f, "Active"));
-
         if (elementsInitialized) UpdateElements();
+    }
+
+    public void SetTurbine(double longitude, double latitude)
+    {
+        turbines.Clear();
+        DestroyChildren(ViewPositionElements);
+        elementsInitialized = false;
+        turbines.Add(new Turbine(longitude, latitude, TURBINE_AR_DEFAULT_HUBHEIGHT, TURBINE_AR_DEFAULT_BLADERADIUS, "Active"));
     }
 
     void Update()
@@ -291,7 +298,7 @@ public class ViewPosition : MonoBehaviour
 
         locationServiceLauncher = StartCoroutine(StartLocationService());
 
-        if (currentURL != null) Init(currentURL);
+        if (currentURL != null) InitURL(currentURL);
     }
 
     private void OnDisable()

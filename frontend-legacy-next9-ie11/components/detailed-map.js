@@ -300,7 +300,7 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
     const mapStyle = useMemo(() => retrieveMapStyle(), []);
 
     return (
-    <main className={`flex justify-center items-center w-screen h-screen`}>
+    <main className="relative flex justify-center items-center w-screen h-screen">
 
         <ToastContainer autoClose={2000} position="top-center" closeButton={false} containerStyle={{top: 50}} toastClassName="hot-toast-style"/>
 
@@ -309,6 +309,33 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-700"></div>
         </div>
         )}
+
+        <div className="fixed w-full bottom-10 sm:bottom-14 left-0 z-50 flex items-center justify-center">
+        {data && (
+        <div 
+            className="bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none whitespace-nowrap" 
+            style={{ boxShadow: '0 0px 15px rgba(255, 255, 255, 0.9)' }} 
+            >
+            {!mapReady && (<span>Loading... </span>)} <span className="font-bold whitespace-nowrap">{data.features[0].properties.boundary}</span>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                    <button
+                        onClick={() => toggleOverlay()}
+                        className="text-gray-500 hover:text-gray-700 pointer-events-auto pl-2"
+                        aria-label="Change turbine height"
+                    >
+                        {showOverlay ? <SquaresIntersect fill="#000000" className="w-4 h-4"/>: <SquaresIntersect className="w-4 h-4"/>}
+                    </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
+                        {showOverlay ? <>Disable area mask</>: <>Enable area mask</>}
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+        )}
+        </div>
 
         <Map
             ref={mapRef}
@@ -352,8 +379,8 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                         <TooltipProvider>
                             <Tooltip>
                             <TooltipTrigger asChild>
-                                <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-3 left-1 translate-x-12 translate-y-16 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
-                                    <div className="text-[8pt] leading-none"><span className="font-extrabold">{windspeed}</span></div>
+                                <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-3 left-1 translate-x-12 translate-y-16 min-w-7 pl-2 pr-2 h-8 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                                    <div className="text-8pt leading-none"><span className="font-extrabold">{windspeed}</span></div>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
@@ -365,8 +392,8 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                         <TooltipProvider>
                             <Tooltip>
                             <TooltipTrigger asChild>
-                                <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-3 left-1 translate-x-12 translate-y-16 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
-                                    <div className="text-[8pt] leading-none"><span className="font-extrabold">{windspeed}</span></div>
+                                <div style={{ backgroundColor: windspeedToInterpolatedColor(windspeed) }} className={`${windspeed2Classname(windspeed)} absolute top-3 left-1 translate-x-12 translate-y-16 min-w-7 pl-2 pr-2 h-8 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                                    <div className="text-8pt leading-none"><span className="font-extrabold">{windspeed}</span></div>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent side="right" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
@@ -382,32 +409,6 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
             )}
 
         </Map>
-
-        {data && (
-        <div 
-            className="absolute bottom-10 sm:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black text-sm px-4 py-1 rounded-full shadow-2xl pointer-events-none whitespace-nowrap" 
-            style={{ boxShadow: '0 0px 15px rgba(255, 255, 255, 0.9)' }} 
-            >
-            {!mapReady && (<span>Loading... </span>)} <span className="font-bold whitespace-nowrap">{data.features[0].properties.boundary}</span>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                    <button
-                        onClick={() => toggleOverlay()}
-                        className="text-gray-500 hover:text-gray-700 pointer-events-auto pl-2"
-                        aria-label="Change turbine height"
-                    >
-                        {showOverlay ? <SquaresIntersect fill="#000000" className="w-4 h-4"/>: <SquaresIntersect className="w-4 h-4"/>}
-                    </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" sideOffset={10} className="bg-white text-black text-xs border shadow px-3 py-1 rounded-md hidden sm:block">
-                        {showOverlay ? <>Disable area mask</>: <>Enable area mask</>}
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-
-        </div>
-        )}
 
         {/* Vertical toolbar */}
         <div className="absolute right-4 sm:right-8 top-16 z-40">
@@ -429,8 +430,8 @@ export default function DetailedMap({ longitude=null, latitude=null, subdomain=n
                         )}
 
                         {showWindspeeds && positionWindspeed && (
-                        <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`${windspeed2Classname(positionWindspeed)} absolute top-0 left-0 -translate-x-3 sm:translate-x-8 translate-y-9 min-w-7 pl-2 pr-2 h-7 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
-                            <div className="text-[8pt] leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
+                        <div style={{ backgroundColor: windspeedToInterpolatedColor(positionWindspeed) }} className={`${windspeed2Classname(positionWindspeed)} absolute top-8 sm:top-10 left-0 -translate-x-3 sm:translate-x-8 translate-y-10 min-w-7 pl-2 pr-2 h-6 border-2 sm:border-2 border-white rounded-full flex flex-col items-center justify-center shadow-lg`}>
+                            <div className="text-8pt leading-none"><span className="font-extrabold">{positionWindspeed}</span></div>
                         </div>
                         )}
 

@@ -191,13 +191,13 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
         <ScrollHint targetRef={panelRef} />
 
-        <section className="flex flex-col items-center pt-[7rem] px-3">
+        <section className="flex flex-col items-center pt-7rem px-3">
             {/* centred text above */}
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
                 <>
 
                     {/* Content: Icon + Text */}
-                    <div className="w-full max-w-[800px] mx-auto rounded-2xl mb-2 bg-white/70 p-4 sm:p-6 text-sm sm:text-medium">
+                    <div className="w-full max-w-800px mx-auto rounded-2xl mb-2 bg-white-70 p-4 sm:p-6 text-sm sm:text-medium">
                         <img
                             src={`${assetPrefix}/icons/check-mark.svg`}
                             alt="Vote"
@@ -238,11 +238,11 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
             )}
 
 
-            <Card className="relative w-full max-w-[800px] mx-auto rounded-2xl mt-0">
+            <Card className="relative w-full max-w-800px mx-auto rounded-2xl mt-0 bg-white">
 
                 <CardContent className="flex flex-col sm:flex-row items-center sm:items-start space-x-0 sm:space-x-8 space-y-5 sm:space-y-0 pt-6 pb-6 shadow-md shadow-[0_35px_60px_-15px_rgba(0,0,0,0.4)] rounded-lg">
                 {/* Map thumbnail */}
-                    <div className="w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] border-[4px] border-black overflow-hidden">
+                    <div className="w-250px h-250px sm-w-350px sm-h-350px border-4 border-black overflow-hidden">
 
 
                         <div id="map" className="w-full h-full relative" >
@@ -279,9 +279,11 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                 mapStyle={VOTEWIND_MAPSTYLE}
                                 attributionControl={false}
                             >
+                                {mapRef.current && (
                                 <Marker map={mapRef.current.getMap()} longitude={initialViewState.longitude} latitude={initialViewState.latitude} draggable={false} anchor="bottom" offset={[0, 0]}>
                                     <img ref={markerRef} className={`${isBouncing ? 'bounce' : ''}`} alt="Wind turbine" width="80" height="80" src={`${assetPrefix}/icons/windturbine_blue.png`} />
                                 </Marker>
+                                )}
                             </Map>
 
                         </div>
@@ -324,7 +326,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full sm:w-[400px] px-3 py-2 border border-gray-300 rounded text-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
-                                    <div className="w-full sm:w-[400px] text-[9px] leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
+                                    <div className="w-full sm:w-[400px] text-9px leading-tight sm:text-xs text-gray-800 mt-2" dangerouslySetInnerHTML={{ __html: EMAIL_EXPLANATION }} />
                                 </div>
 
                                 <Button
@@ -365,14 +367,14 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
 
             {((type === 'votesubmitted') || (type === 'voteconfirmed')) && (
 
-            <div className="max-w-[800px] md:w-[800px] mx-auto mb-4 bg-white/80 p-5 p-4 sm:p-6 text-sm sm:text-medium mt-4 rounded-2xl">
+            <div className="max-w-800px w-full mx-auto mb-4 bg-white-80 p-5 p-4 sm:p-6 text-sm sm:text-medium mt-4 rounded-2xl">
 
 
                 <h1 className="text-4xl font-bold text-left mb-8">
                     Next steps...
                 </h1>
 
-                <div className="grid grid-cols-[auto_1fr] gap-x-0">
+                <div className="legacy-grid-10-90 mt-6">
                     <div>
                         <NumberedAction content="1" />
                     </div>
@@ -395,7 +397,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                 <SocialShareButtons title="I just voted for a community wind turbine location!" showstrap={false} />
                 </div>
 
-                <div className="grid grid-cols-[auto_1fr] gap-x-0 mt-8">
+                <div className="legacy-grid-10-90 mt-6">
                     <div>
                         <NumberedAction content="2" />
                     </div>
@@ -457,7 +459,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     ))}
                 </div>
 
-                <div className="grid grid-cols-[auto_1fr] gap-x-0 mt-6">
+                <div className="legacy-grid-10-90 mt-6">
                     <div>
                         <NumberedAction content="3" />
                     </div>
@@ -472,7 +474,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                         <p className="font-bold mb-2">
                             Warning: you may make friends for life!
                         </p>
-                        <a className="hidden sm:block" href="https://openwind.energy">
+                        <a className="hidden sm:block" href="https://content.votewind.org/guide/">
                             <Button className="text-md mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 inline-flex items-center justify-center gap-2">
                             Guide to creating community energy group
                             </Button>
@@ -481,7 +483,7 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
                     </div>
                 </div>
 
-                <a className="sm:hidden" href="https://openwind.energy">
+                <a className="sm:hidden" href="https://content.votewind.org/guide/">
                     <Button className="w-full sm:w-auto text-xs mt-[0.7rem] left-0 bg-blue-600 text-white sm:text-md px-4 py-2 rounded-md hover:bg-blue-700 z-40 gap-2">
                     Guide to creating community energy group
                     </Button>
@@ -499,9 +501,9 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         {alertMessage && (
         <>
             {/* Backdrop (prevents background interaction) */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-1000"></div>
 
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-9999 w-[90%] max-w-md">
                 <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
                 <div className="mb-3">
                     <strong className="font-bold block">Invalid email</strong>
@@ -526,10 +528,10 @@ export default function VoteCastMap({ longitude=null, latitude=null, type='', em
         {showConsentBanner && (
         <>
             {/* Backdrop (prevents background interaction) */}
-            <div className="fixed w-full h-full top-0 left-0 inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            <div className="fixed w-full h-full top-0 left-0 inset-0 bg-black bg-opacity-50 z-1000"></div>
 
             {/* Modal */}
-            <div className="fixed w-full h-full top-0 left-0 inset-0 z-[1001] flex items-center justify-center">
+            <div className="fixed w-full h-full top-0 left-0 inset-0 z-1001 flex items-center justify-center">
             <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
                 <div className="mb-3 text-center">
                     <strong className="font-bold block">Set cookie</strong>

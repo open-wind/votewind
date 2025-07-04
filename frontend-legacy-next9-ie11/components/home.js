@@ -38,7 +38,7 @@ export default function Home() {
         <div className="pt-15vh lg:mt-10 text-center w-full items-center">
 
           <header className="relative w-full sm:mt-0 text-center py-0">
-              <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-8 md:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
+              <h1 className="text-center text-6xl sm-text-70px font-thin text-gray-900 mb-8 md:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
               <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
               </h1>
           </header>
@@ -48,7 +48,7 @@ export default function Home() {
               Vote for where you'd like a community wind turbine.
             </p>
 
-            <p className="font-light text-zinc-600 pl-5 pr-5 mb-[3rem] md:mb-10 text-medium sm:text-xl text-center leading-tight">
+            <p className="font-light text-zinc-600 pl-5 pr-5 mb-3rem md:mb-10 text-medium sm:text-xl text-center leading-tight">
               Community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change...
             </p>
 

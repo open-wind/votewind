@@ -241,7 +241,7 @@ export default function Leaderboard({}) {
           </Map>
 
           <div className="absolute bottom-10 sm:top-10 w-full h-full sm:right-0 lg:right-10 flex flex-col items-center justify-end sm:px-4 pb-[14px] sm:pb-0 sm:items-end sm:justify-start sm:pt-[50px] pointer-events-none">
-            <div className="w-full max-w-md sm:max-w-3xl sm:w-[400px] p-2 overflow-x-auto">
+            <div className="w-full max-w-md sm:max-w-3xl sm-w-400px p-2 overflow-x-auto">
 
               <div className="sm:border-4 w-full overflow-hidden rounded-lg border border-white shadow-md pointer-events-auto">
 
@@ -252,7 +252,7 @@ export default function Leaderboard({}) {
                 </div>
 
                 <table className="min-w-full table-fixed border-separate border-spacing-0 bg-white">
-                  <thead className="bg-gray-200 text-gray-700 uppercase text-[9px] sm:text-xs font-semibold">
+                  <thead className="bg-gray-200 text-gray-700 uppercase text-9px sm:text-xs font-semibold">
                     <tr>
                       <th className="px-2 py-1 sm:py-3 text-center align-middle">Rank</th>
                       <th className="px-1 py-1 sm:py-3 text-left align-middle">Location</th>
@@ -271,9 +271,9 @@ export default function Leaderboard({}) {
                           index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                         } ${index === data.length - 1 ? 'rounded-b-lg overflow-hidden' : ''}`}
                       >
-                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm font-extrabold text-gray-800 text-center align-middle">{item.properties.positionordinal}</td>
-                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left align-left">{item.properties.area}</td>
-                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-left font-extrabold align-middle"> 
+                        <td className="px-1 py-1 sm:py-3 text-11px sm:text-sm font-extrabold text-gray-800 text-center align-middle">{item.properties.positionordinal}</td>
+                        <td className="px-1 py-1 sm:py-3 text-11px sm:text-sm text-left align-left">{item.properties.area}</td>
+                        <td className="px-1 py-1 sm:py-3 text-11px sm:text-sm text-left font-extrabold align-middle"> 
                           {item.properties.numvotes}&nbsp;
                           <TooltipProvider>
                             <Tooltip>
@@ -296,7 +296,7 @@ export default function Leaderboard({}) {
                             </Tooltip>
                           </TooltipProvider>
                           </td>
-                        <td className="px-1 py-1 sm:py-3 text-[11px] sm:text-sm text-center align-middle">
+                        <td className="px-1 py-1 sm:py-3 text-11px sm:text-sm text-center align-middle">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -317,7 +317,7 @@ export default function Leaderboard({}) {
                             </Tooltip>
                           </TooltipProvider>
                         </td>
-                        <td className="px-2 py-1 pr-3 sm:py-3 text-[11px] sm:text-sm text-center align-middle">
+                        <td className="px-2 py-1 pr-3 sm:py-3 text-11px sm:text-sm text-center align-middle">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -347,7 +347,7 @@ export default function Leaderboard({}) {
                 </table>
 
                 <div className="bg-white text-gray-500">
-                  <div className="h-full flex text-[8pt] justify-center sm:text-xs space-x-3 sm:space-x-6 items-center pt-0 sm:pt-1 pb-2 sm:pb-3">
+                  <div className="h-full flex text-8pt justify-center sm:text-xs space-x-3 sm:space-x-6 items-center pt-0 sm:pt-1 pb-2 sm:pb-3">
                     <i>Earlier votes have higher ranking</i>
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export default function Leaderboard({}) {
                       <ChevronLeft className="w-3 h-3" strokeWidth={5}/>
                     </button>
 
-                    <span className="text-[11px] sm:text-sm font-md text-black">
+                    <span className="text-11px sm:text-sm font-md text-black">
                       Page {page}
                     </span>
 

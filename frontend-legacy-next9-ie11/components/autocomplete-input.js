@@ -264,20 +264,20 @@ const AutocompleteInput = forwardRef(function AutocompleteInput({ query, setQuer
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={() => {
-            resetInput();
-          }}
-          className="absolute top-3 right-2 text-gray-400 hover:text-gray-600 bg-white"
-          aria-label="Clear search"
-          tabIndex={-1} 
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') resetInput();
-          }}
-        >
-          <X className="w-5 h-5 text-gray-400 hover:text-gray-600 bg-transparent" />
-        </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetInput();
+              }}
+              className="absolute top-3 right-2 text-gray-400 hover:text-gray-600 bg-white"
+              aria-label="Clear search"
+              tabIndex={-1} 
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') resetInput();
+              }}
+            >
+              <X className="w-5 h-5 text-gray-400 hover:text-gray-600 bg-transparent" />
+            </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={20} className="bg-white text-black text-sm border shadow px-3 py-1 rounded-md hidden sm:block">
             Clear input

@@ -109,6 +109,24 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     const popupLayers = ['osm-substations-circle', 'votes-confirmed', 'votes-unconfirmed', 'organisations-default'];
 
     // **********************************************************************
+    // Functions relating to latest position
+    // **********************************************************************
+
+    useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (bounds) {
+        mapRef.current.getMap().fitBounds(bounds, { duration: 0 });
+    } else if (longitude && latitude && zoom) {
+        mapRef.current.getMap().jumpTo({
+        center: [parseFloat(longitude), parseFloat(latitude)],
+        zoom: parseInt(MAP_PLACE_ZOOM),
+        }
+);
+    }
+    }, [longitude, latitude, zoom, bounds]);
+
+    // **********************************************************************
     // Functions relating to tracking zoom level
     // **********************************************************************
 
@@ -450,18 +468,25 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
     }, [layersOpacityValue]);
 
     useEffect(() => {
-        if (!showConsentBanner) return;
+    if (!showConsentBanner) return;
 
-        const tryRender = setInterval(() => {
-            if (window.grecaptcha && document.getElementById('recaptcha-container')) {
+    const tryRender = setInterval(() => {
+        if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+        window.grecaptcha.ready(() => {
+            if (document.getElementById('recaptcha-container')) {
             window.grecaptcha.render('recaptcha-container', {
                 sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+                callback: (token) => {
+                console.log('reCAPTCHA verified:', token);
+                },
             });
             clearInterval(tryRender);
             }
-        }, 300);
+        });
+        }
+    }, 300);
 
-        return () => clearInterval(tryRender);
+    return () => clearInterval(tryRender);
     }, [showConsentBanner]);
 
     useEffect(() => {
@@ -1090,7 +1115,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             }
         } else {
             if (isValidEmail(email)) submitVote();
-            else setAlertMessage('Please enter a valid email address - or delete your input to use no email address.');
+            else setAlertMessage('Please enter a valid email address.');
         }
     }
 
@@ -1442,7 +1467,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                                 <h1 className="font-extrabold text-medium w-full text-center px-0 py-0 whitespace-nowrap overflow-hidden text-ellipsis">{popupInfo.properties.heading}</h1>
                                 {(Array.isArray(popupInfo.properties.content)) 
                                 ?   (popupInfo.properties.content).map((item, index) => (
-                                    <p key={index} className="text-[9pt] pt-0 pb-0">{item}</p>
+                                    <p key={index} className="text-9pt pt-0 pb-0">{item}</p>
                                     )) 
                                 :
                                 <>
@@ -1476,44 +1501,33 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             </div>
 
-            {/* Cookie consent modal */}
+            {/* Email required modal */}
             {showConsentBanner && (
             <>
                 {/* Backdrop (prevents background interaction) */}
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+                <div className="fixed inset-0 bg-black-50 z-1000"></div>
 
                 {/* Modal */}
-                <div className="fixed inset-0 z-[1001] flex items-center justify-center">
-                <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-sm w-full mx-4">
-                    <div className="mb-3 text-center">
-                        <strong className="font-bold block">Set cookie</strong>
+                <div className="fixed inset-0 z-1001 flex items-center justify-center">
+                    <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="mb-3 text-center">
+                            <strong className="font-bold block">Email required</strong>
+                        </div>
+                        <p className="text-sm text-gray-700">
+                        As you are using a legacy browser, it has not been possible to verify your identity using Google Recaptcha.
+                        </p>
+                        <p className="text-sm text-gray-700 pt-2">
+                        To submit your vote, please enter a valid email address.
+                        </p>
+                        <div className="mt-4 flex justify-end gap-2 justify-center">
+                            <button
+                                onClick={() => setShowConsentBanner(false)}
+                                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            >
+                                OK
+                            </button>
+                        </div>
                     </div>
-                    <p className="text-sm text-gray-700">
-                    We'd like to store a cookie to track who you are and prevent fraudulent voting. Is that okay?
-                    </p>
-                    {/* Recaptcha error message */}
-                    <div className="w-full flex justify-start mt-4">
-                        {error && (<p className="text-red-600 text-sm font-medium mb-2">{error}</p>)}
-                    </div>
-                    {/* Recaptcha - to prevent spam voting */}
-                    <div className="w-full flex justify-start mt-0">
-                        <div id="recaptcha-container" className="recaptcha-wrapper" />
-                    </div>
-                    <div className="mt-4 flex justify-end gap-2">
-                        <button
-                            onClick={() => setShowConsentBanner(false)}
-                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-                        >
-                            Decline
-                        </button>
-                        <button
-                            onClick={handleAccept}
-                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                        >
-                            Accept
-                        </button>
-                    </div>
-                </div>
                 </div>
             </>
             )}
@@ -1521,24 +1535,24 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             {/*  Invalid email modal */}
             {alertMessage && (
             <>
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000]"></div>
+            <div className="fixed inset-0 bg-black-50 z-1000"></div>
 
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] w-[90%] max-w-md">
-                <div className="rounded-md border border-gray-300 bg-white px-5 py-4 text-base text-gray-800 shadow-xl text-center">
-                <div className="mb-3">
-                    <strong className="font-bold block">Invalid email</strong>
-                </div>
-                <div className="mb-3 text-sm">
-                    {alertMessage}
-                </div>
-                <div className="flex justify-center">
-                    <button
-                    onClick={() => setAlertMessage('')}
-                    className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                    >
-                    Close
-                    </button>
-                </div>
+            <div className="fixed inset-0 z-1001 flex items-center justify-center">
+                <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6 max-w-md w-full mx-4">
+                    <div className="mb-3">
+                        <strong className="font-bold block">Invalid email</strong>
+                    </div>
+                    <div className="mb-3 text-sm">
+                        {alertMessage}
+                    </div>
+                    <div className="flex justify-center">
+                        <button
+                        onClick={() => setAlertMessage('')}
+                        className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        >
+                        OK
+                        </button>
+                    </div>
                 </div>
             </div>
             </>
@@ -1554,7 +1568,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
 
             {/* Planning constraints modal */}
             {showPlanningConstraintAreas && (
-                <div className="fixed inset-0 top-0 left-0 w-full h-full z-[9999] flex items-center justify-center bg-black/30">
+                <div className="fixed inset-0 top-0 left-0 w-full h-full z-9999 flex items-center justify-center bg-black/30">
                 <div className="relative bg-white w-[90%] max-w-md p-4 rounded-lg text-sm sm:text-md shadow-lg">
 
                     {/* Close button */}
@@ -1587,7 +1601,7 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
             
             {/*  Processing vote screen */}
             {processing && (
-            <div className="fixed top-0 left-0 w-full h-full inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-[9999]">
+            <div className="fixed top-0 left-0 w-full h-full inset-0 bg-white bg-opacity-50 flex flex-col items-center justify-center z-9999">
                 <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p className="mt-4 text-lg font-medium text-gray-700">Processing vote...</p>
             </div>
@@ -1616,10 +1630,10 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                         rel="noopener noreferrer"
                         className="text-blue-600 underline text-sm"
                         >
-                        <h2 className="text-sm sm:text-[24px] font-semibold mt-0 mb-0 inline-flex">{organisation.name} <ExternalLink className="ml-2 mr-8 w-4 h-4" /></h2>
+                        <h2 className="text-sm sm-text-24px font-semibold mt-0 mb-0 inline-flex">{organisation.name} <ExternalLink className="ml-2 mr-8 w-4 h-4" /></h2>
                         </a>
                         ) : (
-                        <h2 className="text-md sm:text-[24px] font-semibold mt-0 mb-0">{organisation.name}</h2>
+                        <h2 className="text-md sm-text-24px font-semibold mt-0 mb-0">{organisation.name}</h2>
                         )}
                     </div>
 
@@ -1891,12 +1905,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                             <div className="mt-0">
                                 {/* <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email confirmation:</label> */}
 
-                                <div className="relative w-full bg-white border p-1 rounded shadow max-w-600px h-10">
-                                    <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} cursor-pointer pr-6`}>
-                                        {email || "Optional: Enter email to confirm vote"}
+                                <div className="relative w-full bg-white border p-1 rounded shadow max-w-600px h-10 flex items-center">
+                                    <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} w-full cursor-pointer pr-6`}>
+                                        {email || "Enter email address"}
                                     </p>
                                     {email && (
-                                    <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl leading-none bg-white" aria-label="Clear email">
+                                    <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 text-gray-400 hover:text-gray-700 text-xl leading-none bg-white" aria-label="Clear email">
                                         &times;
                                     </button>
                                     )}
@@ -1915,12 +1929,12 @@ export default function VoteWindMap({ longitude=null, latitude=null, zoom=null, 
                 <div className="mt-0 sm:hidden">
 
                     <div className="mt-0">
-                        <div className="relative w-full bg-white border p-1 rounded shadow max-w-[600px]">
-                            <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} whitespace-nowrap overflow-hidden cursor-pointer pr-6`}>
-                                {email || "Optional: Enter email to confirm vote"}
+                        <div className="relative w-full bg-white border p-1 rounded shadow max-w-[600px] flex items-center">
+                            <p onClick={() => setInputOpen(true)} className={`${email ? "font-bold text-blue-600" : "text-gray-500"} w-full whitespace-nowrap overflow-hidden cursor-pointer pr-6`}>
+                                {email || "Enter email address"}
                             </p>
                             {email && (
-                            <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xl leading-none bg-white" aria-label="Clear email">
+                            <button onClick={() => setEmail('')} className="absolute top-1/2 right-2 text-gray-400 hover:text-gray-700 text-xl leading-none bg-white" aria-label="Clear email">
                                 &times;
                             </button>
                             )}

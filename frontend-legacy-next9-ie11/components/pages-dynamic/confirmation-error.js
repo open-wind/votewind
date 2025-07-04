@@ -14,7 +14,7 @@ export default function ConfirmationError() {
         <div className="pt-[15vh] lg:mt-10 text-center w-full items-center">
 
         <header className="relative w-full sm:mt-0 text-center py-3">
-            <h1 className="text-center text-6xl sm:text-[70px] font-thin text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
+            <h1 className="text-center text-6xl sm-text-70px font-thin text-gray-900 mb-2 sm:mb-10" style={{ textShadow: '0 0px 30px rgba(255,255,255,.25)' }}>
             <span className="text-black tracking-wide pr-[1px]">VoteWind!</span>
             </h1>
         </header>

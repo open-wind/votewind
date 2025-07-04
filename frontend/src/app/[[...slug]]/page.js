@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Default from '@/components/pages-dynamic/default';
+import MobileApp from '@/components/pages-dynamic/mobile-app';
 import LongitudeLatitudeZoomPage from '@/components/pages-dynamic/longitude-latitude-zoom';
 import LongitudeLatitude3DPage from '@/components/pages-dynamic/longitude-latitude-3d';
 import AndroidIntent from '@/components/pages-dynamic/android-intent';
@@ -45,6 +46,7 @@ export default function ClientRouter() {
   const isVote = pathSegments?.length === 3 && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && pathSegments[2] === 'vote';
   const isAnimation = pathSegments?.length === 3 && !isNaN(Number(pathSegments[0])) && !isNaN(Number(pathSegments[1])) && pathSegments[2] === 'animation';
   const isOverviewMap = pathSegments?.[0] === 'map';
+  const isMobileApp = pathSegments?.[0] === 'mobileapp';
   const isLeaderboard = pathSegments?.length === 1 && pathSegments[0] === 'leaderboard';
   const isConfirmationError = pathSegments?.length === 1 && pathSegments[0] === 'confirmationerror';
   const isEnableAR = pathSegments?.[0] === 'enablear';
@@ -60,6 +62,7 @@ export default function ClientRouter() {
   if (!hydrated || pathSegments === null) return null;
 
   if (isDefault) return <Default/>;
+  if (isMobileApp) return <MobileApp/>;
   if (isMapRoute) return <LongitudeLatitudeZoomPage longitude={pathSegments[0]} latitude={pathSegments[1]} zoom={pathSegments[2]} />;
   if (is3D) return <LongitudeLatitude3DPage longitude={pathSegments[0]} latitude={pathSegments[1]} />;
   if (isAR) return <AndroidIntent type="ar" longitude={pathSegments[1]} latitude={pathSegments[2]} hubheight={pathSegments[3]} bladeradius={pathSegments[4]} />;

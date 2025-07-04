@@ -9,16 +9,16 @@ export default function LongitudeLatitudeVote({longitude=null, latitude=null}) {
   const searchParams = router.query;
 
   const type = useMemo(() => {
-    const raw = searchParams.get('type');
+    const raw = searchParams.type;
     if (!raw) return null;
     return raw;
-  }, [searchParams]);
+  }, [searchParams.type]);
 
   const emailused = useMemo(() => {
-    const raw = searchParams.get('emailused');
+    const raw = searchParams.emailused;
     if (!raw) return null;
     return raw;
-  }, [searchParams]);
+  }, [searchParams.emailused]);
 
   return (
     <VoteCastMap longitude={longitude} latitude={latitude} type={type} emailused={emailused} />

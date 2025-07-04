@@ -62,7 +62,7 @@ export default function ScrollHint({ targetRef, scrollBy }) {
       fixed bottom-40 inset-x-0   /* left:0; right:0; bottom:1rem */
       flex justify-center        /* centre children horizontally */
       pointer-events-none        /* let clicks fall through except on the button */
-      z-[900]
+      z-900
     "
   >
     <button

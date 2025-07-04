@@ -164,7 +164,7 @@ export default function LayerTogglePanel({ map }) {
 
   return (
   <>
-  <div className="absolute w-[200px] sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white/100 rounded-lg shadow-md p-2 sm:p-3 max-h-[75vh] sm:max-h-[calc(100vh-6rem)] mb-1 max-w-xs text-xs leading-none space-y-3">
+  <div className="absolute w-200px sm:w-64 overflow-y-auto top-16 left-4 sm:top-16 z-40 bg-white rounded-lg shadow-md p-2 sm:p-3 max-h-75vh sm-max-h-calc-100vh-6rem mb-1 max-w-xs text-xs leading-none space-y-3">
    
       <div className="flex items-center justify-between mb-0 cursor-pointer">
         <TooltipProvider>
@@ -196,7 +196,7 @@ export default function LayerTogglePanel({ map }) {
 
       {isOpen && (
       <>
-      <div className="flex items-center space-x-2 mt-4 text-[0.9em] md:text-xs font-condensed">
+      <div className="flex items-center space-x-2 mt-4 text-0-9em md:text-xs font-condensed">
         <span>Turbine Height to Tip: <strong>{selectedHeight ? `${selectedHeight}m` : "None"}</strong></span>
 
           <TooltipProvider>
@@ -239,7 +239,7 @@ export default function LayerTogglePanel({ map }) {
                   onChange={() => toggleLayer(layer.id)}
                   className="mr-1"
                 />
-                <span className="text-[0.7em] sm:text-[0.7rem] font-condensed truncate overflow-hidden text-ellipsis whitespace-nowrap">{cleanName}</span>
+                <span className="text-0-7em font-condensed truncate overflow-hidden text-ellipsis whitespace-nowrap">{cleanName}</span>
                 <span
                   className="inline-block pl-3 w-3 h-3 rounded-full ml-auto"
                   style={{
