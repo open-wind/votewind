@@ -4,6 +4,7 @@ mobile/ScreenRecorderPlugin/build
 
 mobile/votewind-*.symbols.zip
 mobile/votewind_BackUpThisFolder_ButDontShipItWithYourGame/
+mobile/votewind*_BackUpThisFolder_ButDontShipItWithYourGame/
 mobile/*.keystore
 mobile/Assets/Samples/
 mobile/Assets/Plugins/Android/mainTemplate.gradle.backup*

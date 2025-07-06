@@ -28,6 +28,7 @@ public class Views : MonoBehaviour
     public  RectTransform                   ButtonPanel; 
     public  GeospatialStreetscapeManager    GeospatialStreetscapeManager;
     public  string                          AssetURL;
+    public  TMP_Text                        VersionNumber;
     public  TMP_Text                        ViewName;
     public  TextMeshProUGUI                 DebugText;
     private bool                            MapVisibility = true;
@@ -212,6 +213,8 @@ public class Views : MonoBehaviour
 
     void Start()
     {
+        VersionNumber.text = "Version " + Application.version;
+
         InvokeRepeating("UpdateInterval", updateInterval, updateInterval);
 
         BindInputField("hubheight", InputHubheight, turbineHubheight, val => turbineHubheight = val);
