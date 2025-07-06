@@ -93,7 +93,7 @@ public class ViewQR : MonoBehaviour
         if (result == null || result.ResultPoints == null || result.ResultPoints.Length < 3)
             return false;
 
-        if (!result.Text.StartsWith("https://votewind.org/ar/"))
+        if (!result.Text.StartsWith("https://votewind.org/"))
             return false;
 
         foreach (var pt in result.ResultPoints)

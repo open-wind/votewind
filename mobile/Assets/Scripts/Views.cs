@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Android;
 #if UNITY_2018_4_OR_NEWER
 using UnityEngine.Networking;
 #endif
@@ -11,7 +13,6 @@ public class Views : MonoBehaviour
 {
     public enum View {ViewMap, ViewQR, ViewPosition, ViewInfo};
 
-    private bool                            MapVisibility = true;
     public  string                          Url;
     public  GameObject                      ViewMap;
     public  ViewPosition                    ViewPosition;
@@ -21,14 +22,17 @@ public class Views : MonoBehaviour
     public  Image                           ButtonViewPosition;
     public  Image                           ButtonViewQR;
     public  Image                           ButtonViewInfo;
+    public  TMP_InputField                  InputHubheight;
+    public  TMP_InputField                  InputBladeradius;
     public  GameObject                      ButtonContainerViewPosition;
     public  RectTransform                   ButtonPanel; 
     public  GeospatialStreetscapeManager    GeospatialStreetscapeManager;
     public  string                          AssetURL;
     public  TMP_Text                        ViewName;
     public  TextMeshProUGUI                 DebugText;
+    private bool                            MapVisibility = true;
+    private bool                            MapLoaded = false;
     private string                          ViewPositionURL = "";
-    private VoteWindURL                     votewindurl = null;
     private float                           updateInterval = 0.1f;
     private WebViewObject                   webViewObject;
     private ScreenOrientation               lastOrientation;
@@ -37,6 +41,28 @@ public class Views : MonoBehaviour
     private float                           lastHeading = float.MinValue;
     private int                             sampleSize = 20;
     private Queue<float>                    headingSamples = new Queue<float>();
+    private const string                    CAMERA_PERMISSION = Permission.Camera;
+    private const string                    MICROPHONE_PERMISSION = Permission.Microphone;
+    private const string                    FINE_LOCATION_PERMISSION = Permission.FineLocation;
+    private const string                    COARSE_LOCATION_PERMISSION = Permission.CoarseLocation;
+    private bool                            locationServicesStarted = false;
+    public  float                           turbineHubheight = 124.2f;
+    public  float                           turbineBladeradius = 47.8f;
+    private Coroutine                       checkOrientationChangeLauncher;
+    private Coroutine                       initializeWebViewLauncher;
+    private Coroutine                       startLocationServiceLauncher;
+    private Coroutine                       loadViewPositionLauncher;
+
+    // A list of all permissions we want to request upfront
+    private string[] requiredPermissions = new string[]
+    {
+        CAMERA_PERMISSION,
+        MICROPHONE_PERMISSION,
+        FINE_LOCATION_PERMISSION,
+        // COARSE_LOCATION_PERMISSION is often implicitly granted with FINE_LOCATION,
+        // but explicitly adding it here ensures all bases are covered.
+        COARSE_LOCATION_PERMISSION
+    };
 
     [System.Serializable]
     public class Command
@@ -52,20 +78,189 @@ public class Views : MonoBehaviour
         public float latitude;
     }
 
+    public float GetHubheight() 
+    {
+        return (float)System.Math.Round(turbineHubheight, 1);
+    }
+
+    public float GetBladeradius()
+    {
+        return (float)System.Math.Round(turbineBladeradius, 1);
+    } 
+
+    private void SetMapLoaded(bool loaded)
+    {
+        Debug.Log("VOTEWIND-APP: SetMapLoaded");
+        MapLoaded = loaded;
+    }
+
     void SetTurbinePosition(PositionData pos)
     {
         Debug.Log($"Setting turbine position: {pos.longitude}, {pos.latitude}");
-        ViewPosition.SetTurbine((float)pos.longitude, (float)pos.latitude);
+        ViewPosition.SetTurbine((float)pos.longitude, (float)pos.latitude, turbineHubheight, turbineBladeradius);
+    }
+
+    private void RequestAllRequiredPermissions()
+    {
+        foreach (string permission in requiredPermissions)
+        {
+            if (!Permission.HasUserAuthorizedPermission(permission))
+            {
+                Debug.Log($"Requesting permission: {permission}");
+                // RequestUserPermission will show the dialog.
+                // It's asynchronous, but doesn't block.
+                Permission.RequestUserPermission(permission);
+            }
+            else
+            {
+                Debug.Log($"Permission already granted: {permission}");
+            }
+        }
+    }
+
+    // This callback is invoked when the application gains or loses focus.
+    // It's useful for re-checking permissions after the user interacts with a permission dialog
+    // or goes to app settings and returns.
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+        {
+            Debug.Log("Application gained focus. Re-checking permission status.");
+            CheckCurrentPermissionStatus();
+        }
+    }
+
+    // You can call this method anytime to get the current status of permissions
+    private void CheckCurrentPermissionStatus()
+    {
+        bool allGranted = true;
+        foreach (string permission in requiredPermissions)
+        {
+            bool granted = Permission.HasUserAuthorizedPermission(permission);
+            Debug.Log($"Current status for {permission}: {granted}");
+            if (!granted)
+            {
+                allGranted = false;
+            }
+        }
+
+        if (allGranted)
+        {
+            Debug.Log("All required permissions are granted!");
+            // Proceed with app functionalities that depend on these permissions
+            if (!locationServicesStarted) startLocationServiceLauncher = StartCoroutine(StartLocationService());
+        }
+        else
+        {
+            Debug.LogWarning("Some required permissions are NOT granted.");
+            // Optionally, prompt the user to enable them in settings, or disable related features.
+            // You might show a UI message here.
+        }
+    }
+
+    void RefreshTurbineView()
+    {
+        double turbineLongitude = ViewPosition.turbineLongitude;
+        double turbineLatitude = ViewPosition.turbineLatitude;
+
+        Debug.Log($"Refreshing turbine position: {turbineLongitude}, {turbineLatitude}, {turbineHubheight} {turbineBladeradius}");
+
+        ViewPosition.SetTurbine((float)turbineLongitude, (float)turbineLatitude, turbineHubheight, turbineBladeradius);
+    }
+
+    void BindInputField(string fieldname, TMPro.TMP_InputField input, float initialValue, Action<float> setter)
+    {
+        // Set the initial value
+        input.text = initialValue.ToString("F1");
+
+        // Local variable to track the valid value
+        float currentValidValue = initialValue;
+
+        input.onEndEdit.AddListener(str => {
+            if (float.TryParse(str, out var value))
+            {
+                // Sanitise values
+                if (fieldname == "bladeradius")
+                {
+                    if (value > (turbineHubheight - 10))
+                    {
+                        input.text = currentValidValue.ToString("F1");
+                        return;
+                    }
+                }
+
+                if (fieldname == "hubheight")
+                {
+                    if (value < (turbineBladeradius + 10) || value < 50 || value > 300)
+                    {
+                        input.text = currentValidValue.ToString("F1");
+                        return;
+                    }
+                }
+
+                currentValidValue = value;  // Update the valid value
+                setter(value);
+                RefreshTurbineView();
+            }
+            else
+            {
+                // Reset if not a valid float
+                input.text = currentValidValue.ToString("F1");
+            }
+        });
     }
 
     void Start()
     {
-        InvokeRepeating("UpdateInterval",updateInterval,updateInterval);
+        InvokeRepeating("UpdateInterval", updateInterval, updateInterval);
+
+        BindInputField("hubheight", InputHubheight, turbineHubheight, val => turbineHubheight = val);
+        BindInputField("bladeradius", InputBladeradius, turbineBladeradius, val => turbineBladeradius = val);
 
         lastOrientation = Screen.orientation;
-        StartCoroutine(CheckOrientationChange());
-        StartCoroutine(StartLocationService());
-        StartCoroutine(InitializeWebView());
+        checkOrientationChangeLauncher = StartCoroutine(CheckOrientationChange());
+        initializeWebViewLauncher = StartCoroutine(InitializeWebView());
+
+        // Check all required permissions which will launch location tracking if location is enabled
+        // If location not yet enabled then
+        RequestAllRequiredPermissions();
+        CheckCurrentPermissionStatus();
+    }
+
+    private void ClearCheckOrientationChangeLauncher()
+    {
+        if (checkOrientationChangeLauncher != null)
+        {
+            StopCoroutine(checkOrientationChangeLauncher);
+            checkOrientationChangeLauncher = null;
+        }
+    }
+
+    private void ClearInitializeWebViewLauncher()
+    {
+        if (initializeWebViewLauncher != null)
+        {
+            StopCoroutine(initializeWebViewLauncher);
+            initializeWebViewLauncher = null;
+        }
+    }
+
+    private void ClearStartLocationServiceLauncher()
+    {
+        if (startLocationServiceLauncher != null)
+        {
+            StopCoroutine(startLocationServiceLauncher);
+            startLocationServiceLauncher = null;
+        }
+    }
+
+    private void ClearLoadViewPositionLauncher()
+    {
+        if (loadViewPositionLauncher != null)
+        {
+            StopCoroutine(loadViewPositionLauncher);
+            loadViewPositionLauncher = null;
+        }
     }
 
     IEnumerator InitializeWebView()
@@ -84,6 +279,10 @@ public class Views : MonoBehaviour
                 if (command.method == "SetTurbinePosition")
                 {
                     SetTurbinePosition(command.data);
+                }
+                if (command.method == "MapLoaded")
+                {
+                    SetMapLoaded(true);
                 }
             },
             err: (msg) =>
@@ -223,7 +422,7 @@ public class Views : MonoBehaviour
             webViewObject.LoadURL("StreamingAssets/" + Url.Replace(" ", "%20"));
         }
 #endif
-        // SetViewMap();
+        SetViewMap();
 
         yield break;
     }
@@ -277,13 +476,11 @@ public class Views : MonoBehaviour
         DebugText.text = $"BL:{bottomLeftScreen} TR:{topRightScreen} W:{Screen.width} H:{Screen.height}";
 
         WebViewObject.AddMask((int)bottomLeftScreen.x, Screen.height - (int)topRightScreen.y, (int)topRightScreen.x, Screen.height - (int)bottomLeftScreen.y);
-
-        // WebViewObject.AddMask(0, 0, Screen.width, Screen.height);
     }
 
     private void UpdateLocation(float latitude, float longitude, float heading)
     {
-        // DebugText.text = $"Lat: {latitude:F5}\nLon: {longitude:F5}\nHeading: {heading:F5}";
+        DebugText.text = $"Lat: {latitude:F5}\nLon: {longitude:F5}\nHeading: {heading:F5}";
 
         string js = $"setCentre({{ longitude: {longitude}, latitude: {latitude}, heading: {heading} }});";
         Debug.Log($"Executing JS: {js}");
@@ -322,10 +519,14 @@ public class Views : MonoBehaviour
             Debug.LogWarning("Unable to determine device location.");
             yield break;
         }
+
+        locationServicesStarted = true;
     }
 
     void Update()
     {
+        if (!locationServicesStarted) CheckCurrentPermissionStatus();
+
         if (Input.location.status != LocationServiceStatus.Running)
             return;
 
@@ -365,6 +566,11 @@ public class Views : MonoBehaviour
         {
             Input.location.Stop();
         }
+
+        ClearCheckOrientationChangeLauncher();
+        ClearStartLocationServiceLauncher();
+        ClearLoadViewPositionLauncher();
+        ClearInitializeWebViewLauncher();
     }
 
     private void UpdateInterval()
@@ -413,6 +619,12 @@ public class Views : MonoBehaviour
     {
         DebugInfoManager.Log($"Triggered by {url} - QRCode or Intent");
 
+        ClearLoadViewPositionLauncher();
+        loadViewPositionLauncher = StartCoroutine(LoadViewPosition(url));
+    }
+
+    private IEnumerator LoadViewPosition(string url)
+    {
         VoteWindURL result = VoteWindURLParser.Parse(url);
 
         if (result == null) 
@@ -421,7 +633,19 @@ public class Views : MonoBehaviour
         }
         else 
         {
+
             SetViewPosition();
+
+            while (!MapLoaded)
+            {
+                Debug.Log("VOTEWIND-APP: Map not yet loaded, waiting 100ms...");
+                if (!MapLoaded) yield return new WaitForSeconds(0.1f);
+            }
+
+            string js = $"setTurbine({{ longitude: {result.Longitude}, latitude: {result.Latitude} }});";
+            Debug.Log($"VOTEWIND-APP: Executing JS: {js}");
+            webViewObject.EvaluateJS(js);
+
             ViewPositionURL = url;
             ViewPosition.InitURL(ViewPositionURL);
         }

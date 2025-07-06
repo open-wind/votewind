@@ -25,21 +25,25 @@ public static class VoteWindURLParser
         {
             Uri uri = new Uri(url);
 
-            // Only accept votewind.org and /AR path
+            // Only accept votewind.org 
             if (uri.Host != "votewind.org") return null;
 
             string[] segments = uri.AbsolutePath.Trim('/').Split('/');
 
-            if (segments.Length != 5) return null;
-            if (segments[0].ToLower() != "ar") return null;
+            // Check whether https://votewind.org/ar/[longitude]/[latitude]/[hubheight]/[bladeradius]
+            if (segments.Length == 5) {
+                if (segments[0].ToLower() != "ar") return null;
 
-            if (double.TryParse(segments[1], out double longitude) &&
-                double.TryParse(segments[2], out double latitude) && 
-                double.TryParse(segments[3], out double hubheight) && 
-                double.TryParse(segments[4], out double bladeradius))
-            {
-                return new VoteWindURL(longitude, latitude, hubheight, bladeradius);
+                if (double.TryParse(segments[1], out double longitude) &&
+                    double.TryParse(segments[2], out double latitude) && 
+                    double.TryParse(segments[3], out double hubheight) && 
+                    double.TryParse(segments[4], out double bladeradius))
+                {
+                    return new VoteWindURL(longitude, latitude, hubheight, bladeradius);
+                }
             }
+
+            return null;
         }
         catch (Exception ex)
         {

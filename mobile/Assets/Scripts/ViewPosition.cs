@@ -70,9 +70,6 @@ public class ViewPosition : MonoBehaviour
     [SerializeField]
     public List<Turbine> turbines = new List<Turbine>();
 
-    public float TURBINE_AR_DEFAULT_HUBHEIGHT = 124.2f;
-    public float TURBINE_AR_DEFAULT_BLADERADIUS = 47.8f;
-
     public float verticalOffset = 0f;
 
     private bool elementsInitialized = false;
@@ -82,6 +79,9 @@ public class ViewPosition : MonoBehaviour
 
     private double currentLongitude = 0.0f;
     private double currentLatitude = 0.0f;
+
+    public double turbineLongitude = 0.0f;
+    public double turbineLatitude = 0.0f;
 
     private string currentURL = null;
 
@@ -111,16 +111,20 @@ public class ViewPosition : MonoBehaviour
 
         turbines.Clear();
         turbines.Add(new Turbine(result.Longitude, result.Latitude, (float)result.HubHeight, (float)result.BladeRadius, "Active"));
+        turbineLongitude = result.Longitude;
+        turbineLatitude = result.Latitude;
 
         if (elementsInitialized) UpdateElements();
     }
 
-    public void SetTurbine(double longitude, double latitude)
+    public void SetTurbine(double longitude, double latitude, float hubheight, float bladeradius)
     {
         turbines.Clear();
         DestroyChildren(ViewPositionElements);
         elementsInitialized = false;
-        turbines.Add(new Turbine(longitude, latitude, TURBINE_AR_DEFAULT_HUBHEIGHT, TURBINE_AR_DEFAULT_BLADERADIUS, "Active"));
+        turbines.Add(new Turbine(longitude, latitude, hubheight, bladeradius, "Active"));
+        turbineLongitude = longitude;
+        turbineLatitude = latitude;
     }
 
     void Update()

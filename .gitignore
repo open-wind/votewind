@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+mobile/ScreenRecorderPlugin/build
+
 mobile/votewind-*.symbols.zip
 mobile/votewind_BackUpThisFolder_ButDontShipItWithYourGame/
 mobile/*.keystore

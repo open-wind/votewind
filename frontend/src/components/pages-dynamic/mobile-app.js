@@ -64,7 +64,6 @@ export default function MobileApp({}) {
             console.log('setCentre: Called with:', param);
             if ((param.longitude === undefined) || (param.latitude === undefined) || (param.heading === undefined)) return;
 
-            console.log(param);
             const map = mapRef?.current.getMap?.();
 
             if (map) {
@@ -84,14 +83,23 @@ export default function MobileApp({}) {
             setIsCentred(param);
         }
 
+        function setTurbine(param) {
+            console.log('setTurbine: Called with:', param);
+            if ((param.longitude === undefined) || (param.latitude === undefined)) return;
+
+            setTurbinePosition({longitude: param.longitude, latitude: param.latitude});
+        }
+
         window.setCentre = setCentre;
         window.setIsCentred = setIsCentred;
+        window.setTurbine = setTurbine;
 
         return () => {
             if (moveEndTimeout.current) clearTimeout(moveEndTimeout.current);
             debouncedFlyTo.cancel();
             delete window.setCentre;
             delete window.setIsCentred;
+            delete window.setTurbine;
         };
 
     }, []);
@@ -143,6 +151,9 @@ export default function MobileApp({}) {
 
         map.touchZoomRotate.disableRotation();
         if (isIOS(14)) map.setMaxZoom(12); // iOS14 stops rendering custom layers when zoom > 12
+
+        const message = JSON.stringify({method: 'MapLoaded'});
+        window.Unity.call(message);
     }
 
     const onClick = (event) => {
@@ -172,6 +183,8 @@ export default function MobileApp({}) {
 
     const onIdle = () => {
         isReady.current = true;
+        const message = JSON.stringify({method: 'MapLoaded'});
+        window.Unity.call(message);
     }
 
     const onDragStart = () => {
