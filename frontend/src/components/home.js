@@ -48,10 +48,25 @@ export default function Home() {
               Vote for where you'd like a community wind turbine.
             </p>
 
-            <p className="font-light text-zinc-600 pl-5 pr-5 mb-[3em] md:mb-10 text-medium sm:text-xl text-center leading-tight">
+            <p className="font-light text-zinc-600 pl-5 pr-5 mb-[1.5em] md:mb-6 text-medium sm:text-xl text-center leading-tight">
               Community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change...
             </p>
 
+          </div>
+
+          <div className="pl-5 pt-0 pb-10 sm:pb-14 pr-5 flex justify-center ">
+              <div
+                  className="
+                  inline-flex items-center
+                  bg-blue-600 text-white
+                  py-2 px-4 rounded-3xl
+                  shadow-[0_4px_12px_rgba(255,255,255,0.5)]
+                  "
+              >
+                <p className="text-sm pl-2 pr-2">
+                  <a target="_blank" href="https://www.youtube.com/watch?v=eRbuQ96wwAc">View demo</a>
+                </p>
+              </div>
           </div>
 
           <div className="pl-5 pr-5 text-center mx-auto max-w-md">
@@ -109,8 +124,9 @@ export default function Home() {
               </button>
             )}
 
-            </div>
+          </div>
 
+          
       </div>
 
     </main>

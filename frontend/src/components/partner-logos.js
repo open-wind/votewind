@@ -19,6 +19,9 @@ export default function PartnerLogos () {
               blurBorders={false}
               blurBorderColor={'#fff'} 
             >
+              <Slider.Slide className="ml-0">
+                <a className="pointer-events-auto" target="_partner" href="https://ashden.org/energy-learning-network/"><img src={assetPrefix + "/logos/partner-eln.png"} alt="Energy Learning Network" className="h-[7.5rem]" /></a>
+              </Slider.Slide>
               <Slider.Slide className="mr-4">
                 <a className="pointer-events-auto" target="_partner" href="https://ashden.org/energy-learning-network/"><img src={assetPrefix + "/logos/partner-ashden.png"} alt="Ashden" className="h-10" /></a>
               </Slider.Slide>
@@ -31,11 +34,14 @@ export default function PartnerLogos () {
               <Slider.Slide className="mr-10">
                 <a className="pointer-events-auto" target="_partner" href="https://communityenergy.wales/energy-learning-network"><img src={assetPrefix + "/logos/partner-cew.png"} alt="Community Energy Wales" className="h-12" /></a>
               </Slider.Slide>
-              <Slider.Slide className="mr-14">
+              <Slider.Slide className="mr-12">
                 <a className="pointer-events-auto" target="_partner" href="https://actionrenewables.co.uk/energy-learning-network/"><img src={assetPrefix + "/logos/partner-actionrenewables.png"} alt="Action Renewables" className="h-14" /></a>
               </Slider.Slide>
               <Slider.Slide className="mr-0">
                 <a className="pointer-events-auto" target="_partner" href="https://www.cse.org.uk/my-community/community-projects/energy-learning-network/"><img src={assetPrefix + "/logos/partner-cse.png"} alt="Centre for Sustainable Energy" className="h-14" /></a>
+              </Slider.Slide>
+              <Slider.Slide className="mr-0">
+                <a className="pointer-events-auto" target="_partner" href="https://openwind.energy/"><img src={assetPrefix + "/logos/openwindenergy-tall.svg"} alt="Open Wind Energy" className="h-[4.6rem]" /></a>
               </Slider.Slide>
             </Slider>
         </div>
