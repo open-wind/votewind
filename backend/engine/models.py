@@ -1,5 +1,8 @@
 import csv
 
+from django import forms
+from django.contrib.gis.geos import Point
+from django.utils.safestring import mark_safe
 from django.contrib.gis.db import models
 from django.contrib import admin
 from django.contrib.postgres.indexes import GistIndex
@@ -398,6 +401,14 @@ class Organisation(models.Model):
     geometry = models.PointField(srid=4326, geography=False, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def latitude(self):
+        return self.geometry.y if self.geometry else None
+
+    @property
+    def longitude(self):
+        return self.geometry.x if self.geometry else None
+    
     def logo_preview(self):
         if self.logo_url:
             return format_html('<img src="{}" style="height:40px;" />', self.logo_url)
@@ -416,7 +427,31 @@ class Organisation(models.Model):
             GistIndex(fields=['geometry']),
         ]
 
+class OrganisationForm(forms.ModelForm):
+    latitude = forms.FloatField(required=False)
+    longitude = forms.FloatField(required=False)
+
+    class Meta:
+        model = Organisation
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.geometry:
+            self.fields['latitude'].initial = self.instance.geometry.y
+            self.fields['longitude'].initial = self.instance.geometry.x
+
+    def clean(self):
+        cleaned_data = super().clean()
+        lat = cleaned_data.get("latitude")
+        lon = cleaned_data.get("longitude")
+        if lat is not None and lon is not None:
+            cleaned_data["geometry"] = Point(lon, lat)
+        return cleaned_data
+
 class OrganisationAdmin(LeafletGeoAdmin, ExportCsvMixin, ExportUniqueEmailCsvMixin):
+    form = OrganisationForm
+
     list_display = ['name', 'type', 'source', 'email', 'url', 'logo_preview', 'logo_transparent', 'logo_url', 'created']
     actions = ["export_as_csv", "export_unique_emails_as_csv"]
 

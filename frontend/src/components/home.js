@@ -55,6 +55,7 @@ export default function Home() {
           </div>
 
           <div className="pl-5 pt-0 pb-10 sm:pb-14 pr-5 flex justify-center ">
+            <a target="_blank" href="https://www.youtube.com/watch?v=eRbuQ96wwAc">
               <div
                   className="
                   inline-flex items-center
@@ -63,10 +64,9 @@ export default function Home() {
                   shadow-[0_4px_12px_rgba(255,255,255,0.5)]
                   "
               >
-                <p className="text-sm pl-2 pr-2">
-                  <a target="_blank" href="https://www.youtube.com/watch?v=eRbuQ96wwAc">View demo</a>
-                </p>
+                <p className="text-sm pl-5 pr-5">View demo</p>
               </div>
+            </a>
           </div>
 
           <div className="pl-5 pr-5 text-center mx-auto max-w-md">

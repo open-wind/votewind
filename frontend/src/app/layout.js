@@ -22,11 +22,33 @@ const assetPrefix = process.env.ASSET_PREFIX || '';
 
 export const metadata = {
   title: "VoteWind.org",
-  description: "Vote for community wind turbines anywhere in the UK",
+  description: "Vote for community wind turbines anywhere in the UK - community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change.",
   manifest: `${assetPrefix}/manifest.json`,
   icons: {
     icon: `${assetPrefix}/favicon.ico`,
     apple: `${assetPrefix}/icons/icon-192.png`,
+  },
+  openGraph: {
+    title: "VoteWind.org",
+    description: "Vote for community wind turbines anywhere in the UK - community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change.",
+    url: "https://votewind.org",
+    siteName: "VoteWind.org",
+    images: [
+      {
+        url: `https://votewind.org/static-frontend/icons/og-image-new.png`,  // Your 1200x630 image
+        width: 1200,
+        height: 630,
+        alt: "VoteWind.org preview image",
+      },
+    ],
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VoteWind.org",
+    description: "Vote for community wind turbines anywhere in the UK - community wind projects generate cash for communities, reduce the need for grid upgrades and help tackle climate change.",
+    images: [`https://votewind.org/static-frontend/icons/og-image-new.png`],
   },
 };
 
